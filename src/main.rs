@@ -2,6 +2,7 @@ extern crate sdl2;
 
 use sdl2::render::WindowCanvas;
 
+use sdl2::EventPump;
 use specs::Dispatcher;
 use specs::DispatcherBuilder;
 use specs::World;
@@ -25,23 +26,7 @@ pub fn main() {
     let mut event_pump = sdl_context.event_pump().unwrap();
 
     setup_splash_screen(&mut canvas);
-    let (mut world, mut dispatcher) = setup_ecs(canvas);
-
-    'running: loop {
-        // Drain event pump to event queue
-        world
-            .fetch_mut::<resources::EventQueue>()
-            .populate(&mut event_pump);
-
-        // Work the systems
-        dispatcher.dispatch(&world);
-        world.maintain();
-
-        // Check & finish the game if required
-        if world.fetch::<resources::GameFinisher>().should_finish() {
-            break 'running;
-        }
-    }
+    run_game_loop(&mut event_pump, setup_ecs(canvas));
 }
 
 fn setup_splash_screen(canvas: &mut WindowCanvas) {
@@ -68,4 +53,23 @@ fn setup_ecs<'a, 'b>(canvas: WindowCanvas) -> (World, Dispatcher<'a, 'b>) {
         .build();
 
     (world, dispatcher)
+}
+
+fn run_game_loop(event_pump: &mut EventPump, inputs: (World, Dispatcher)) {
+    let (mut world, mut dispatcher) = inputs;
+    'running: loop {
+        // Drain event pump to event queue
+        world
+            .fetch_mut::<resources::EventQueue>()
+            .populate(event_pump);
+
+        // Work the systems
+        dispatcher.dispatch(&world);
+        world.maintain();
+
+        // Check & finish the game if required
+        if world.fetch::<resources::GameFinisher>().should_finish() {
+            break 'running;
+        }
+    }
 }
