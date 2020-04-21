@@ -6,10 +6,12 @@ use specs::Dispatcher;
 use specs::DispatcherBuilder;
 use sdl2::render::WindowCanvas;
 use sdl2::event::Event;
+use sdl2::EventPump;
 use sdl2::keyboard::Keycode;
 use std::time::Duration;
 
 mod constants;
+mod resources;
 mod systems;
 
 pub fn main() {
@@ -22,23 +24,18 @@ pub fn main() {
         .unwrap();
 
     let mut canvas = window.into_canvas().build().unwrap();
+    let mut event_pump = sdl_context.event_pump().unwrap();
 
     setup_splash_screen(&mut canvas);
     let (world, mut dispatcher) = setup_ecs(canvas);
 
-    let mut event_pump = sdl_context.event_pump().unwrap();
     'running: loop {
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::Quit {..} |
-                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
-                    break 'running
-                },
-                _ => {}
-            }
-        }
-
+        world.fetch_mut::<resources::EventQueue>().populate(&mut event_pump);
         dispatcher.dispatch(&world);
+
+        if world.fetch::<resources::GameFinisher>().should_finish() {
+            break 'running;
+        }
     }
 }
 
@@ -51,11 +48,23 @@ fn setup_splash_screen(canvas: &mut WindowCanvas) {
 }
 
 fn setup_ecs<'a, 'b>(canvas: WindowCanvas) -> (World, Dispatcher<'a, 'b>) {
-    let world = World::new();
+    let mut world = World::new();
+
+    // Insert resources
+    world.insert(resources::EventQueue::new());
+    world.insert(resources::GameFinisher::new());
+
+    // Orchestrate systems
     let dispatcher = DispatcherBuilder::new()
+        .with(systems::EventSystem, "event_system", &[])
+        .with_barrier() // To let event system to work before any other system
         .with_thread_local(systems::RenderingSystem::new(canvas))
         .with_thread_local(systems::PowerOptimizerSystem::new())
         .build();
 
     (world, dispatcher)
+}
+
+fn update_event_queue() {
+
 }
