@@ -39,7 +39,6 @@ pub fn main() {
         }
 
         dispatcher.dispatch(&world);
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 }
 
@@ -55,6 +54,7 @@ fn setup_ecs<'a, 'b>(canvas: WindowCanvas) -> (World, Dispatcher<'a, 'b>) {
     let world = World::new();
     let dispatcher = DispatcherBuilder::new()
         .with_thread_local(systems::RenderingSystem::new(canvas))
+        .with_thread_local(systems::PowerOptimizerSystem::new())
         .build();
 
     (world, dispatcher)
