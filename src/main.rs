@@ -1,14 +1,11 @@
 extern crate sdl2;
 
-use specs::World;
-use specs::WorldExt;
+use sdl2::render::WindowCanvas;
+
 use specs::Dispatcher;
 use specs::DispatcherBuilder;
-use sdl2::render::WindowCanvas;
-use sdl2::event::Event;
-use sdl2::EventPump;
-use sdl2::keyboard::Keycode;
-use std::time::Duration;
+use specs::World;
+use specs::WorldExt;
 
 mod constants;
 mod resources;
@@ -18,7 +15,8 @@ pub fn main() {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
-    let window = video_subsystem.window("runner", 800, 600)
+    let window = video_subsystem
+        .window("runner", 800, 600)
         .position_centered()
         .build()
         .unwrap();
@@ -27,12 +25,19 @@ pub fn main() {
     let mut event_pump = sdl_context.event_pump().unwrap();
 
     setup_splash_screen(&mut canvas);
-    let (world, mut dispatcher) = setup_ecs(canvas);
+    let (mut world, mut dispatcher) = setup_ecs(canvas);
 
     'running: loop {
-        world.fetch_mut::<resources::EventQueue>().populate(&mut event_pump);
-        dispatcher.dispatch(&world);
+        // Drain event pump to event queue
+        world
+            .fetch_mut::<resources::EventQueue>()
+            .populate(&mut event_pump);
 
+        // Work the systems
+        dispatcher.dispatch(&world);
+        world.maintain();
+
+        // Check & finish the game if required
         if world.fetch::<resources::GameFinisher>().should_finish() {
             break 'running;
         }
@@ -63,8 +68,4 @@ fn setup_ecs<'a, 'b>(canvas: WindowCanvas) -> (World, Dispatcher<'a, 'b>) {
         .build();
 
     (world, dispatcher)
-}
-
-fn update_event_queue() {
-
 }

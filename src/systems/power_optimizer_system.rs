@@ -1,18 +1,18 @@
 use specs::System;
-use std::time;
+
 use std::time::Duration;
 use std::time::SystemTime;
 
 const NANO_SECONDS_IN_A_FRAME: u64 = 1_000_000_000 / 60;
 
 pub struct PowerOptimizerSystem {
-    last_frame_at: SystemTime
+    last_frame_at: SystemTime,
 }
 
 impl PowerOptimizerSystem {
     pub fn new() -> PowerOptimizerSystem {
         PowerOptimizerSystem {
-            last_frame_at: SystemTime::now()
+            last_frame_at: SystemTime::now(),
         }
     }
 }
