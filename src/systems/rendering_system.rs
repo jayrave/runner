@@ -1,18 +1,20 @@
 use crate::constants;
+use crate::graphics::textures;
 use sdl2::render::WindowCanvas;
 use specs::System;
 
-pub struct RenderingSystem {
+pub struct RenderingSystem<'a> {
     canvas: WindowCanvas,
+    textures: textures::Textures<'a>,
 }
 
-impl RenderingSystem {
-    pub fn new(canvas: WindowCanvas) -> RenderingSystem {
-        RenderingSystem { canvas }
+impl<'a> RenderingSystem<'a> {
+    pub fn new(canvas: WindowCanvas, textures: textures::Textures<'a>) -> RenderingSystem {
+        RenderingSystem { canvas, textures }
     }
 }
 
-impl<'a> System<'a> for RenderingSystem {
+impl<'a, 'b> System<'a> for RenderingSystem<'b> {
     type SystemData = ();
 
     fn run(&mut self, _data: Self::SystemData) {

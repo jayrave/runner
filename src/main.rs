@@ -26,8 +26,11 @@ pub fn main() {
     let mut canvas = window.into_canvas().build().unwrap();
     let mut event_pump = sdl_context.event_pump().unwrap();
 
+    let texture_creator = canvas.texture_creator();
+    let textures = graphics::textures::Textures::load_from_files(&texture_creator);
+
     setup_splash_screen(&mut canvas);
-    run_game_loop(&mut event_pump, setup_ecs(canvas));
+    run_game_loop(&mut event_pump, setup_ecs(canvas, textures));
 }
 
 fn setup_splash_screen(canvas: &mut WindowCanvas) {
@@ -38,7 +41,10 @@ fn setup_splash_screen(canvas: &mut WindowCanvas) {
     canvas.present();
 }
 
-fn setup_ecs<'a, 'b>(canvas: WindowCanvas) -> (World, Dispatcher<'a, 'b>) {
+fn setup_ecs<'a, 'b>(
+    canvas: WindowCanvas,
+    textures: graphics::textures::Textures<'b>,
+) -> (World, Dispatcher<'a, 'b>) {
     let mut world = World::new();
 
     // Insert resources
@@ -49,7 +55,7 @@ fn setup_ecs<'a, 'b>(canvas: WindowCanvas) -> (World, Dispatcher<'a, 'b>) {
     let dispatcher = DispatcherBuilder::new()
         .with(systems::EventSystem, "event_system", &[])
         .with_barrier() // To let event system to work before any other system
-        .with_thread_local(systems::RenderingSystem::new(canvas))
+        .with_thread_local(systems::RenderingSystem::new(canvas, textures))
         .with_thread_local(systems::PowerOptimizerSystem::new())
         .build();
 
