@@ -21,10 +21,13 @@ impl<'a> System<'a> for PowerOptimizerSystem {
     type SystemData = ();
 
     fn run(&mut self, _data: Self::SystemData) {
+        // Find time elapsed & update this frame's time
         let nano_seconds_elapsed = self.last_frame_at.elapsed().unwrap().as_nanos();
         self.last_frame_at = SystemTime::now();
 
-        // TODO - how to prevent all the casting here?
+        // If we went through our frame too fast, sleep for the remaining
+        // frame time to not draw too often
+        // TODO - how to prevent the casting here?
         // If I do the same casting with unsigned integers, it leads to
         // "attempt to subtract with overflow"
         let nano_seconds_to_sleep = NANO_SECONDS_IN_A_FRAME as i128 - nano_seconds_elapsed as i128;

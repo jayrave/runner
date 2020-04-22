@@ -9,6 +9,7 @@ use specs::World;
 use specs::WorldExt;
 
 mod constants;
+mod graphics;
 mod resources;
 mod systems;
 
