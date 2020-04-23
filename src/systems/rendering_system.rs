@@ -42,11 +42,13 @@ impl<'a, 'b> System<'a> for RenderingSystem<'b> {
                 TileSheet::Environment => &self.textures.environment_texture,
             };
 
-            self.canvas.copy(
-                texture,
-                drawable.tile_data.bounds_in_tile_sheet,
-                RenderingSystem::world_coords_to_screen_coords(&drawable.world_bounds),
-            ).expect("Couldn't draw texture");
+            self.canvas
+                .copy(
+                    texture,
+                    drawable.tile_data.bounds_in_tile_sheet,
+                    RenderingSystem::world_coords_to_screen_coords(&drawable.world_bounds),
+                )
+                .expect("Couldn't draw texture");
         }
 
         self.canvas.present();
