@@ -8,7 +8,9 @@ use specs::DispatcherBuilder;
 use specs::World;
 use specs::WorldExt;
 
+mod components;
 mod constants;
+mod entities;
 mod graphics;
 mod resources;
 mod systems;
@@ -18,7 +20,11 @@ pub fn main() {
     let video_subsystem = sdl_context.video().unwrap();
 
     let window = video_subsystem
-        .window("runner", 800, 600)
+        .window(
+            constants::GAME_NAME,
+            constants::WORLD_WIDTH,
+            constants::WORLD_HEIGHT,
+        )
         .position_centered()
         .build()
         .unwrap();
@@ -50,6 +56,12 @@ fn setup_ecs<'a, 'b>(
     // Insert resources
     world.insert(resources::EventQueue::new());
     world.insert(resources::GameFinisher::new());
+
+    // Register components
+    world.register::<components::Drawable>();
+
+    // Create entities
+    entities::Ground::create_all_tiles(&mut world);
 
     // Orchestrate systems
     let dispatcher = DispatcherBuilder::new()
