@@ -34,9 +34,9 @@ pub enum EnvironmentTile {
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub struct TileData {
-    tile: Tile,
-    tile_sheet: TileSheet,
-    bounds_in_tile_sheet: Rect,
+    pub tile: Tile,
+    pub tile_sheet: TileSheet,
+    pub bounds_in_tile_sheet: Rect,
 }
 
 // I am hoping that since `TileData` is not heap allocated, this is

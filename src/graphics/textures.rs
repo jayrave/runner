@@ -1,11 +1,10 @@
 use sdl2::image::LoadTexture;
-use sdl2::render::WindowCanvas;
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::video::WindowContext;
 
 pub struct Textures<'a> {
-    character_texture: Texture<'a>,
-    environment_texture: Texture<'a>,
+    pub character_texture: Texture<'a>,
+    pub environment_texture: Texture<'a>,
 }
 
 impl<'a> Textures<'a> {
