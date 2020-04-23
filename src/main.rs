@@ -59,6 +59,7 @@ fn setup_ecs<'a, 'b>(
 
     // Register components
     world.register::<components::Drawable>();
+    world.register::<components::Ground>();
 
     // Create entities
     entities::Ground::create_all_tiles(&mut world);
@@ -67,6 +68,7 @@ fn setup_ecs<'a, 'b>(
     let dispatcher = DispatcherBuilder::new()
         .with(systems::EventSystem, "event_system", &[])
         .with_barrier() // To let event system to work before any other system
+        .with(systems::physics::GroundSystem, "physics_system", &[])
         .with_thread_local(systems::RenderingSystem::new(canvas, textures))
         .with_thread_local(systems::PowerOptimizerSystem::new())
         .build();
