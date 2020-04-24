@@ -1,12 +1,12 @@
 use crate::components::Drawable;
 use crate::constants;
-use crate::resources::FrameStepper;
 use crate::graphics::data::TileSheet;
 use crate::graphics::textures;
+use crate::resources::FrameStepper;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use specs::join::Join;
-use specs::{ReadStorage, System, ReadExpect};
+use specs::{ReadExpect, ReadStorage, System};
 
 pub struct RenderingSystem<'a> {
     canvas: WindowCanvas,

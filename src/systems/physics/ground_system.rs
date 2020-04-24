@@ -1,11 +1,11 @@
 use crate::components::Drawable;
 use crate::components::Ground;
-use crate::resources::FrameStepper;
 use crate::constants;
 use crate::entities;
+use crate::resources::FrameStepper;
 use sdl2::rect::Rect;
 use specs::join::Join;
-use specs::{ReadStorage, System, WriteStorage, ReadExpect};
+use specs::{ReadExpect, ReadStorage, System, WriteStorage};
 use std::io::Write;
 
 pub struct GroundSystem;

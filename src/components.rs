@@ -1,8 +1,8 @@
 use crate::graphics::data;
 use sdl2::rect::Rect;
 use specs::Component;
-use specs::VecStorage;
 use specs::NullStorage;
+use specs::VecStorage;
 
 #[derive(Component)]
 #[storage(VecStorage)]

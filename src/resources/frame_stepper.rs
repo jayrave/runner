@@ -1,19 +1,19 @@
+use sdl2::hint::set;
 use std::time::Duration;
 use std::time::SystemTime;
-use sdl2::hint::set;
 
 const MILLISECONDS_IN_A_FRAME: u8 = 16;
 
 pub struct FrameStepper {
     last_frame_at: SystemTime,
-    frame_count_to_animate: u8
+    frame_count_to_animate: u8,
 }
 
 impl FrameStepper {
     pub fn new() -> FrameStepper {
         FrameStepper {
             last_frame_at: SystemTime::now(),
-            frame_count_to_animate: 0
+            frame_count_to_animate: 0,
         }
     }
 
@@ -38,8 +38,9 @@ impl FrameStepper {
 
         if frame_count_to_animate > 0 {
             self.frame_count_to_animate = frame_count_to_animate;
-            self.last_frame_at += Duration::from_millis(frame_count_to_animate as u64 * MILLISECONDS_IN_A_FRAME as u64);
+            self.last_frame_at += Duration::from_millis(
+                frame_count_to_animate as u64 * MILLISECONDS_IN_A_FRAME as u64,
+            );
         }
     }
 }
-

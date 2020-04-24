@@ -13,7 +13,9 @@ impl Player {
             .create_entity()
             .with(components::Player)
             .with(components::Drawable {
-                tile_data: data::build_tile_data(data::Tile::Character { tile: data::CharacterTile::Walk1 }),
+                tile_data: data::build_tile_data(data::Tile::Character {
+                    tile: data::CharacterTile::Walk1,
+                }),
                 world_bounds: Rect::new(
                     -300,
                     150i32 - PLAYER_TILE_HEIGHT as i32,

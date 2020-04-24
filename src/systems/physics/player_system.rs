@@ -1,12 +1,12 @@
 use crate::components::Drawable;
 use crate::components::Player;
-use crate::resources::FrameStepper;
 use crate::constants;
 use crate::entities;
 use crate::graphics::data;
+use crate::resources::FrameStepper;
 use sdl2::rect::Rect;
 use specs::join::Join;
-use specs::{ReadStorage, System, WriteStorage, ReadExpect};
+use specs::{ReadExpect, ReadStorage, System, WriteStorage};
 use std::io::Write;
 
 pub struct PlayerSystem;
@@ -25,7 +25,7 @@ impl<'a> System<'a> for PlayerSystem {
                     let tile = match tile {
                         data::CharacterTile::Walk1 => data::CharacterTile::Walk2,
                         data::CharacterTile::Walk2 => data::CharacterTile::Walk1,
-                        _ => tile
+                        _ => tile,
                     };
 
                     drawable.tile_data = data::build_tile_data(data::Tile::Character { tile });
