@@ -73,7 +73,6 @@ fn setup_ecs<'a, 'b>(
         .with(systems::physics::GroundSystem, "ground_system", &[])
         .with(systems::physics::PlayerSystem, "player_system", &[])
         .with_thread_local(systems::RenderingSystem::new(canvas, textures))
-        .with_thread_local(systems::PowerOptimizerSystem::new())
         .build();
 
     (world, dispatcher)
