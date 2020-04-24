@@ -1,11 +1,12 @@
 use crate::components::Drawable;
 use crate::constants;
+use crate::resources::FrameStepper;
 use crate::graphics::data::TileSheet;
 use crate::graphics::textures;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use specs::join::Join;
-use specs::{ReadStorage, System};
+use specs::{ReadStorage, System, ReadExpect};
 
 pub struct RenderingSystem<'a> {
     canvas: WindowCanvas,
@@ -27,12 +28,8 @@ impl<'a> RenderingSystem<'a> {
             tile_world_bounds.height(),
         )
     }
-}
 
-impl<'a, 'b> System<'a> for RenderingSystem<'b> {
-    type SystemData = ReadStorage<'a, Drawable>;
-
-    fn run(&mut self, data: Self::SystemData) {
+    fn draw(&mut self, data: ReadStorage<Drawable>) {
         self.canvas.set_draw_color(constants::SKY_COLOR);
         self.canvas.clear();
 
@@ -52,5 +49,15 @@ impl<'a, 'b> System<'a> for RenderingSystem<'b> {
         }
 
         self.canvas.present();
+    }
+}
+
+impl<'a, 'b> System<'a> for RenderingSystem<'b> {
+    type SystemData = (ReadStorage<'a, Drawable>, ReadExpect<'a, FrameStepper>);
+
+    fn run(&mut self, data: Self::SystemData) {
+        if data.1.should_update_frame_buffer() {
+            self.draw(data.0);
+        }
     }
 }
