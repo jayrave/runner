@@ -96,6 +96,6 @@ fn build_bounds(tile_pos: TilePos, tile_width: u8, tile_height: u8) -> Rect {
         (tile_pos.col * tile_width).into(),
         (tile_pos.row * tile_height).into(),
         tile_width.into(),
-        tile_width.into(),
+        tile_height.into(),
     )
 }

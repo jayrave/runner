@@ -14,3 +14,7 @@ pub struct Drawable {
 #[derive(Component, Default)]
 #[storage(NullStorage)]
 pub struct Ground;
+
+#[derive(Component, Default)]
+#[storage(NullStorage)]
+pub struct Player;
