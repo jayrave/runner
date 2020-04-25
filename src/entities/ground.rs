@@ -1,9 +1,9 @@
-use crate::{components, WorldData};
 use crate::graphics::data;
+use crate::{components, WorldData};
 use sdl2::rect::Rect;
 use specs::{Builder, World, WorldExt};
-use std::iter::Iterator;
 use std::convert::TryFrom;
+use std::iter::Iterator;
 
 const GROUND_TILE_WORLD_DIMENSION: u8 = 50;
 
@@ -11,7 +11,12 @@ pub struct Ground;
 
 impl Ground {
     pub fn create_all_tiles(world: &mut World, world_data: &WorldData) {
-        let total_row_count = u8::try_from((world_data.world_bottom() - world_data.world_surface_at()) / i32::from(GROUND_TILE_WORLD_DIMENSION)).expect("Too many ground tiles to draw!");
+        let total_row_count = u8::try_from(
+            (world_data.world_bottom() - world_data.world_surface_at())
+                / i32::from(GROUND_TILE_WORLD_DIMENSION),
+        )
+        .expect("Too many ground tiles to draw!");
+
         for row_number in 1..=total_row_count {
             Ground::create_ground_row(
                 world,

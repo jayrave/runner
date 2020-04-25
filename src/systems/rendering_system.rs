@@ -1,8 +1,8 @@
 use crate::components::Drawable;
-use crate::WorldData;
 use crate::graphics::data::TileSheet;
 use crate::graphics::textures;
 use crate::resources::FrameStepper;
+use crate::WorldData;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use specs::join::Join;
@@ -15,8 +15,16 @@ pub struct RenderingSystem<'a> {
 }
 
 impl<'a> RenderingSystem<'a> {
-    pub fn new(world_data: WorldData, canvas: WindowCanvas, textures: textures::Textures<'a>) -> RenderingSystem {
-        RenderingSystem { world_data, canvas, textures }
+    pub fn new(
+        world_data: WorldData,
+        canvas: WindowCanvas,
+        textures: textures::Textures<'a>,
+    ) -> RenderingSystem {
+        RenderingSystem {
+            world_data,
+            canvas,
+            textures,
+        }
     }
 
     fn world_coords_to_screen_coords(&self, tile_world_bounds: &Rect) -> Rect {

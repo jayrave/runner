@@ -54,7 +54,12 @@ impl FrameStepper {
 
         // We want to make sure we advance our physics in deterministic steps
         // all the time to be hardware independent
-        let mut ms_elapsed = self.last_animate_count_update_at.elapsed().unwrap().as_millis();
+        let mut ms_elapsed = self
+            .last_animate_count_update_at
+            .elapsed()
+            .unwrap()
+            .as_millis();
+
         let mut frame_count_to_animate = 0u64;
         while ms_elapsed > MILLISECONDS_IN_A_FRAME.into() {
             frame_count_to_animate += 1;
@@ -63,9 +68,8 @@ impl FrameStepper {
 
         if frame_count_to_animate > 0 {
             self.frame_count_to_animate = frame_count_to_animate;
-            self.last_animate_count_update_at += Duration::from_millis(
-                frame_count_to_animate * u64::from(MILLISECONDS_IN_A_FRAME),
-            );
+            self.last_animate_count_update_at +=
+                Duration::from_millis(frame_count_to_animate * u64::from(MILLISECONDS_IN_A_FRAME));
         }
     }
 }

@@ -1,5 +1,5 @@
-use crate::{components, WorldData};
 use crate::graphics::data;
+use crate::{components, WorldData};
 use sdl2::rect::Rect;
 use specs::{Builder, World, WorldExt};
 
