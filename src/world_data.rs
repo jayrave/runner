@@ -1,6 +1,5 @@
 use sdl2::pixels::Color;
 
-
 use std::convert::TryFrom;
 
 #[derive(Copy, Clone, Debug)]

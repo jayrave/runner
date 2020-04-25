@@ -10,8 +10,6 @@ use specs::SystemData;
 use specs::World;
 use specs::{ReadExpect, ReadStorage, System, WriteStorage};
 
-
-
 const FRAMES_PER_TILE: u8 = 20;
 
 pub struct PlayerSystem;
