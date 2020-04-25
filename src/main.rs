@@ -77,7 +77,11 @@ fn setup_ecs<'a, 'b>(
         .with_barrier()
         .with(systems::EventSystem, "event_system", &[])
         .with_barrier() // To let event system to work before any other system
-        .with(systems::physics::GroundSystem, "ground_system", &[])
+        .with(
+            systems::physics::GroundSystem::new(world_data.clone()),
+            "ground_system",
+            &[],
+        )
         .with(systems::physics::PlayerSystem, "player_system", &[])
         .with_thread_local(systems::RenderingSystem::new(world_data, canvas, textures))
         .build();

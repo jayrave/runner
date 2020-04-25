@@ -1,37 +1,47 @@
 use crate::components::Drawable;
 use crate::components::Ground;
-use crate::entities;
 use crate::resources::FrameStepper;
+use crate::{entities, WorldData};
 use sdl2::rect::Rect;
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::SystemData;
 use specs::World;
 use specs::{ReadExpect, ReadStorage, System, WriteStorage};
+use std::convert::TryFrom;
 use std::io::Write;
 
-const FRAMES_PER_ANIMATION: u8 = 2;
+const FRAMES_PER_TILE: u8 = 2;
+const X_OFFSET_PER_FRAME: i32 = -2;
 
-pub struct GroundSystem;
+pub struct GroundSystem {
+    world_data: WorldData,
+}
 
 impl GroundSystem {
+    pub fn new(world_data: WorldData) -> GroundSystem {
+        GroundSystem { world_data }
+    }
+
     fn update(
+        &self,
         grounds_storage: &ReadStorage<Ground>,
         drawables_storage: &mut WriteStorage<Drawable>,
     ) {
-        let mut x_offset: Option<i32> = None;
         for (_, drawable) in (grounds_storage, drawables_storage).join() {
-            if x_offset.is_none() {
-                x_offset = Some(match drawable.world_bounds.x() {
-                    // TODO - use window bounds for computing this
-                    -450 => 50,
-                    _ => -2,
-                });
-            }
+            // Instead of `<=`, I am going to stick with `==` so I can be easily
+            // figure out when the precondition (movement being a factor of world
+            // width) fails. Wrap around tile if it is off screen
+            if drawable.world_bounds.right() == self.world_data.world_left() {
+                let x_offset =
+                    i32::try_from(self.world_data.world_width() + drawable.world_bounds.width())
+                        .expect("World or tile is too wide");
 
-            if let Some(x_offset) = x_offset {
                 drawable.world_bounds.offset(x_offset, 0);
             }
+
+            // Every tile needs to be moved to the left by a few world coordinates
+            drawable.world_bounds.offset(X_OFFSET_PER_FRAME, 0);
         }
     }
 }
@@ -51,8 +61,8 @@ impl<'a> System<'a> for GroundSystem {
         let end_frame_count = start_frame_count + data.frame_stepper.frame_count_to_animate();
         if start_frame_count != end_frame_count {
             for frame_count in start_frame_count..end_frame_count {
-                if frame_count % FRAMES_PER_ANIMATION as u64 == 0 {
-                    GroundSystem::update(&data.grounds_storage, &mut data.drawables_storage)
+                if frame_count % u64::from(FRAMES_PER_TILE) == 0 {
+                    self.update(&data.grounds_storage, &mut data.drawables_storage)
                 }
             }
         }

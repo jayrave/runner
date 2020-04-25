@@ -12,7 +12,7 @@ use specs::{ReadExpect, ReadStorage, System, WriteStorage};
 use std::io::Write;
 use std::time::SystemTime;
 
-const FRAMES_PER_ANIMATION: u8 = 20;
+const FRAMES_PER_TILE: u8 = 20;
 
 pub struct PlayerSystem;
 
@@ -51,7 +51,7 @@ impl<'a> System<'a> for PlayerSystem {
         let end_frame_count = start_frame_count + data.frame_stepper.frame_count_to_animate();
         if start_frame_count != end_frame_count {
             for frame_count in start_frame_count..end_frame_count {
-                if frame_count % FRAMES_PER_ANIMATION as u64 == 0 {
+                if frame_count % u64::from(FRAMES_PER_TILE) == 0 {
                     PlayerSystem::update(&data.players_storage, &mut data.drawables_storage)
                 }
             }

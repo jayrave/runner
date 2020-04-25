@@ -10,6 +10,7 @@ use specs::shred::ResourceId;
 use specs::SystemData;
 use specs::World;
 use specs::{ReadExpect, ReadStorage, System};
+use std::convert::TryFrom;
 
 pub struct RenderingSystem<'a> {
     world_data: WorldData,
@@ -30,21 +31,21 @@ impl<'a> RenderingSystem<'a> {
         }
     }
 
-    fn world_coords_to_screen_coords(&self, tile_world_bounds: &Rect) -> Rect {
-        let half_world_width = self.world_data.world_width() / 2;
-        let half_world_height = self.world_data.world_height() / 2;
-        Rect::new(
-            tile_world_bounds.x() + half_world_width as i32,
-            tile_world_bounds.y() + half_world_height as i32,
-            tile_world_bounds.width(),
-            tile_world_bounds.height(),
-        )
+    fn world_to_screen_coordinates(tile_world_bounds: &Rect, viewport: &Rect) -> Rect {
+        let mut screen_coordinates = tile_world_bounds.clone();
+        screen_coordinates.offset(
+            i32::try_from(viewport.width() / 2).expect("u32/2 is not i32!"),
+            i32::try_from(viewport.height() / 2).expect("u32/2 is not i32!"),
+        );
+
+        screen_coordinates
     }
 
     fn draw(&mut self, drawables_storage: ReadStorage<Drawable>) {
         self.canvas.set_draw_color(self.world_data.sky_color());
         self.canvas.clear();
 
+        let viewport = self.canvas.viewport();
         for drawable in drawables_storage.join() {
             let texture = match drawable.tile_data.tile_sheet {
                 TileSheet::Character => &self.textures.character_texture,
@@ -55,7 +56,7 @@ impl<'a> RenderingSystem<'a> {
                 .copy(
                     texture,
                     drawable.tile_data.bounds_in_tile_sheet,
-                    self.world_coords_to_screen_coords(&drawable.world_bounds),
+                    RenderingSystem::world_to_screen_coordinates(&drawable.world_bounds, &viewport),
                 )
                 .expect("Couldn't draw texture");
         }
