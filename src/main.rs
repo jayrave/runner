@@ -9,21 +9,24 @@ use specs::World;
 use specs::WorldExt;
 
 mod components;
-mod constants;
 mod entities;
 mod graphics;
 mod resources;
 mod systems;
+mod world_data;
+
+pub use world_data::WorldData;
 
 pub fn main() {
+    let world_data = WorldData::new();
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
     let window = video_subsystem
         .window(
-            constants::GAME_NAME,
-            constants::WORLD_WIDTH,
-            constants::WORLD_HEIGHT,
+            "Runner",
+            world_data.world_width(),
+            world_data.world_height(),
         )
         .position_centered()
         .build()
@@ -35,19 +38,20 @@ pub fn main() {
     let texture_creator = canvas.texture_creator();
     let textures = graphics::textures::Textures::load_from_files(&texture_creator);
 
-    setup_splash_screen(&mut canvas);
-    run_game_loop(&mut event_pump, setup_ecs(canvas, textures));
+    setup_splash_screen(&world_data, &mut canvas);
+    run_game_loop(&mut event_pump, setup_ecs(world_data, canvas, textures));
 }
 
-fn setup_splash_screen(canvas: &mut WindowCanvas) {
+fn setup_splash_screen(world_data: &WorldData, canvas: &mut WindowCanvas) {
     // Setup start-up color to prevent showing empty window until
     // the rendering loop starts
-    canvas.set_draw_color(constants::SKY_COLOR);
+    canvas.set_draw_color(world_data.sky_color());
     canvas.clear();
     canvas.present();
 }
 
 fn setup_ecs<'a, 'b>(
+    world_data: WorldData,
     canvas: WindowCanvas,
     textures: graphics::textures::Textures<'b>,
 ) -> (World, Dispatcher<'a, 'b>) {
@@ -64,8 +68,8 @@ fn setup_ecs<'a, 'b>(
     world.register::<components::Player>();
 
     // Create entities
-    entities::Ground::create_all_tiles(&mut world);
-    entities::Player::create(&mut world);
+    entities::Ground::create_all_tiles(&mut world, &world_data);
+    entities::Player::create(&mut world, &world_data);
 
     // Orchestrate systems
     let dispatcher = DispatcherBuilder::new()
@@ -75,7 +79,7 @@ fn setup_ecs<'a, 'b>(
         .with_barrier() // To let event system to work before any other system
         .with(systems::physics::GroundSystem, "ground_system", &[])
         .with(systems::physics::PlayerSystem, "player_system", &[])
-        .with_thread_local(systems::RenderingSystem::new(canvas, textures))
+        .with_thread_local(systems::RenderingSystem::new(world_data, canvas, textures))
         .build();
 
     (world, dispatcher)

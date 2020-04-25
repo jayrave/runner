@@ -1,22 +1,25 @@
-use crate::components;
-use crate::constants;
+use crate::{components, WorldData};
 use crate::graphics::data;
 use sdl2::rect::Rect;
 use specs::{Builder, World, WorldExt};
 use std::iter::Iterator;
+use std::convert::TryFrom;
 
-const GROUND_TILE_ROW_COUNT: u8 = 3;
 const GROUND_TILE_WORLD_DIMENSION: u8 = 50;
+
 pub struct Ground;
+
 impl Ground {
-    pub fn create_all_tiles(world: &mut World) {
-        for row_count in 1..=GROUND_TILE_ROW_COUNT {
+    pub fn create_all_tiles(world: &mut World, world_data: &WorldData) {
+        let total_row_count = u8::try_from((world_data.world_bottom() - world_data.world_surface_at()) / i32::from(GROUND_TILE_WORLD_DIMENSION)).expect("Too many ground tiles to draw!");
+        for row_number in 1..=total_row_count {
             Ground::create_ground_row(
                 world,
-                constants::WORLD_BOTTOM - (GROUND_TILE_WORLD_DIMENSION * row_count) as i32,
-                match row_count {
-                    GROUND_TILE_ROW_COUNT => data::EnvironmentTile::GrassyGround,
-                    _ => data::EnvironmentTile::Ground,
+                world_data,
+                world_data.world_bottom() - i32::from(GROUND_TILE_WORLD_DIMENSION * row_number),
+                match row_number == total_row_count {
+                    true => data::EnvironmentTile::GrassyGround,
+                    false => data::EnvironmentTile::Ground,
                 },
             )
         }
@@ -24,12 +27,13 @@ impl Ground {
 
     fn create_ground_row(
         world: &mut World,
+        world_data: &WorldData,
         tile_top_at_world_y: i32,
         with_tile: data::EnvironmentTile,
     ) {
         // It is ..= so we would have one extra tile. This way we can draw
         // partial tiles at the end & cover all of the window width
-        for world_left in (constants::WORLD_LEFT..=constants::WORLD_RIGHT)
+        for world_left in (world_data.world_left()..=world_data.world_right())
             .step_by(GROUND_TILE_WORLD_DIMENSION.into())
         {
             world
@@ -39,7 +43,7 @@ impl Ground {
                     tile_data: data::build_tile_data(data::Tile::Environment { tile: with_tile }),
                     world_bounds: Rect::new(
                         world_left,
-                        tile_top_at_world_y.into(),
+                        tile_top_at_world_y,
                         GROUND_TILE_WORLD_DIMENSION.into(),
                         GROUND_TILE_WORLD_DIMENSION.into(),
                     ),

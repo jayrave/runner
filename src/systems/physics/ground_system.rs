@@ -1,6 +1,5 @@
 use crate::components::Drawable;
 use crate::components::Ground;
-use crate::constants;
 use crate::entities;
 use crate::resources::FrameStepper;
 use sdl2::rect::Rect;

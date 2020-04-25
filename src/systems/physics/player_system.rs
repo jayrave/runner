@@ -1,6 +1,5 @@
 use crate::components::Drawable;
 use crate::components::Player;
-use crate::constants;
 use crate::entities;
 use crate::graphics::data;
 use crate::resources::FrameStepper;
