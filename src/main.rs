@@ -66,6 +66,7 @@ fn setup_ecs<'a, 'b>(
     world.register::<components::Drawable>();
     world.register::<components::Ground>();
     world.register::<components::Player>();
+    world.register::<components::UserControlled>();
 
     // Create entities
     entities::Ground::create_all_tiles(&mut world, &world_data);

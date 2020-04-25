@@ -16,15 +16,19 @@ pub struct Drawable {
 pub struct Ground;
 
 #[derive(Component, Default)]
+#[storage(NullStorage)]
+pub struct Player;
+
+#[derive(Component, Default)]
 #[storage(VecStorage)]
-pub struct Player {
+pub struct UserControlled {
     pub input: Option<data::Input>,
 }
 
 pub mod data {
     #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
     pub enum Input {
-        Jump,
-        Slide,
+        Up,
+        Down,
     }
 }

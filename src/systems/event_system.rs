@@ -1,5 +1,5 @@
 use crate::components::data;
-use crate::components::Player;
+use crate::components::UserControlled;
 use crate::resources::EventQueue;
 use crate::resources::GameFinisher;
 use sdl2::event::Event;
@@ -17,7 +17,7 @@ pub struct EventSystem;
 pub struct EventSystemData<'a> {
     event_queue: WriteExpect<'a, EventQueue>,
     game_finisher: WriteExpect<'a, GameFinisher>,
-    players_storage: WriteStorage<'a, Player>,
+    user_controlled_storage: WriteStorage<'a, UserControlled>,
 }
 
 impl<'a> System<'a> for EventSystem {
@@ -34,8 +34,8 @@ impl<'a> System<'a> for EventSystem {
                     ..
                 } => match keycode {
                     Keycode::Escape => should_finish_game = true,
-                    Keycode::Up => user_input = Some(data::Input::Jump),
-                    Keycode::Down => user_input = Some(data::Input::Slide),
+                    Keycode::Up => user_input = Some(data::Input::Up),
+                    Keycode::Down => user_input = Some(data::Input::Down),
                     _ => {}
                 },
                 _ => {}
@@ -45,8 +45,8 @@ impl<'a> System<'a> for EventSystem {
         if should_finish_game {
             data.game_finisher.finish();
         } else {
-            for player in (&mut data.players_storage).join() {
-                player.input = user_input;
+            for user_controlled in (&mut data.user_controlled_storage).join() {
+                user_controlled.input = user_input;
             }
         }
     }
