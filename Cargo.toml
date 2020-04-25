@@ -11,4 +11,4 @@ edition = "2018"
 sdl2 = { version = "0.33.0", features = ["image"] }
 
 # specs is the ecs for our game
-specs = { version = "0.16.1", features = ["specs-derive"] }
+specs = { version = "0.16.1", features = ["shred-derive", "specs-derive"] }

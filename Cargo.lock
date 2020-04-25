@@ -314,8 +314,20 @@ dependencies = [
  "hashbrown",
  "mopa",
  "rayon",
+ "shred-derive",
  "smallvec",
  "tynm",
+]
+
+[[package]]
+name = "shred-derive"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1f37080f2751fbf091dbdebaa95bd6cf9dbf74ad1d50396b1908518a1747fdf"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
