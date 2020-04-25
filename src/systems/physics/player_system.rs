@@ -1,16 +1,16 @@
 use crate::components::Drawable;
 use crate::components::Player;
-use crate::entities;
+
 use crate::graphics::data;
 use crate::resources::FrameStepper;
-use sdl2::rect::Rect;
+
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::SystemData;
 use specs::World;
 use specs::{ReadExpect, ReadStorage, System, WriteStorage};
-use std::io::Write;
-use std::time::SystemTime;
+
+
 
 const FRAMES_PER_TILE: u8 = 20;
 

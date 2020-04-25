@@ -1,6 +1,6 @@
 use sdl2::pixels::Color;
-use sdl2::rect::Point;
-use sdl2::rect::Rect;
+
+
 use std::convert::TryFrom;
 
 #[derive(Copy, Clone, Debug)]
