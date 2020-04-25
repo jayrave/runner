@@ -12,7 +12,7 @@ impl Player {
     pub fn create(world: &mut World, world_data: &WorldData) {
         world
             .create_entity()
-            .with(components::Player)
+            .with(components::Player { input: None })
             .with(components::Drawable {
                 tile_data: data::build_tile_data(data::Tile::Character {
                     tile: data::CharacterTile::Walk1,
