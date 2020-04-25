@@ -6,6 +6,9 @@ use crate::WorldData;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use specs::join::Join;
+use specs::shred::ResourceId;
+use specs::SystemData;
+use specs::World;
 use specs::{ReadExpect, ReadStorage, System};
 
 pub struct RenderingSystem<'a> {
@@ -38,11 +41,11 @@ impl<'a> RenderingSystem<'a> {
         )
     }
 
-    fn draw(&mut self, data: ReadStorage<Drawable>) {
+    fn draw(&mut self, drawables_storage: ReadStorage<Drawable>) {
         self.canvas.set_draw_color(self.world_data.sky_color());
         self.canvas.clear();
 
-        for drawable in data.join() {
+        for drawable in drawables_storage.join() {
             let texture = match drawable.tile_data.tile_sheet {
                 TileSheet::Character => &self.textures.character_texture,
                 TileSheet::Environment => &self.textures.environment_texture,
@@ -61,12 +64,18 @@ impl<'a> RenderingSystem<'a> {
     }
 }
 
+#[derive(SystemData)]
+pub struct RenderingSystemData<'a> {
+    drawables_storage: ReadStorage<'a, Drawable>,
+    frame_stepper: ReadExpect<'a, FrameStepper>,
+}
+
 impl<'a, 'b> System<'a> for RenderingSystem<'b> {
-    type SystemData = (ReadStorage<'a, Drawable>, ReadExpect<'a, FrameStepper>);
+    type SystemData = RenderingSystemData<'a>;
 
     fn run(&mut self, data: Self::SystemData) {
-        if data.1.should_update_frame_buffer() {
-            self.draw(data.0);
+        if data.frame_stepper.should_update_frame_buffer() {
+            self.draw(data.drawables_storage);
         }
     }
 }

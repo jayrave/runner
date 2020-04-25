@@ -4,6 +4,9 @@ use crate::entities;
 use crate::resources::FrameStepper;
 use sdl2::rect::Rect;
 use specs::join::Join;
+use specs::shred::ResourceId;
+use specs::SystemData;
+use specs::World;
 use specs::{ReadExpect, ReadStorage, System, WriteStorage};
 use std::io::Write;
 
@@ -12,9 +15,12 @@ const FRAMES_PER_ANIMATION: u8 = 2;
 pub struct GroundSystem;
 
 impl GroundSystem {
-    fn update(ground_storage: &ReadStorage<Ground>, drawable_storage: &mut WriteStorage<Drawable>) {
+    fn update(
+        grounds_storage: &ReadStorage<Ground>,
+        drawables_storage: &mut WriteStorage<Drawable>,
+    ) {
         let mut x_offset: Option<i32> = None;
-        for (_, drawable) in (ground_storage, drawable_storage).join() {
+        for (_, drawable) in (grounds_storage, drawables_storage).join() {
             if x_offset.is_none() {
                 x_offset = Some(match drawable.world_bounds.x() {
                     // TODO - use window bounds for computing this
@@ -30,20 +36,23 @@ impl GroundSystem {
     }
 }
 
+#[derive(SystemData)]
+pub struct GroundSystemData<'a> {
+    frame_stepper: ReadExpect<'a, FrameStepper>,
+    grounds_storage: ReadStorage<'a, Ground>,
+    drawables_storage: WriteStorage<'a, Drawable>,
+}
+
 impl<'a> System<'a> for GroundSystem {
-    type SystemData = (
-        ReadExpect<'a, FrameStepper>,
-        ReadStorage<'a, Ground>,
-        WriteStorage<'a, Drawable>,
-    );
+    type SystemData = GroundSystemData<'a>;
 
     fn run(&mut self, mut data: Self::SystemData) {
-        let start_frame_count = data.0.frame_count_animated();
-        let end_frame_count = start_frame_count + data.0.frame_count_to_animate();
+        let start_frame_count = data.frame_stepper.frame_count_animated();
+        let end_frame_count = start_frame_count + data.frame_stepper.frame_count_to_animate();
         if start_frame_count != end_frame_count {
             for frame_count in start_frame_count..end_frame_count {
                 if frame_count % FRAMES_PER_ANIMATION as u64 == 0 {
-                    GroundSystem::update(&data.1, &mut data.2)
+                    GroundSystem::update(&data.grounds_storage, &mut data.drawables_storage)
                 }
             }
         }
