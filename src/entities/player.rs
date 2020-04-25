@@ -3,8 +3,8 @@ use crate::{components, WorldData};
 use sdl2::rect::Rect;
 use specs::{Builder, World, WorldExt};
 
-const PLAYER_TILE_WIDTH: u8 = 80;
-const PLAYER_TILE_HEIGHT: u8 = 110;
+const PLAYER_TILE_WORLD_WIDTH: u8 = 40;
+const PLAYER_TILE_WORLD_HEIGHT: u8 = 55;
 
 pub struct Player;
 
@@ -18,10 +18,10 @@ impl Player {
                     tile: data::CharacterTile::Walk1,
                 }),
                 world_bounds: Rect::new(
-                    world_data.world_left() + (i32::from(PLAYER_TILE_WIDTH) * 2),
-                    world_data.world_surface_at() - i32::from(PLAYER_TILE_HEIGHT),
-                    PLAYER_TILE_WIDTH.into(),
-                    PLAYER_TILE_HEIGHT.into(),
+                    world_data.world_left() + (i32::from(PLAYER_TILE_WORLD_WIDTH) * 2),
+                    world_data.world_surface_at() - i32::from(PLAYER_TILE_WORLD_HEIGHT),
+                    PLAYER_TILE_WORLD_WIDTH.into(),
+                    PLAYER_TILE_WORLD_HEIGHT.into(),
                 ),
             })
             .build();
