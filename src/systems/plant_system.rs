@@ -10,13 +10,21 @@ use specs::World;
 use specs::{Entities, Entity, SystemData};
 use specs::{ReadExpect, ReadStorage, System, WriteStorage};
 
+const MIN_FRAMES_BETWEEN_PLANTS: u64 = 250;
+const RANDOM_MIN: u64 = 1;
+const RANDOM_MAX: u64 = 225;
+
 pub struct PlantSystem {
     world_data: WorldData,
+    last_plant_drawn_at: u64,
 }
 
 impl PlantSystem {
     pub fn new(world_data: WorldData) -> PlantSystem {
-        PlantSystem { world_data }
+        PlantSystem {
+            world_data,
+            last_plant_drawn_at: 0,
+        }
     }
 
     fn move_or_remove(&self, drawable: &mut Drawable, entity: Entity, entities: &Entities) {
@@ -57,14 +65,18 @@ impl<'a> System<'a> for PlantSystem {
         }
 
         // Create new plants if willed
-        let random_number = rand::thread_rng().gen_range(1u64, 20u64);
-        if data.frame_stepper.frame_count_animated() % 20 == 0 {
-            entities::Plant::create(
-                &self.world_data,
-                &data.entities,
-                &mut data.drawables_storage,
-                &mut data.plants_storage,
-            )
+        let frame_count_animated = data.frame_stepper.frame_count_animated();
+        if frame_count_animated - self.last_plant_drawn_at > MIN_FRAMES_BETWEEN_PLANTS {
+            let random_number = rand::thread_rng().gen_range(RANDOM_MIN, RANDOM_MAX);
+            if frame_count_animated % random_number == 0 {
+                self.last_plant_drawn_at = frame_count_animated;
+                entities::Plant::create(
+                    &self.world_data,
+                    &data.entities,
+                    &mut data.drawables_storage,
+                    &mut data.plants_storage,
+                )
+            }
         }
     }
 }
