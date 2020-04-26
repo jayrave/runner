@@ -16,7 +16,7 @@ use std::convert::TryFrom;
 
 const FRAMES_IN_JUMP_ANIMATION: u8 = 60;
 const FRAMES_IN_SLIDE_ANIMATION: u8 = 60;
-const FRAMES_IN_WALK_ANIMATION: u8 = 20;
+const FRAMES_IN_RUN_ANIMATION: u8 = 20;
 const JUMP_HEIGHT_IN_WORLD_COORDINATES: u8 = 100;
 
 pub struct PlayerSystem {
@@ -44,7 +44,7 @@ impl PlayerSystem {
                 // over to that to either carry on the animation or to finish it. When
                 // an animation is going on, we don't care about more inputs from the
                 // user
-                data::CharacterTile::Jump => self.continue_jump_or_start_walking(
+                data::CharacterTile::Jump => self.continue_jump_or_start_running(
                     current_frame_count,
                     current_step_started_at_frame,
                     drawable,
@@ -52,7 +52,7 @@ impl PlayerSystem {
                 ),
 
                 // Same comment as jump applies here too
-                data::CharacterTile::Slide => self.continue_slide_or_start_walking(
+                data::CharacterTile::Slide => self.continue_slide_or_start_running(
                     current_frame_count,
                     current_step_started_at_frame,
                     drawable,
@@ -75,8 +75,8 @@ impl PlayerSystem {
                         }
                     },
 
-                    // Nothing else to do! Just continue walking
-                    None => self.continue_walk(
+                    // Nothing else to do! Just continue running
+                    None => self.continue_run(
                         current_frame_count,
                         current_step_started_at_frame,
                         drawable,
@@ -99,7 +99,7 @@ impl PlayerSystem {
         self.update_drawable_for_surface_level_tile(drawable, data::CharacterTile::Slide);
     }
 
-    fn continue_slide_or_start_walking(
+    fn continue_slide_or_start_running(
         &self,
         current_frame_count: u64,
         slide_started_at_frame: u64,
@@ -110,9 +110,9 @@ impl PlayerSystem {
             slide_started_at_frame + u64::from(FRAMES_IN_JUMP_ANIMATION) >= current_frame_count;
 
         // If we are just continuing to slide, no need to update any drawable
-        // data. Otherwise, will have to switch to walking
+        // data. Otherwise, will have to switch to running
         if !continue_slide {
-            self.start_walk(current_frame_count, drawable, player)
+            self.start_run(current_frame_count, drawable, player)
         }
     }
 
@@ -121,7 +121,7 @@ impl PlayerSystem {
         self.update_drawable_for_jump_tile(current_frame_count, current_frame_count, drawable);
     }
 
-    fn continue_jump_or_start_walking(
+    fn continue_jump_or_start_running(
         &self,
         current_frame_count: u64,
         jump_started_at_frame: u64,
@@ -134,35 +134,35 @@ impl PlayerSystem {
         if continue_jump {
             self.update_drawable_for_jump_tile(current_frame_count, jump_started_at_frame, drawable)
         } else {
-            self.start_walk(current_frame_count, drawable, player)
+            self.start_run(current_frame_count, drawable, player)
         }
     }
 
-    fn start_walk(&self, current_frame_count: u64, drawable: &mut Drawable, player: &mut Player) {
+    fn start_run(&self, current_frame_count: u64, drawable: &mut Drawable, player: &mut Player) {
         player.current_step_started_at_frame = current_frame_count;
-        self.update_drawable_for_surface_level_tile(drawable, data::CharacterTile::Walk1);
+        self.update_drawable_for_surface_level_tile(drawable, data::CharacterTile::Run1);
     }
 
-    fn continue_walk(
+    fn continue_run(
         &self,
         current_frame_count: u64,
-        walk_started_at_frame: u64,
+        run_started_at_frame: u64,
         drawable: &mut Drawable,
         player: &mut Player,
         current_tile: data::CharacterTile,
     ) {
         let change_tile =
-            walk_started_at_frame + u64::from(FRAMES_IN_WALK_ANIMATION) <= current_frame_count;
+            run_started_at_frame + u64::from(FRAMES_IN_RUN_ANIMATION) <= current_frame_count;
 
         if change_tile {
             player.current_step_started_at_frame = current_frame_count;
             self.update_drawable_for_surface_level_tile(
                 drawable,
                 match current_tile {
-                    data::CharacterTile::Walk1 => data::CharacterTile::Walk2,
-                    data::CharacterTile::Walk2 => data::CharacterTile::Walk3,
-                    data::CharacterTile::Walk3 => data::CharacterTile::Walk1,
-                    _ => data::CharacterTile::Walk1, //  Fallback
+                    data::CharacterTile::Run1 => data::CharacterTile::Run2,
+                    data::CharacterTile::Run2 => data::CharacterTile::Run3,
+                    data::CharacterTile::Run3 => data::CharacterTile::Run1,
+                    _ => data::CharacterTile::Run1, //  Fallback
                 },
             )
         }
@@ -176,7 +176,7 @@ impl PlayerSystem {
         drawable.tile_data = data::build_tile_data(data::Tile::Character { tile });
         drawable
             .world_bounds
-            .set_y(entities::Player::walking_y(&self.world_data));
+            .set_y(entities::Player::running_y(&self.world_data));
     }
 
     fn update_drawable_for_jump_tile(
@@ -204,7 +204,7 @@ impl PlayerSystem {
         };
 
         drawable.world_bounds.set_y(
-            entities::Player::walking_y(&self.world_data)
+            entities::Player::running_y(&self.world_data)
                 - i32::try_from(jump_height).expect("Jumped too high!"),
         );
     }

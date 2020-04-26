@@ -21,9 +21,9 @@ pub enum CharacterTile {
     Jump,
     Slide,
     Still,
-    Walk1,
-    Walk2,
-    Walk3,
+    Run1,
+    Run2,
+    Run3,
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -53,9 +53,9 @@ pub fn build_tile_data(tile: Tile) -> TileData {
                 CharacterTile::Jump => build_char_bounds(TilePos { row: 0, col: 1 }),
                 CharacterTile::Slide => build_char_bounds(TilePos { row: 1, col: 1 }),
                 CharacterTile::Still => build_char_bounds(TilePos { row: 0, col: 0 }),
-                CharacterTile::Walk1 => build_char_bounds(TilePos { row: 2, col: 6 }),
-                CharacterTile::Walk2 => build_char_bounds(TilePos { row: 2, col: 7 }),
-                CharacterTile::Walk3 => build_char_bounds(TilePos { row: 2, col: 8 }),
+                CharacterTile::Run1 => build_char_bounds(TilePos { row: 2, col: 6 }),
+                CharacterTile::Run2 => build_char_bounds(TilePos { row: 2, col: 7 }),
+                CharacterTile::Run3 => build_char_bounds(TilePos { row: 2, col: 8 }),
             }
         }
 

@@ -18,11 +18,11 @@ impl Player {
             .with(components::UserControlled::new())
             .with(components::Drawable {
                 tile_data: data::build_tile_data(data::Tile::Character {
-                    tile: data::CharacterTile::Walk1,
+                    tile: data::CharacterTile::Run1,
                 }),
                 world_bounds: Rect::new(
                     world_data.world_left() + (i32::from(PLAYER_TILE_WORLD_WIDTH) * 2),
-                    Player::walking_y(world_data),
+                    Player::running_y(world_data),
                     PLAYER_TILE_WORLD_WIDTH.into(),
                     PLAYER_TILE_WORLD_HEIGHT.into(),
                 ),
@@ -30,7 +30,7 @@ impl Player {
             .build();
     }
 
-    pub fn walking_y(world_data: &WorldData) -> i32 {
+    pub fn running_y(world_data: &WorldData) -> i32 {
         world_data.world_surface_at() - i32::from(PLAYER_TILE_WORLD_HEIGHT)
     }
 }
