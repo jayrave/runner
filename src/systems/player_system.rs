@@ -1,6 +1,7 @@
 use crate::components;
+use crate::components::input::InputControlled;
+use crate::components::Drawable;
 use crate::components::Player;
-use crate::components::{Drawable, UserControlled};
 use crate::entities;
 
 use crate::graphics::data;
@@ -41,7 +42,7 @@ impl PlayerSystem {
         current_tick: u64,
         drawable: &mut Drawable,
         player: &mut Player,
-        user_controlled: &mut UserControlled,
+        input_controlled: &mut InputControlled,
     ) {
         let tile = drawable.tile_data.tile;
         let current_step_started_at_tick = player.current_step_started_at_tick;
@@ -69,16 +70,16 @@ impl PlayerSystem {
 
                 // No input based animation going on. Gotta check if we should start
                 // one now
-                _ => match user_controlled.consume_input() {
+                _ => match input_controlled.consume_input() {
                     // There is some input! Start a new input based animation
                     Some(input) => match input {
                         // Gotta jump!
-                        components::data::Input::Up => {
+                        components::input::data::Input::Up => {
                             self.start_jump(current_tick, drawable, player)
                         }
 
                         // Gotta slide!
-                        components::data::Input::Down => {
+                        components::input::data::Input::Down => {
                             self.start_slide(current_tick, drawable, player)
                         }
                     },
@@ -99,7 +100,7 @@ impl PlayerSystem {
         // already running, we don't want the input to be left around to be
         // used later! So, no matter what happens at the end of each tick,
         // clear the user input to allow taking in more
-        user_controlled.consume_input();
+        input_controlled.consume_input();
     }
 
     fn start_slide(&self, current_tick: u64, drawable: &mut Drawable, player: &mut Player) {
@@ -211,17 +212,17 @@ pub struct PlayerSystemData<'a> {
     game_tick: ReadExpect<'a, GameTick>,
     drawables_storage: WriteStorage<'a, Drawable>,
     players_storage: WriteStorage<'a, Player>,
-    user_controlled_storage: WriteStorage<'a, UserControlled>,
+    input_controlled_storage: WriteStorage<'a, InputControlled>,
 }
 
 impl<'a> System<'a> for PlayerSystem {
     type SystemData = PlayerSystemData<'a>;
 
     fn run(&mut self, mut data: Self::SystemData) {
-        for (mut drawable, mut player, mut user_controlled) in (
+        for (mut drawable, mut player, mut input_controlled) in (
             &mut data.drawables_storage,
             &mut data.players_storage,
-            &mut data.user_controlled_storage,
+            &mut data.input_controlled_storage,
         )
             .join()
         {
@@ -232,7 +233,7 @@ impl<'a> System<'a> for PlayerSystem {
                     current_tick,
                     &mut drawable,
                     &mut player,
-                    &mut user_controlled,
+                    &mut input_controlled,
                 )
             }
         }

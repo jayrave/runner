@@ -67,7 +67,7 @@ fn setup_ecs<'a, 'b>(
     world.register::<components::Ground>();
     world.register::<components::Plant>();
     world.register::<components::Player>();
-    world.register::<components::UserControlled>();
+    world.register::<components::input::InputControlled>();
 
     // Create entities
     entities::Ground::create_all_tiles(&mut world, &world_data);

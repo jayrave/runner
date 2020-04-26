@@ -1,5 +1,5 @@
-use crate::components::data;
-use crate::components::UserControlled;
+use crate::components::input::data;
+use crate::components::input::InputControlled;
 use crate::resources::EventQueue;
 use crate::resources::GameFinisher;
 use sdl2::event::Event;
@@ -17,7 +17,7 @@ pub struct EventSystem;
 pub struct EventSystemData<'a> {
     event_queue: WriteExpect<'a, EventQueue>,
     game_finisher: WriteExpect<'a, GameFinisher>,
-    user_controlled_storage: WriteStorage<'a, UserControlled>,
+    input_controlled_storage: WriteStorage<'a, InputControlled>,
 }
 
 impl<'a> System<'a> for EventSystem {
@@ -45,9 +45,9 @@ impl<'a> System<'a> for EventSystem {
         if should_finish_game {
             data.game_finisher.finish();
         } else {
-            for user_controlled in (&mut data.user_controlled_storage).join() {
+            for input_controlled in (&mut data.input_controlled_storage).join() {
                 if let Some(input) = user_input {
-                    user_controlled.update_input_if_required(input);
+                    input_controlled.update_input_if_required(input);
                 }
             }
         }

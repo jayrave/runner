@@ -15,7 +15,7 @@ impl Player {
             .with(components::Player {
                 current_step_started_at_tick: 0,
             })
-            .with(components::UserControlled::new())
+            .with(components::input::InputControlled::new())
             .with(components::Drawable {
                 tile_data: data::build_tile_data(data::Tile::Character {
                     tile: data::CharacterTile::Run1,
