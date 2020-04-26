@@ -14,8 +14,8 @@ use specs::World;
 use specs::{ReadExpect, System, WriteStorage};
 use std::convert::TryFrom;
 
-const FRAMES_IN_JUMP_ANIMATION: u8 = 60;
-const FRAMES_IN_SLIDE_ANIMATION: u8 = 60;
+const FRAMES_IN_JUMP_ANIMATION: u8 = 40;
+const FRAMES_IN_SLIDE_ANIMATION: u8 = 40;
 const FRAMES_IN_RUN_ANIMATION: u8 = 12;
 const JUMP_HEIGHT_IN_WORLD_COORDINATES: u8 = 100;
 
@@ -192,9 +192,10 @@ impl PlayerSystem {
         let frames_since_jump_started = current_frame_count - jump_started_at_frame;
         let frames_to_hit_apex = u64::from(FRAMES_IN_JUMP_ANIMATION) / 2;
 
+        // `floor` to prevent overflow while sub from jump height
         let travel_per_frame: u64 = (f32::from(JUMP_HEIGHT_IN_WORLD_COORDINATES)
             / frames_to_hit_apex as f32)
-            .round() as u64;
+            .floor() as u64;
 
         let jump_height = if frames_since_jump_started <= frames_to_hit_apex {
             travel_per_frame * frames_since_jump_started
