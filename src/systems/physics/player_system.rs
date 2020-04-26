@@ -16,7 +16,7 @@ use std::convert::TryFrom;
 
 const FRAMES_IN_JUMP_ANIMATION: u8 = 60;
 const FRAMES_IN_SLIDE_ANIMATION: u8 = 60;
-const FRAMES_IN_RUN_ANIMATION: u8 = 20;
+const FRAMES_IN_RUN_ANIMATION: u8 = 12;
 const JUMP_HEIGHT_IN_WORLD_COORDINATES: u8 = 100;
 
 pub struct PlayerSystem {

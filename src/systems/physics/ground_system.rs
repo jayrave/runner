@@ -8,7 +8,7 @@ use specs::SystemData;
 use specs::World;
 use specs::{ReadExpect, ReadStorage, System, WriteStorage};
 
-const X_OFFSET_PER_FRAME: i32 = -1;
+const X_OFFSET_PER_FRAME: i32 = -2;
 
 pub struct GroundSystem {
     world_data: WorldData,
