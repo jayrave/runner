@@ -12,7 +12,6 @@ use specs::shred::ResourceId;
 use specs::SystemData;
 use specs::World;
 use specs::{ReadExpect, System, WriteStorage};
-use std::convert::TryFrom;
 
 const FRAMES_IN_JUMP_ANIMATION: u8 = 40;
 const FRAMES_IN_SLIDE_ANIMATION: u8 = 40;
