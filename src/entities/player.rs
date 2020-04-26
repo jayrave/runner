@@ -3,8 +3,8 @@ use crate::{components, WorldData};
 use sdl2::rect::Rect;
 use specs::{Builder, World, WorldExt};
 
-const PLAYER_TILE_WORLD_WIDTH: u8 = 40;
-const PLAYER_TILE_WORLD_HEIGHT: u8 = 55;
+const PLAYER_TILE_WORLD_WIDTH: u8 = 48;
+const PLAYER_TILE_WORLD_HEIGHT: u8 = 64;
 
 pub struct Player;
 

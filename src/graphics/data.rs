@@ -1,8 +1,8 @@
 use sdl2::rect::Rect;
 
 const ENVIRONMENT_TILE_DIMENSION: u8 = 64;
-const CHARACTER_TILE_WIDTH: u8 = 80;
-const CHARACTER_TILE_HEIGHT: u8 = 110;
+const CHARACTER_TILE_WIDTH: u8 = 96;
+const CHARACTER_TILE_HEIGHT: u8 = 128;
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum TileSheet {
@@ -23,6 +23,7 @@ pub enum CharacterTile {
     Still,
     Walk1,
     Walk2,
+    Walk3,
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -50,10 +51,11 @@ pub fn build_tile_data(tile: Tile) -> TileData {
             tile_sheet = TileSheet::Character;
             bounds_in_tile_sheet = match tile {
                 CharacterTile::Jump => build_char_bounds(TilePos { row: 0, col: 1 }),
-                CharacterTile::Slide => build_char_bounds(TilePos { row: 2, col: 1 }),
+                CharacterTile::Slide => build_char_bounds(TilePos { row: 1, col: 1 }),
                 CharacterTile::Still => build_char_bounds(TilePos { row: 0, col: 0 }),
-                CharacterTile::Walk1 => build_char_bounds(TilePos { row: 1, col: 0 }),
-                CharacterTile::Walk2 => build_char_bounds(TilePos { row: 1, col: 1 }),
+                CharacterTile::Walk1 => build_char_bounds(TilePos { row: 2, col: 6 }),
+                CharacterTile::Walk2 => build_char_bounds(TilePos { row: 2, col: 7 }),
+                CharacterTile::Walk3 => build_char_bounds(TilePos { row: 2, col: 8 }),
             }
         }
 
@@ -92,9 +94,10 @@ fn build_env_bounds(tile_pos: TilePos) -> Rect {
 }
 
 fn build_bounds(tile_pos: TilePos, tile_width: u8, tile_height: u8) -> Rect {
+    // `from` here is for preventing overflowing on multiplying
     Rect::new(
-        (tile_pos.col * tile_width).into(),
-        (tile_pos.row * tile_height).into(),
+        i32::from(tile_pos.col) * i32::from(tile_width),
+        i32::from(tile_pos.row) * i32::from(tile_height),
         tile_width.into(),
         tile_height.into(),
     )

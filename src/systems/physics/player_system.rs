@@ -160,7 +160,8 @@ impl PlayerSystem {
                 drawable,
                 match current_tile {
                     data::CharacterTile::Walk1 => data::CharacterTile::Walk2,
-                    data::CharacterTile::Walk2 => data::CharacterTile::Walk1,
+                    data::CharacterTile::Walk2 => data::CharacterTile::Walk3,
+                    data::CharacterTile::Walk3 => data::CharacterTile::Walk1,
                     _ => data::CharacterTile::Walk1, //  Fallback
                 },
             )
