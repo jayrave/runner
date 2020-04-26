@@ -2,13 +2,11 @@ use crate::components::Drawable;
 use crate::components::Ground;
 use crate::resources::FrameStepper;
 use crate::WorldData;
-
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::SystemData;
 use specs::World;
 use specs::{ReadExpect, ReadStorage, System, WriteStorage};
-use std::convert::TryFrom;
 
 const X_OFFSET_PER_FRAME: i32 = -1;
 

@@ -1,7 +1,5 @@
 use crate::graphics::data;
-use crate::graphics::data::EnvironmentTile::Plant;
 use crate::{components, WorldData};
-use sdl2::audio::AudioStatus::Playing;
 use sdl2::rect::Rect;
 use specs::{Builder, World, WorldExt};
 

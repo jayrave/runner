@@ -11,7 +11,7 @@ use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::SystemData;
 use specs::World;
-use specs::{ReadExpect, ReadStorage, System, WriteStorage};
+use specs::{ReadExpect, System, WriteStorage};
 
 const FRAMES_IN_JUMP_ANIMATION: u8 = 60;
 const FRAMES_IN_SLIDE_ANIMATION: u8 = 60;
