@@ -1,6 +1,6 @@
 use crate::components::Drawable;
 use crate::components::Ground;
-use crate::data::WorldData;
+use crate::data::{AnimationData, WorldData};
 use crate::resources::GameTick;
 use specs::join::Join;
 use specs::shred::ResourceId;
@@ -9,12 +9,16 @@ use specs::World;
 use specs::{ReadExpect, ReadStorage, System, WriteStorage};
 
 pub struct GroundSystem {
+    animation_data: AnimationData,
     world_data: WorldData,
 }
 
 impl GroundSystem {
-    pub fn new(world_data: WorldData) -> GroundSystem {
-        GroundSystem { world_data }
+    pub fn new(animation_data: AnimationData, world_data: WorldData) -> GroundSystem {
+        GroundSystem {
+            animation_data,
+            world_data,
+        }
     }
 
     fn update(&self, drawable: &mut Drawable) {
@@ -26,9 +30,10 @@ impl GroundSystem {
         }
 
         // Every tile needs to be moved to the left by a few world coordinates
-        drawable
-            .world_bounds
-            .offset(-i32::from(self.world_data.ground_speed_in_wc_per_tick()), 0);
+        drawable.world_bounds.offset(
+            -i32::from(self.animation_data.ground_speed_in_wc_per_tick()),
+            0,
+        );
     }
 }
 

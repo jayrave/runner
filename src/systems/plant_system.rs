@@ -1,6 +1,6 @@
 use crate::components::Drawable;
 use crate::components::Plant;
-use crate::data::WorldData;
+use crate::data::{AnimationData, WorldData};
 use crate::entities;
 use crate::resources::GameTick;
 use rand::Rng;
@@ -15,13 +15,15 @@ const RANDOM_MIN: u64 = 1;
 const RANDOM_MAX: u64 = 225;
 
 pub struct PlantSystem {
+    animation_data: AnimationData,
     world_data: WorldData,
     last_plant_drawn_at: u64,
 }
 
 impl PlantSystem {
-    pub fn new(world_data: WorldData) -> PlantSystem {
+    pub fn new(animation_data: AnimationData, world_data: WorldData) -> PlantSystem {
         PlantSystem {
+            animation_data,
             world_data,
             last_plant_drawn_at: 0,
         }
@@ -32,9 +34,10 @@ impl PlantSystem {
         if drawable.world_bounds.right() <= self.world_data.world_left() {
             entities.delete(entity).expect("Plant entity to be deleted");
         } else {
-            drawable
-                .world_bounds
-                .offset(-i32::from(self.world_data.ground_speed_in_wc_per_tick()), 0);
+            drawable.world_bounds.offset(
+                -i32::from(self.animation_data.ground_speed_in_wc_per_tick()),
+                0,
+            );
         }
     }
 }
