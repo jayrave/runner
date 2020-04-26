@@ -15,7 +15,7 @@ impl Player {
         world
             .create_entity()
             .with(components::Player {
-                input_based_animation_started_at_frame: None,
+                current_step_started_at_frame: 0,
             })
             .with(components::UserControlled::new())
             .with(components::Drawable {

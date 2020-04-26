@@ -18,7 +18,7 @@ pub struct Ground;
 #[derive(Component)]
 #[storage(VecStorage)]
 pub struct Player {
-    pub input_based_animation_started_at_frame: Option<u64>,
+    pub current_step_started_at_frame: u64,
 }
 
 #[derive(Component, Default)]
