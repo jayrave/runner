@@ -1,7 +1,7 @@
 use crate::components::Drawable;
 use crate::components::Ground;
+use crate::data::WorldData;
 use crate::resources::GameTick;
-use crate::WorldData;
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::SystemData;

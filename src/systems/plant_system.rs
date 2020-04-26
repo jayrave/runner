@@ -1,8 +1,8 @@
 use crate::components::Drawable;
 use crate::components::Plant;
+use crate::data::WorldData;
 use crate::entities;
 use crate::resources::GameTick;
-use crate::WorldData;
 use rand::Rng;
 use specs::join::Join;
 use specs::shred::ResourceId;

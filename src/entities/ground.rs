@@ -1,5 +1,6 @@
+use crate::components;
+use crate::data::WorldData;
 use crate::graphics::data;
-use crate::{components, WorldData};
 use sdl2::rect::Rect;
 use specs::{Builder, World, WorldExt};
 use std::convert::TryFrom;

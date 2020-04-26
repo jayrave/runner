@@ -2,6 +2,7 @@ extern crate sdl2;
 
 use sdl2::render::WindowCanvas;
 
+use crate::data::WorldData;
 use sdl2::EventPump;
 use specs::Dispatcher;
 use specs::DispatcherBuilder;
@@ -9,13 +10,11 @@ use specs::World;
 use specs::WorldExt;
 
 mod components;
+mod data;
 mod entities;
 mod graphics;
 mod resources;
 mod systems;
-mod world_data;
-
-pub use world_data::WorldData;
 
 pub fn main() {
     let world_data = WorldData::new();

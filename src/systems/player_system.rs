@@ -7,7 +7,7 @@ use crate::entities;
 use crate::graphics::data;
 use crate::resources::GameTick;
 
-use crate::WorldData;
+use crate::data::WorldData;
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::SystemData;

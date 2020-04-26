@@ -1,8 +1,8 @@
 use crate::components::Drawable;
+use crate::data::WorldData;
 use crate::graphics::data::TileSheet;
 use crate::graphics::textures;
 use crate::resources::GameTick;
-use crate::WorldData;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use specs::join::Join;

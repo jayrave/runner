@@ -1,6 +1,7 @@
+use crate::components;
 use crate::components::Drawable;
+use crate::data::WorldData;
 use crate::graphics::data;
-use crate::{components, WorldData};
 use sdl2::rect::Rect;
 use specs::{Entities, WriteStorage};
 
