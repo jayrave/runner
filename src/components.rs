@@ -15,6 +15,10 @@ pub struct Drawable {
 #[storage(NullStorage)]
 pub struct Ground;
 
+#[derive(Component, Default)]
+#[storage(NullStorage)]
+pub struct Plant;
+
 #[derive(Component)]
 #[storage(VecStorage)]
 pub struct Player {
