@@ -1,7 +1,7 @@
 use crate::components::Drawable;
 use crate::components::Plant;
 use crate::entities;
-use crate::resources::FrameStepper;
+use crate::resources::GameTick;
 use crate::WorldData;
 use rand::Rng;
 use specs::join::Join;
@@ -10,7 +10,7 @@ use specs::World;
 use specs::{Entities, Entity, SystemData};
 use specs::{ReadExpect, ReadStorage, System, WriteStorage};
 
-const MIN_FRAMES_BETWEEN_PLANTS: u64 = 250;
+const MIN_TICKS_BETWEEN_PLANTS: u64 = 250;
 const RANDOM_MIN: u64 = 1;
 const RANDOM_MAX: u64 = 225;
 
@@ -43,7 +43,7 @@ impl PlantSystem {
 pub struct PlantSystemData<'a> {
     entities: Entities<'a>,
     drawables_storage: WriteStorage<'a, Drawable>,
-    frame_stepper: ReadExpect<'a, FrameStepper>,
+    game_tick: ReadExpect<'a, GameTick>,
     plants_storage: WriteStorage<'a, Plant>,
 }
 
@@ -59,17 +59,17 @@ impl<'a> System<'a> for PlantSystem {
         )
             .join()
         {
-            for _ in 0..data.frame_stepper.frame_count_to_animate() {
+            for _ in 0..data.game_tick.ticks_to_animate() {
                 self.move_or_remove(&mut drawable, entity, &data.entities)
             }
         }
 
         // Create new plants if willed
-        let frame_count_animated = data.frame_stepper.frame_count_animated();
-        if frame_count_animated - self.last_plant_drawn_at > MIN_FRAMES_BETWEEN_PLANTS {
+        let ticks_animated = data.game_tick.ticks_animated();
+        if ticks_animated - self.last_plant_drawn_at > MIN_TICKS_BETWEEN_PLANTS {
             let random_number = rand::thread_rng().gen_range(RANDOM_MIN, RANDOM_MAX);
-            if frame_count_animated % random_number == 0 {
-                self.last_plant_drawn_at = frame_count_animated;
+            if ticks_animated % random_number == 0 {
+                self.last_plant_drawn_at = ticks_animated;
                 entities::Plant::create(
                     &self.world_data,
                     &data.entities,

@@ -1,6 +1,6 @@
 use crate::components::Drawable;
 use crate::components::Ground;
-use crate::resources::FrameStepper;
+use crate::resources::GameTick;
 use crate::WorldData;
 use specs::join::Join;
 use specs::shred::ResourceId;
@@ -34,7 +34,7 @@ impl GroundSystem {
 
 #[derive(SystemData)]
 pub struct GroundSystemData<'a> {
-    frame_stepper: ReadExpect<'a, FrameStepper>,
+    game_tick: ReadExpect<'a, GameTick>,
     grounds_storage: ReadStorage<'a, Ground>,
     drawables_storage: WriteStorage<'a, Drawable>,
 }
@@ -44,7 +44,7 @@ impl<'a> System<'a> for GroundSystem {
 
     fn run(&mut self, mut data: Self::SystemData) {
         for (_, mut drawable) in (&data.grounds_storage, &mut data.drawables_storage).join() {
-            for _ in 0..data.frame_stepper.frame_count_to_animate() {
+            for _ in 0..data.game_tick.ticks_to_animate() {
                 self.update(&mut drawable)
             }
         }

@@ -1,7 +1,7 @@
 use crate::components::Drawable;
 use crate::graphics::data::TileSheet;
 use crate::graphics::textures;
-use crate::resources::FrameStepper;
+use crate::resources::GameTick;
 use crate::WorldData;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
@@ -68,14 +68,16 @@ impl<'a> RenderingSystem<'a> {
 #[derive(SystemData)]
 pub struct RenderingSystemData<'a> {
     drawables_storage: ReadStorage<'a, Drawable>,
-    frame_stepper: ReadExpect<'a, FrameStepper>,
+    game_tick: ReadExpect<'a, GameTick>,
 }
 
 impl<'a, 'b> System<'a> for RenderingSystem<'b> {
     type SystemData = RenderingSystemData<'a>;
 
     fn run(&mut self, data: Self::SystemData) {
-        if data.frame_stepper.should_update_frame_buffer() {
+        // There is no use in drawing a frame if the systems weren't
+        // even asked to update their animation
+        if data.game_tick.ticked() {
             self.draw(data.drawables_storage);
         }
     }

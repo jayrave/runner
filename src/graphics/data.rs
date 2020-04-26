@@ -41,7 +41,7 @@ pub struct TileData {
 }
 
 /// I am hoping that since `TileData` is not heap allocated, this is
-/// cheap enough to be called every single frame if required
+/// cheap enough to be called every single tick if required
 pub fn build_tile_data(tile: Tile) -> TileData {
     let tile_sheet: TileSheet;
     let bounds_in_tile_sheet: Rect;

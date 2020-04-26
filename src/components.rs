@@ -22,7 +22,7 @@ pub struct Plant;
 #[derive(Component)]
 #[storage(VecStorage)]
 pub struct Player {
-    pub current_step_started_at_frame: u64,
+    pub current_step_started_at_tick: u64,
 }
 
 #[derive(Component, Default)]

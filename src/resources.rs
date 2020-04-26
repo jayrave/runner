@@ -1,7 +1,7 @@
 mod event_queue;
-mod frame_stepper;
 mod game_finisher;
+mod game_tick;
 
 pub use event_queue::EventQueue;
-pub use frame_stepper::FrameStepper;
 pub use game_finisher::GameFinisher;
+pub use game_tick::GameTick;

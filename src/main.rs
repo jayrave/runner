@@ -59,7 +59,7 @@ fn setup_ecs<'a, 'b>(
 
     // Insert resources
     world.insert(resources::EventQueue::new());
-    world.insert(resources::FrameStepper::new());
+    world.insert(resources::GameTick::new());
     world.insert(resources::GameFinisher::new());
 
     // Register components
@@ -75,7 +75,7 @@ fn setup_ecs<'a, 'b>(
 
     // Orchestrate systems
     let dispatcher = DispatcherBuilder::new()
-        .with(systems::FrameStepperUpdater, "frame_stepper_updater", &[])
+        .with(systems::GameTickUpdater, "game_tick_updater", &[])
         .with_barrier()
         .with(systems::EventSystem, "event_system", &[])
         .with_barrier() // To let event system to work before any other system

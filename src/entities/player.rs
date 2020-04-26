@@ -13,7 +13,7 @@ impl Player {
         world
             .create_entity()
             .with(components::Player {
-                current_step_started_at_frame: 0,
+                current_step_started_at_tick: 0,
             })
             .with(components::UserControlled::new())
             .with(components::Drawable {
