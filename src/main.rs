@@ -65,6 +65,7 @@ fn setup_ecs<'a, 'b>(
     // Register components
     world.register::<components::Drawable>();
     world.register::<components::Ground>();
+    world.register::<components::Plant>();
     world.register::<components::Player>();
     world.register::<components::UserControlled>();
 
@@ -83,6 +84,7 @@ fn setup_ecs<'a, 'b>(
             "ground_system",
             &[],
         )
+        .with(systems::PlantSystem::new(world_data), "plant_system", &[])
         .with(systems::PlayerSystem::new(world_data), "player_system", &[])
         .with_thread_local(systems::RenderingSystem::new(world_data, canvas, textures))
         .build();

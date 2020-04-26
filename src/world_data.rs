@@ -16,7 +16,7 @@ impl WorldData {
             sky_color: Color::RGB(58, 154, 216),
             world_width: 800,
             world_height: 600,
-            ground_speed_in_wc: 2
+            ground_speed_in_wc: 2,
         }
     }
 
