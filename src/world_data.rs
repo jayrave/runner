@@ -7,6 +7,7 @@ pub struct WorldData {
     sky_color: Color,
     world_width: u32,
     world_height: u32,
+    ground_speed_in_wc: u8,
 }
 
 impl WorldData {
@@ -15,6 +16,7 @@ impl WorldData {
             sky_color: Color::RGB(58, 154, 216),
             world_width: 800,
             world_height: 600,
+            ground_speed_in_wc: 2
         }
     }
 
@@ -48,5 +50,9 @@ impl WorldData {
 
     pub fn world_surface_at(&self) -> i32 {
         self.world_bottom() / 2
+    }
+
+    pub fn ground_speed_in_wc(&self) -> u8 {
+        self.ground_speed_in_wc
     }
 }

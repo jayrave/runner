@@ -8,8 +8,6 @@ use specs::SystemData;
 use specs::World;
 use specs::{ReadExpect, ReadStorage, System, WriteStorage};
 
-const X_OFFSET_PER_FRAME: i32 = -2;
-
 pub struct GroundSystem {
     world_data: WorldData,
 }
@@ -28,7 +26,7 @@ impl GroundSystem {
         }
 
         // Every tile needs to be moved to the left by a few world coordinates
-        drawable.world_bounds.offset(X_OFFSET_PER_FRAME, 0);
+        drawable.world_bounds.offset(-i32::from(self.world_data.ground_speed_in_wc()), 0);
     }
 }
 
