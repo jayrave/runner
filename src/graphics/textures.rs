@@ -29,6 +29,6 @@ impl<'a> Textures<'a> {
     ) -> Texture<'a> {
         texture_creator
             .load_texture(format!("assets/{}", filename))
-            .expect(&format!("Couldn't load texture: {}", filename))
+            .unwrap_or_else(|_| panic!("Couldn't load texture: {}", filename))
     }
 }

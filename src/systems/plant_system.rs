@@ -8,7 +8,7 @@ use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::World;
 use specs::{Entities, Entity, SystemData};
-use specs::{ReadExpect, ReadStorage, System, WriteStorage};
+use specs::{ReadExpect, System, WriteStorage};
 
 const MIN_TICKS_BETWEEN_PLANTS: u64 = 250;
 const RANDOM_MIN: u64 = 1;

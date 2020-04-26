@@ -10,14 +10,20 @@ pub struct WorldData {
     ground_speed_in_wc: u8,
 }
 
-impl WorldData {
-    pub fn new() -> WorldData {
+impl Default for WorldData {
+    fn default() -> Self {
         WorldData {
             sky_color: Color::RGB(58, 154, 216),
             world_width: 800,
             world_height: 600,
             ground_speed_in_wc: 2,
         }
+    }
+}
+
+impl WorldData {
+    pub fn new() -> WorldData {
+        WorldData::default()
     }
 
     pub fn sky_color(&self) -> Color {

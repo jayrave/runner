@@ -32,7 +32,7 @@ impl<'a> RenderingSystem<'a> {
     }
 
     fn world_to_screen_coordinates(tile_world_bounds: &Rect, viewport: &Rect) -> Rect {
-        let mut screen_coordinates = tile_world_bounds.clone();
+        let mut screen_coordinates = *tile_world_bounds;
         screen_coordinates.offset(
             i32::try_from(viewport.width() / 2).expect("u32/2 is not i32!"),
             i32::try_from(viewport.height() / 2).expect("u32/2 is not i32!"),

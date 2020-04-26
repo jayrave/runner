@@ -2,9 +2,7 @@ use crate::components::Drawable;
 use crate::graphics::data;
 use crate::{components, WorldData};
 use sdl2::rect::Rect;
-use specs::{Builder, Entities, World, WorldExt, WriteStorage};
-use std::convert::TryFrom;
-use std::iter::Iterator;
+use specs::{Entities, WriteStorage};
 
 const PLANT_TILE_WORLD_DIMENSION: u8 = 24;
 

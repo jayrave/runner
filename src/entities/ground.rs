@@ -22,9 +22,10 @@ impl Ground {
                 world,
                 world_data,
                 world_data.world_bottom() - i32::from(GROUND_TILE_WORLD_DIMENSION * row_number),
-                match row_number == total_row_count {
-                    true => data::EnvironmentTile::GrassyGround,
-                    false => data::EnvironmentTile::Ground,
+                if row_number == total_row_count {
+                    data::EnvironmentTile::GrassyGround
+                } else {
+                    data::EnvironmentTile::Ground
                 },
             )
         }
