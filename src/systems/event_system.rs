@@ -34,7 +34,7 @@ impl<'a> System<'a> for EventSystem {
                     ..
                 } => match keycode {
                     Keycode::Escape => should_finish_game = true,
-                    Keycode::Up => user_input = Some(data::Input::Up),
+                    Keycode::Space | Keycode::Up => user_input = Some(data::Input::Up),
                     Keycode::Down => user_input = Some(data::Input::Down),
                     _ => {}
                 },
