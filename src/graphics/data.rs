@@ -20,7 +20,6 @@ pub enum Tile {
 pub enum CharacterTile {
     Jump,
     Slide,
-    Still,
     Run1,
     Run2,
     Run3,
@@ -52,7 +51,6 @@ pub fn build_tile_data(tile: Tile) -> TileData {
             bounds_in_tile_sheet = match tile {
                 CharacterTile::Jump => build_char_bounds(TilePos { row: 0, col: 1 }),
                 CharacterTile::Slide => build_char_bounds(TilePos { row: 1, col: 1 }),
-                CharacterTile::Still => build_char_bounds(TilePos { row: 0, col: 0 }),
                 CharacterTile::Run1 => build_char_bounds(TilePos { row: 2, col: 6 }),
                 CharacterTile::Run2 => build_char_bounds(TilePos { row: 2, col: 7 }),
                 CharacterTile::Run3 => build_char_bounds(TilePos { row: 2, col: 8 }),
