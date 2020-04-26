@@ -19,6 +19,15 @@ const FRAMES_IN_SLIDE_ANIMATION: u8 = 40;
 const FRAMES_IN_RUN_ANIMATION: u8 = 12;
 const JUMP_HEIGHT_IN_WORLD_COORDINATES: u8 = 100;
 
+// Derived using math from a GDC talk (for smooth parabolic jump):
+//      GDC link: https://www.gdcvault.com/play/1023559/Math-for-Game-Programmers-Building
+//      Video: https://www.youtube.com/watch?v=hG9SzQxaCm8
+//      Slides: http://www.mathforgameprogrammers.com/gdc2016/GDC2016_Pittman_Kyle_BuildingABetterJump.pdf
+const FRAMES_TO_HIT_APEX_IN_JUMP: f32 = FRAMES_IN_JUMP_ANIMATION as f32 / 2.0;
+const JUMP_VELOCITY: f32 = -JUMP_GRAVITY * FRAMES_TO_HIT_APEX_IN_JUMP;
+const JUMP_GRAVITY: f32 = (-2.0 * JUMP_HEIGHT_IN_WORLD_COORDINATES as f32)
+    / (FRAMES_TO_HIT_APEX_IN_JUMP * FRAMES_TO_HIT_APEX_IN_JUMP);
+
 pub struct PlayerSystem {
     world_data: WorldData,
 }
@@ -189,25 +198,13 @@ impl PlayerSystem {
             tile: data::CharacterTile::Jump,
         });
 
-        let frames_since_jump_started = current_frame_count - jump_started_at_frame;
-        let frames_to_hit_apex = u64::from(FRAMES_IN_JUMP_ANIMATION) / 2;
+        let frames_since_jump_started = (current_frame_count - jump_started_at_frame) as f32;
+        let height = ((JUMP_GRAVITY * frames_since_jump_started.powf(2.0)) / 2.0)
+            + (JUMP_VELOCITY * frames_since_jump_started);
 
-        // `floor` to prevent overflow while sub from jump height
-        let travel_per_frame: u64 = (f32::from(JUMP_HEIGHT_IN_WORLD_COORDINATES)
-            / frames_to_hit_apex as f32)
-            .floor() as u64;
-
-        let jump_height = if frames_since_jump_started <= frames_to_hit_apex {
-            travel_per_frame * frames_since_jump_started
-        } else {
-            u64::from(JUMP_HEIGHT_IN_WORLD_COORDINATES)
-                - (travel_per_frame * (frames_since_jump_started - frames_to_hit_apex))
-        };
-
-        drawable.world_bounds.set_y(
-            entities::Player::running_y(&self.world_data)
-                - i32::try_from(jump_height).expect("Jumped too high!"),
-        );
+        drawable
+            .world_bounds
+            .set_y(entities::Player::running_y(&self.world_data) - height.round() as i32);
     }
 }
 
