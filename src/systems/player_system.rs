@@ -7,34 +7,39 @@ use crate::entities;
 use crate::graphics::data;
 use crate::resources::GameTick;
 
-use crate::data::WorldData;
+use crate::data::{AnimationData, WorldData};
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::SystemData;
 use specs::World;
 use specs::{ReadExpect, System, WriteStorage};
 
-const TICKS_IN_JUMP_ANIMATION: u8 = 40;
-const TICKS_IN_SLIDE_ANIMATION: u8 = 40;
-const TICKS_IN_RUN_ANIMATION: u8 = 12;
-const JUMP_HEIGHT_IN_WC: u8 = 100;
-
-// Derived using math from a GDC talk (for smooth parabolic jump):
-//      GDC link: https://www.gdcvault.com/play/1023559/Math-for-Game-Programmers-Building
-//      Video: https://www.youtube.com/watch?v=hG9SzQxaCm8
-//      Slides: http://www.mathforgameprogrammers.com/gdc2016/GDC2016_Pittman_Kyle_BuildingABetterJump.pdf
-const TICKS_TO_HIT_APEX_IN_JUMP: f32 = TICKS_IN_JUMP_ANIMATION as f32 / 2.0;
-const JUMP_VELOCITY: f32 = -JUMP_GRAVITY * TICKS_TO_HIT_APEX_IN_JUMP;
-const JUMP_GRAVITY: f32 =
-    (-2.0 * JUMP_HEIGHT_IN_WC as f32) / (TICKS_TO_HIT_APEX_IN_JUMP * TICKS_TO_HIT_APEX_IN_JUMP);
-
 pub struct PlayerSystem {
+    animation_data: AnimationData,
     world_data: WorldData,
+    jump_gravity: f32,
+    jump_velocity: f32,
 }
 
 impl PlayerSystem {
-    pub fn new(world_data: WorldData) -> PlayerSystem {
-        PlayerSystem { world_data }
+    pub fn new(animation_data: AnimationData, world_data: WorldData) -> PlayerSystem {
+        // Derived using math from a GDC talk (for smooth parabolic jump):
+        //      GDC link: https://www.gdcvault.com/play/1023559/Math-for-Game-Programmers-Building
+        //      Video: https://www.youtube.com/watch?v=hG9SzQxaCm8
+        //      Slides: http://www.mathforgameprogrammers.com/gdc2016/GDC2016_Pittman_Kyle_BuildingABetterJump.pdf
+
+        let ticks_to_hit_apex_in_jump: f32 = animation_data.ticks_in_player_jump() as f32 / 2.0;
+        let jump_gravity: f32 = (-2.0 * animation_data.player_jump_height_in_wc() as f32)
+            / (ticks_to_hit_apex_in_jump.powf(2.0));
+
+        let jump_velocity: f32 = -jump_gravity * ticks_to_hit_apex_in_jump;
+
+        PlayerSystem {
+            animation_data,
+            world_data,
+            jump_gravity,
+            jump_velocity,
+        }
     }
 
     fn update(
@@ -115,8 +120,9 @@ impl PlayerSystem {
         drawable: &mut Drawable,
         player: &mut Player,
     ) {
-        let continue_slide =
-            slide_started_at_tick + u64::from(TICKS_IN_JUMP_ANIMATION) >= current_tick;
+        let continue_slide = slide_started_at_tick
+            + u64::from(self.animation_data.ticks_in_player_jump())
+            >= current_tick;
 
         // If we are just continuing to slide, no need to update any drawable
         // data. Otherwise, will have to switch to running
@@ -137,8 +143,9 @@ impl PlayerSystem {
         drawable: &mut Drawable,
         player: &mut Player,
     ) {
-        let continue_jump =
-            jump_started_at_tick + u64::from(TICKS_IN_SLIDE_ANIMATION) >= current_tick;
+        let continue_jump = jump_started_at_tick
+            + u64::from(self.animation_data.ticks_in_player_slide())
+            >= current_tick;
 
         if continue_jump {
             self.update_drawable_for_jump_tile(current_tick, jump_started_at_tick, drawable)
@@ -160,7 +167,9 @@ impl PlayerSystem {
         player: &mut Player,
         current_tile: data::CharacterTile,
     ) {
-        let change_tile = run_started_at_tick + u64::from(TICKS_IN_RUN_ANIMATION) <= current_tick;
+        let change_tile = run_started_at_tick
+            + u64::from(self.animation_data.ticks_in_player_run_step())
+            <= current_tick;
 
         if change_tile {
             player.current_step_started_at_tick = current_tick;
@@ -198,8 +207,8 @@ impl PlayerSystem {
         });
 
         let ticks_since_jump_started = (current_tick - jump_started_at_tick) as f32;
-        let height = ((JUMP_GRAVITY * ticks_since_jump_started.powf(2.0)) / 2.0)
-            + (JUMP_VELOCITY * ticks_since_jump_started);
+        let height = ((self.jump_gravity * ticks_since_jump_started.powf(2.0)) / 2.0)
+            + (self.jump_velocity * ticks_since_jump_started);
 
         drawable
             .world_bounds

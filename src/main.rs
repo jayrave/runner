@@ -89,7 +89,11 @@ fn setup_ecs<'a, 'b>(
             "plant_system",
             &[],
         )
-        .with(systems::PlayerSystem::new(world_data), "player_system", &[])
+        .with(
+            systems::PlayerSystem::new(animation_data, world_data),
+            "player_system",
+            &[],
+        )
         .with_thread_local(systems::RenderingSystem::new(world_data, canvas, textures))
         .build();
 

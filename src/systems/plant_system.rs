@@ -10,14 +10,13 @@ use specs::World;
 use specs::{Entities, Entity, SystemData};
 use specs::{ReadExpect, System, WriteStorage};
 
-const MIN_TICKS_BETWEEN_PLANTS: u64 = 250;
 const RANDOM_MIN: u64 = 1;
 const RANDOM_MAX: u64 = 225;
 
 pub struct PlantSystem {
     animation_data: AnimationData,
     world_data: WorldData,
-    last_plant_drawn_at: u64,
+    last_plant_at_tick: u64,
 }
 
 impl PlantSystem {
@@ -25,7 +24,7 @@ impl PlantSystem {
         PlantSystem {
             animation_data,
             world_data,
-            last_plant_drawn_at: 0,
+            last_plant_at_tick: 0,
         }
     }
 
@@ -69,10 +68,11 @@ impl<'a> System<'a> for PlantSystem {
 
         // Create new plants if willed
         let ticks_animated = data.game_tick.ticks_animated();
-        if ticks_animated - self.last_plant_drawn_at > MIN_TICKS_BETWEEN_PLANTS {
+        if ticks_animated - self.last_plant_at_tick > self.animation_data.min_ticks_between_plants()
+        {
             let random_number = rand::thread_rng().gen_range(RANDOM_MIN, RANDOM_MAX);
             if ticks_animated % random_number == 0 {
-                self.last_plant_drawn_at = ticks_animated;
+                self.last_plant_at_tick = ticks_animated;
                 entities::Plant::create(
                     &self.world_data,
                     &data.entities,
