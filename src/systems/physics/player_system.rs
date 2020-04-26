@@ -12,10 +12,12 @@ use specs::shred::ResourceId;
 use specs::SystemData;
 use specs::World;
 use specs::{ReadExpect, System, WriteStorage};
+use std::convert::TryFrom;
 
 const FRAMES_IN_JUMP_ANIMATION: u8 = 60;
 const FRAMES_IN_SLIDE_ANIMATION: u8 = 60;
 const FRAMES_IN_WALK_ANIMATION: u8 = 20;
+const JUMP_HEIGHT_IN_WORLD_COORDINATES: u8 = 100;
 
 pub struct PlayerSystem {
     world_data: WorldData,
@@ -100,12 +102,12 @@ impl PlayerSystem {
     fn continue_slide_or_start_walking(
         &self,
         current_frame_count: u64,
-        current_step_started_at_frame: u64,
+        slide_started_at_frame: u64,
         drawable: &mut Drawable,
         player: &mut Player,
     ) {
-        let continue_slide = current_step_started_at_frame + u64::from(FRAMES_IN_JUMP_ANIMATION)
-            >= current_frame_count;
+        let continue_slide =
+            slide_started_at_frame + u64::from(FRAMES_IN_JUMP_ANIMATION) >= current_frame_count;
 
         // If we are just continuing to slide, no need to update any drawable
         // data. Otherwise, will have to switch to walking
@@ -116,22 +118,22 @@ impl PlayerSystem {
 
     fn start_jump(&self, current_frame_count: u64, drawable: &mut Drawable, player: &mut Player) {
         player.current_step_started_at_frame = current_frame_count;
-        self.update_drawable_for_jump_tile(drawable);
+        self.update_drawable_for_jump_tile(current_frame_count, current_frame_count, drawable);
     }
 
     fn continue_jump_or_start_walking(
         &self,
         current_frame_count: u64,
-        current_step_started_at_frame: u64,
+        jump_started_at_frame: u64,
         drawable: &mut Drawable,
         player: &mut Player,
     ) {
-        let continue_jump = current_step_started_at_frame + u64::from(FRAMES_IN_SLIDE_ANIMATION)
-            >= current_frame_count;
+        let continue_jump =
+            jump_started_at_frame + u64::from(FRAMES_IN_SLIDE_ANIMATION) >= current_frame_count;
 
-        // If we are just continuing to jump, no need to update any drawable
-        // data. Otherwise, will have to switch to walking
-        if !continue_jump {
+        if continue_jump {
+            self.update_drawable_for_jump_tile(current_frame_count, jump_started_at_frame, drawable)
+        } else {
             self.start_walk(current_frame_count, drawable, player)
         }
     }
@@ -144,13 +146,13 @@ impl PlayerSystem {
     fn continue_walk(
         &self,
         current_frame_count: u64,
-        current_step_started_at_frame: u64,
+        walk_started_at_frame: u64,
         drawable: &mut Drawable,
         player: &mut Player,
         current_tile: data::CharacterTile,
     ) {
-        let change_tile = current_step_started_at_frame + u64::from(FRAMES_IN_WALK_ANIMATION)
-            <= current_frame_count;
+        let change_tile =
+            walk_started_at_frame + u64::from(FRAMES_IN_WALK_ANIMATION) <= current_frame_count;
 
         if change_tile {
             player.current_step_started_at_frame = current_frame_count;
@@ -176,14 +178,34 @@ impl PlayerSystem {
             .set_y(entities::Player::walking_y(&self.world_data));
     }
 
-    fn update_drawable_for_jump_tile(&self, drawable: &mut Drawable) {
+    fn update_drawable_for_jump_tile(
+        &self,
+        current_frame_count: u64,
+        jump_started_at_frame: u64,
+        drawable: &mut Drawable,
+    ) {
         drawable.tile_data = data::build_tile_data(data::Tile::Character {
             tile: data::CharacterTile::Jump,
         });
 
-        drawable
-            .world_bounds
-            .set_y(entities::Player::walking_y(&self.world_data) - 75);
+        let frames_since_jump_started = current_frame_count - jump_started_at_frame;
+        let frames_to_hit_apex = u64::from(FRAMES_IN_JUMP_ANIMATION) / 2;
+
+        let travel_per_frame: u64 = (f32::from(JUMP_HEIGHT_IN_WORLD_COORDINATES)
+            / frames_to_hit_apex as f32)
+            .round() as u64;
+
+        let jump_height = if frames_since_jump_started <= frames_to_hit_apex {
+            travel_per_frame * frames_since_jump_started
+        } else {
+            u64::from(JUMP_HEIGHT_IN_WORLD_COORDINATES)
+                - (travel_per_frame * (frames_since_jump_started - frames_to_hit_apex))
+        };
+
+        drawable.world_bounds.set_y(
+            entities::Player::walking_y(&self.world_data)
+                - i32::try_from(jump_height).expect("Jumped too high!"),
+        );
     }
 }
 
