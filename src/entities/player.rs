@@ -1,5 +1,7 @@
 use crate::graphics::data;
+use crate::graphics::data::EnvironmentTile::Plant;
 use crate::{components, WorldData};
+use sdl2::audio::AudioStatus::Playing;
 use sdl2::rect::Rect;
 use specs::{Builder, World, WorldExt};
 
@@ -12,19 +14,25 @@ impl Player {
     pub fn create(world: &mut World, world_data: &WorldData) {
         world
             .create_entity()
-            .with(components::Player)
-            .with(components::UserControlled { input: None })
+            .with(components::Player {
+                input_based_animation_started_at_frame: None,
+            })
+            .with(components::UserControlled::new())
             .with(components::Drawable {
                 tile_data: data::build_tile_data(data::Tile::Character {
                     tile: data::CharacterTile::Walk1,
                 }),
                 world_bounds: Rect::new(
                     world_data.world_left() + (i32::from(PLAYER_TILE_WORLD_WIDTH) * 2),
-                    world_data.world_surface_at() - i32::from(PLAYER_TILE_WORLD_HEIGHT),
+                    Player::walking_y(world_data),
                     PLAYER_TILE_WORLD_WIDTH.into(),
                     PLAYER_TILE_WORLD_HEIGHT.into(),
                 ),
             })
             .build();
+    }
+
+    pub fn walking_y(world_data: &WorldData) -> i32 {
+        world_data.world_surface_at() - i32::from(PLAYER_TILE_WORLD_HEIGHT)
     }
 }

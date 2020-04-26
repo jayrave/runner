@@ -83,7 +83,11 @@ fn setup_ecs<'a, 'b>(
             "ground_system",
             &[],
         )
-        .with(systems::physics::PlayerSystem, "player_system", &[])
+        .with(
+            systems::physics::PlayerSystem::new(world_data),
+            "player_system",
+            &[],
+        )
         .with_thread_local(systems::RenderingSystem::new(world_data, canvas, textures))
         .build();
 

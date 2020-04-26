@@ -46,7 +46,9 @@ impl<'a> System<'a> for EventSystem {
             data.game_finisher.finish();
         } else {
             for user_controlled in (&mut data.user_controlled_storage).join() {
-                user_controlled.input = user_input;
+                if let Some(input) = user_input {
+                    user_controlled.update_input_if_required(input);
+                }
             }
         }
     }
