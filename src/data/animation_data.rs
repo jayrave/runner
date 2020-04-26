@@ -13,12 +13,12 @@ pub struct AnimationData {
 impl Default for AnimationData {
     fn default() -> Self {
         AnimationData {
-            ground_speed_in_wc_per_tick: 2,
+            ground_speed_in_wc_per_tick: 4,
             min_ticks_between_plants: 250,
-            ticks_in_player_jump: 40,
+            ticks_in_player_jump: 60,
             ticks_in_player_slide: 40,
             ticks_in_player_run_step: 12,
-            player_jump_height_in_wc: 100,
+            player_jump_height_in_wc: 120,
         }
     }
 }

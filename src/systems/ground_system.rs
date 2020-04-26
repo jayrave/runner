@@ -22,11 +22,13 @@ impl GroundSystem {
     }
 
     fn update(&self, drawable: &mut Drawable) {
-        // Instead of `<=`, I am going to stick with `==` so I can be easily
-        // figure out when the precondition (movement being a factor of world
-        // width) fails. Wrap around tile if it is off screen
-        if drawable.world_bounds.right() == self.world_data.world_left() {
-            drawable.world_bounds.set_x(self.world_data.world_right());
+        // World left will be in negative & so if this diff is positive, the tile
+        // is completely outside the world. Wrap it around
+        let diff = self.world_data.world_left() - drawable.world_bounds.right();
+        if diff > 0 {
+            drawable
+                .world_bounds
+                .set_x(self.world_data.world_right() - diff);
         }
 
         // Every tile needs to be moved to the left by a few world coordinates

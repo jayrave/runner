@@ -121,7 +121,7 @@ impl PlayerSystem {
         player: &mut Player,
     ) {
         let continue_slide = slide_started_at_tick
-            + u64::from(self.animation_data.ticks_in_player_jump())
+            + u64::from(self.animation_data.ticks_in_player_slide())
             >= current_tick;
 
         // If we are just continuing to slide, no need to update any drawable
@@ -144,7 +144,7 @@ impl PlayerSystem {
         player: &mut Player,
     ) {
         let continue_jump = jump_started_at_tick
-            + u64::from(self.animation_data.ticks_in_player_slide())
+            + u64::from(self.animation_data.ticks_in_player_jump())
             >= current_tick;
 
         if continue_jump {
