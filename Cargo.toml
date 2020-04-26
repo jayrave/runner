@@ -12,3 +12,6 @@ sdl2 = { version = "0.33.0", features = ["image"] }
 
 # specs is the ecs for our game
 specs = { version = "0.16.1", features = ["shred-derive", "specs-derive"] }
+
+# Used for deciding where to put things on screen with randomness
+rand = "0.7.3"
