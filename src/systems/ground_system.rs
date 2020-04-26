@@ -28,7 +28,7 @@ impl GroundSystem {
         // Every tile needs to be moved to the left by a few world coordinates
         drawable
             .world_bounds
-            .offset(-i32::from(self.world_data.ground_speed_in_wc()), 0);
+            .offset(-i32::from(self.world_data.ground_speed_in_wc_per_tick()), 0);
     }
 }
 

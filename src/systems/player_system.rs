@@ -16,7 +16,7 @@ use specs::{ReadExpect, System, WriteStorage};
 const TICKS_IN_JUMP_ANIMATION: u8 = 40;
 const TICKS_IN_SLIDE_ANIMATION: u8 = 40;
 const TICKS_IN_RUN_ANIMATION: u8 = 12;
-const JUMP_HEIGHT_IN_WORLD_COORDINATES: u8 = 100;
+const JUMP_HEIGHT_IN_WC: u8 = 100;
 
 // Derived using math from a GDC talk (for smooth parabolic jump):
 //      GDC link: https://www.gdcvault.com/play/1023559/Math-for-Game-Programmers-Building
@@ -24,8 +24,8 @@ const JUMP_HEIGHT_IN_WORLD_COORDINATES: u8 = 100;
 //      Slides: http://www.mathforgameprogrammers.com/gdc2016/GDC2016_Pittman_Kyle_BuildingABetterJump.pdf
 const TICKS_TO_HIT_APEX_IN_JUMP: f32 = TICKS_IN_JUMP_ANIMATION as f32 / 2.0;
 const JUMP_VELOCITY: f32 = -JUMP_GRAVITY * TICKS_TO_HIT_APEX_IN_JUMP;
-const JUMP_GRAVITY: f32 = (-2.0 * JUMP_HEIGHT_IN_WORLD_COORDINATES as f32)
-    / (TICKS_TO_HIT_APEX_IN_JUMP * TICKS_TO_HIT_APEX_IN_JUMP);
+const JUMP_GRAVITY: f32 =
+    (-2.0 * JUMP_HEIGHT_IN_WC as f32) / (TICKS_TO_HIT_APEX_IN_JUMP * TICKS_TO_HIT_APEX_IN_JUMP);
 
 pub struct PlayerSystem {
     world_data: WorldData,
