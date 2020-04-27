@@ -49,6 +49,7 @@ impl<'a> RenderingSystem<'a> {
         for drawable in drawables_storage.join() {
             let texture = match drawable.tile_data.tile_sheet {
                 TileSheet::Character => &self.textures.character_texture,
+                TileSheet::Enemy => &self.textures.enemy_texture,
                 TileSheet::Environment => &self.textures.environment_texture,
             };
 

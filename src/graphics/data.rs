@@ -7,12 +7,14 @@ const CHARACTER_TILE_HEIGHT: u8 = 128;
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum TileSheet {
     Character,
+    Enemy,
     Environment,
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Tile {
     Character { tile: CharacterTile },
+    Enemy { tile: EnemyTile },
     Environment { tile: EnvironmentTile },
 }
 
@@ -23,6 +25,18 @@ pub enum CharacterTile {
     Run1,
     Run2,
     Run3,
+}
+
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
+pub enum EnemyTile {
+    BatFly1,
+    BatFly2,
+    BeeFly1,
+    BeeFly2,
+    MouseRun1,
+    MouseRun2,
+    SpiderWalk1,
+    SpiderWalk2,
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -54,6 +68,20 @@ pub fn build_tile_data(tile: Tile) -> TileData {
                 CharacterTile::Run1 => build_char_bounds(TilePos { row: 2, col: 6 }),
                 CharacterTile::Run2 => build_char_bounds(TilePos { row: 2, col: 7 }),
                 CharacterTile::Run3 => build_char_bounds(TilePos { row: 2, col: 8 }),
+            }
+        }
+
+        Tile::Enemy { tile } => {
+            tile_sheet = TileSheet::Enemy;
+            bounds_in_tile_sheet = match tile {
+                EnemyTile::BatFly1 => Rect::new(71, 235, 70, 47),
+                EnemyTile::BatFly2 => Rect::new(0, 0, 88, 37),
+                EnemyTile::BeeFly1 => Rect::new(315, 353, 56, 48),
+                EnemyTile::BeeFly2 => Rect::new(140, 23, 61, 42),
+                EnemyTile::MouseRun1 => Rect::new(197, 475, 59, 35),
+                EnemyTile::MouseRun2 => Rect::new(256, 475, 58, 35),
+                EnemyTile::SpiderWalk1 => Rect::new(0, 90, 72, 51),
+                EnemyTile::SpiderWalk2 => Rect::new(0, 37, 77, 53),
             }
         }
 
