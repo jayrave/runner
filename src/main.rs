@@ -62,6 +62,7 @@ fn setup_ecs<'a, 'b>(
     world.insert(resources::GameFinisher::new());
 
     // Register components
+    world.register::<components::Animatable>();
     world.register::<components::Drawable>();
     world.register::<components::Ground>();
     world.register::<components::Plant>();

@@ -13,10 +13,11 @@ impl Player {
     pub fn create(world: &mut World, world_data: &WorldData) {
         world
             .create_entity()
-            .with(components::Player {
+            .with(components::Player)
+            .with(components::input::InputControlled::new())
+            .with(components::Animatable {
                 current_step_started_at_tick: 0,
             })
-            .with(components::input::InputControlled::new())
             .with(components::Drawable {
                 tile_data: data::build_tile_data(data::Tile::Character {
                     tile: data::CharacterTile::Run1,

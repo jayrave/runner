@@ -1,10 +1,10 @@
+mod animatable;
 mod drawable;
-mod ground;
 pub mod input;
-mod plant;
-mod player;
+mod marker_components;
 
+pub use animatable::Animatable;
 pub use drawable::Drawable;
-pub use ground::Ground;
-pub use plant::Plant;
-pub use player::Player;
+pub use marker_components::Ground;
+pub use marker_components::Plant;
+pub use marker_components::Player;
