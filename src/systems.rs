@@ -1,3 +1,4 @@
+mod enemy_system;
 mod event_system;
 mod game_tick_updater;
 mod ground_system;
@@ -5,6 +6,7 @@ mod plant_system;
 mod player_system;
 mod rendering_system;
 
+pub use enemy_system::EnemySystem;
 pub use event_system::EventSystem;
 pub use game_tick_updater::GameTickUpdater;
 pub use ground_system::GroundSystem;

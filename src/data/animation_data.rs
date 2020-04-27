@@ -8,6 +8,11 @@ pub struct AnimationData {
     ticks_in_player_slide: u8,
     ticks_in_player_run_step: u8,
     player_jump_height_in_wc: u8,
+
+    // Enemy related
+    enemy_speed_in_wc_per_tick: u8,
+    ticks_in_enemy_movement: u8,
+    min_ticks_between_enemies: u64,
 }
 
 impl Default for AnimationData {
@@ -15,10 +20,15 @@ impl Default for AnimationData {
         AnimationData {
             ground_speed_in_wc_per_tick: 4,
             min_ticks_between_plants: 250,
+
             ticks_in_player_jump: 60,
             ticks_in_player_slide: 40,
             ticks_in_player_run_step: 12,
             player_jump_height_in_wc: 120,
+
+            enemy_speed_in_wc_per_tick: 6,
+            ticks_in_enemy_movement: 12,
+            min_ticks_between_enemies: 180,
         }
     }
 }
@@ -50,5 +60,17 @@ impl AnimationData {
 
     pub fn player_jump_height_in_wc(&self) -> u8 {
         self.player_jump_height_in_wc
+    }
+
+    pub fn enemy_speed_in_wc_per_tick(&self) -> u8 {
+        self.enemy_speed_in_wc_per_tick
+    }
+
+    pub fn ticks_in_enemy_movement(&self) -> u8 {
+        self.ticks_in_enemy_movement
+    }
+
+    pub fn min_ticks_between_enemies(&self) -> u64 {
+        self.min_ticks_between_enemies
     }
 }

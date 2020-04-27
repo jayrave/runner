@@ -35,8 +35,8 @@ pub enum EnemyTile {
     BeeFly2,
     MouseRun1,
     MouseRun2,
-    SpiderWalk1,
-    SpiderWalk2,
+    SpiderRun1,
+    SpiderRun2,
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -80,8 +80,8 @@ pub fn build_tile_data(tile: Tile) -> TileData {
                 EnemyTile::BeeFly2 => Rect::new(140, 23, 61, 42),
                 EnemyTile::MouseRun1 => Rect::new(197, 475, 59, 35),
                 EnemyTile::MouseRun2 => Rect::new(256, 475, 58, 35),
-                EnemyTile::SpiderWalk1 => Rect::new(0, 90, 72, 51),
-                EnemyTile::SpiderWalk2 => Rect::new(0, 37, 77, 53),
+                EnemyTile::SpiderRun1 => Rect::new(0, 90, 72, 51),
+                EnemyTile::SpiderRun2 => Rect::new(0, 37, 77, 53),
             }
         }
 

@@ -31,7 +31,9 @@ impl PlantSystem {
     fn move_or_remove(&self, drawable: &mut Drawable, entity: Entity, entities: &Entities) {
         // As soon as a plant moves out, let it go
         if drawable.world_bounds.right() <= self.world_data.world_left() {
-            entities.delete(entity).expect("Plant entity to be deleted");
+            entities
+                .delete(entity)
+                .expect("Plant entity couldn't be deleted");
         } else {
             drawable.world_bounds.offset(
                 -i32::from(self.animation_data.ground_speed_in_wc_per_tick()),
@@ -66,7 +68,7 @@ impl<'a> System<'a> for PlantSystem {
             }
         }
 
-        // Create new plants if willed
+        // Create new plants if possible & required
         let ticks_animated = data.game_tick.ticks_animated();
         if ticks_animated - self.last_plant_at_tick > self.animation_data.min_ticks_between_plants()
         {

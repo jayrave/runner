@@ -64,6 +64,7 @@ fn setup_ecs<'a, 'b>(
     // Register components
     world.register::<components::Animatable>();
     world.register::<components::Drawable>();
+    world.register::<components::Enemy>();
     world.register::<components::Ground>();
     world.register::<components::Plant>();
     world.register::<components::Player>();
@@ -93,6 +94,11 @@ fn setup_ecs<'a, 'b>(
         .with(
             systems::PlayerSystem::new(animation_data, world_data),
             "player_system",
+            &[],
+        )
+        .with(
+            systems::EnemySystem::new(animation_data, world_data),
+            "enemy_system",
             &[],
         )
         .with_thread_local(systems::RenderingSystem::new(world_data, canvas, textures))
