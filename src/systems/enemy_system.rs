@@ -12,9 +12,6 @@ use specs::World;
 use specs::{Entities, Entity, SystemData};
 use specs::{ReadExpect, System, WriteStorage};
 
-const RANDOM_MIN: u64 = 1;
-const RANDOM_MAX: u64 = 225;
-
 pub struct EnemySystem {
     animation_data: AnimationData,
     world_data: WorldData,
@@ -78,6 +75,29 @@ impl EnemySystem {
             }
         }
     }
+
+    fn can_create_new_enemy(&mut self, game_tick: &GameTick) -> bool {
+        let ticks_animated = game_tick.ticks_animated();
+        let ticks_since_last_plant = ticks_animated - self.last_enemy_at_tick;
+        if ticks_since_last_plant > self.animation_data.min_ticks_between_enemies()
+            && ticks_animated % 60 == 0
+            && rand::thread_rng().gen_range(1, 11) == 5
+        {
+            self.last_enemy_at_tick = ticks_animated;
+            true
+        } else {
+            false
+        }
+    }
+
+    fn get_random_enemy_tile() -> data::EnemyTile {
+        match rand::thread_rng().gen_range(1, 5) {
+            1 => data::EnemyTile::BatFly1,
+            2 => data::EnemyTile::BeeFly1,
+            3 => data::EnemyTile::MouseRun1,
+            _ => data::EnemyTile::SpiderRun1,
+        }
+    }
 }
 
 #[derive(SystemData)]
@@ -116,22 +136,15 @@ impl<'a> System<'a> for EnemySystem {
         }
 
         // Create new enemies if possible & required
-        let ticks_animated = data.game_tick.ticks_animated();
-        if ticks_animated - self.last_enemy_at_tick
-            > self.animation_data.min_ticks_between_enemies()
-        {
-            let random_number = rand::thread_rng().gen_range(RANDOM_MIN, RANDOM_MAX);
-            if ticks_animated % random_number == 0 {
-                self.last_enemy_at_tick = ticks_animated;
-                entities::Enemy::create(
-                    &self.world_data,
-                    data::EnemyTile::BatFly1,
-                    &data.entities,
-                    &mut data.animatables_storage,
-                    &mut data.drawables_storage,
-                    &mut data.enemies_storage,
-                )
-            }
+        if self.can_create_new_enemy(&data.game_tick) {
+            entities::Enemy::create(
+                &self.world_data,
+                EnemySystem::get_random_enemy_tile(),
+                &data.entities,
+                &mut data.animatables_storage,
+                &mut data.drawables_storage,
+                &mut data.enemies_storage,
+            )
         }
     }
 }

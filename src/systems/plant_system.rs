@@ -10,9 +10,6 @@ use specs::World;
 use specs::{Entities, Entity, SystemData};
 use specs::{ReadExpect, System, WriteStorage};
 
-const RANDOM_MIN: u64 = 1;
-const RANDOM_MAX: u64 = 225;
-
 pub struct PlantSystem {
     animation_data: AnimationData,
     world_data: WorldData,
@@ -39,6 +36,20 @@ impl PlantSystem {
                 -i32::from(self.animation_data.ground_speed_in_wc_per_tick()),
                 0,
             );
+        }
+    }
+
+    fn can_create_new_plant(&mut self, game_tick: &GameTick) -> bool {
+        let ticks_animated = game_tick.ticks_animated();
+        let ticks_since_last_plant = ticks_animated - self.last_plant_at_tick;
+        if ticks_since_last_plant > self.animation_data.min_ticks_between_plants()
+            && ticks_animated % 60 == 0
+            && rand::thread_rng().gen_range(1, 11) == 5
+        {
+            self.last_plant_at_tick = ticks_animated;
+            true
+        } else {
+            false
         }
     }
 }
@@ -69,19 +80,13 @@ impl<'a> System<'a> for PlantSystem {
         }
 
         // Create new plants if possible & required
-        let ticks_animated = data.game_tick.ticks_animated();
-        if ticks_animated - self.last_plant_at_tick > self.animation_data.min_ticks_between_plants()
-        {
-            let random_number = rand::thread_rng().gen_range(RANDOM_MIN, RANDOM_MAX);
-            if ticks_animated % random_number == 0 {
-                self.last_plant_at_tick = ticks_animated;
-                entities::Plant::create(
-                    &self.world_data,
-                    &data.entities,
-                    &mut data.drawables_storage,
-                    &mut data.plants_storage,
-                )
-            }
+        if self.can_create_new_plant(&data.game_tick) {
+            entities::Plant::create(
+                &self.world_data,
+                &data.entities,
+                &mut data.drawables_storage,
+                &mut data.plants_storage,
+            )
         }
     }
 }
