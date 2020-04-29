@@ -8,11 +8,13 @@ use crate::graphics::data;
 use crate::resources::GameTick;
 
 use crate::data::{AnimationData, WorldData};
+use sdl2::rect::Point;
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::SystemData;
 use specs::World;
 use specs::{ReadExpect, System, WriteStorage};
+use std::convert::TryFrom;
 
 pub struct PlayerSystem {
     animation_data: AnimationData,
@@ -207,7 +209,16 @@ impl PlayerSystem {
         }
 
         // Move the player horizontally in the screen if wished for
-        drawable.world_bounds.offset(x_offset, 0);
+        if x_offset != 0 {
+            let world_x_with_offset = drawable.world_bounds.x() + x_offset;
+            if world_x_with_offset >= self.world_data.bounds().left()
+                && world_x_with_offset
+                    <= (self.world_data.bounds().right()
+                        - i32::try_from(drawable.world_bounds.width()).unwrap())
+            {
+                drawable.world_bounds.set_x(world_x_with_offset);
+            }
+        }
     }
 
     fn update_drawable_for_surface_level_tile(
