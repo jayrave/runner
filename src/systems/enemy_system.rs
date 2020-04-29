@@ -66,10 +66,10 @@ impl EnemySystem {
                         EnemyTile::SpiderRun2 => EnemyTile::SpiderRun1,
                     };
 
-                    *drawable = entities::Enemy::build_drawable(
+                    *drawable = entities::Enemy::build_drawable_with_left_bottom(
                         next_tile,
-                        drawable.world_bounds.x(),
-                        drawable.world_bounds.y(),
+                        drawable.world_bounds.left(),
+                        drawable.world_bounds.bottom(),
                     )
                 }
             }
