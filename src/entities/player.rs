@@ -3,6 +3,7 @@ use crate::data::WorldData;
 use crate::graphics::data;
 use sdl2::rect::Rect;
 use specs::{Builder, World, WorldExt};
+use std::convert::TryFrom;
 
 const PLAYER_TILE_WORLD_WIDTH: u8 = 48;
 const PLAYER_TILE_WORLD_HEIGHT: u8 = 64;
@@ -23,7 +24,7 @@ impl Player {
                     tile: data::CharacterTile::Run1,
                 }),
                 world_bounds: Rect::new(
-                    world_data.world_left() + (i32::from(PLAYER_TILE_WORLD_WIDTH) * 2),
+                    world_data.world_left() + i32::try_from(world_data.world_width() / 8).unwrap(),
                     Player::running_y(world_data),
                     PLAYER_TILE_WORLD_WIDTH.into(),
                     PLAYER_TILE_WORLD_HEIGHT.into(),
