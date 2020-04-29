@@ -24,8 +24,8 @@ pub fn main() {
     let window = video_subsystem
         .window(
             "Runner",
-            world_data.world_width(),
-            world_data.world_height(),
+            world_data.bounds().width(),
+            world_data.bounds().height(),
         )
         .position_centered()
         .build()

@@ -36,7 +36,7 @@ impl EnemySystem {
         drawable: &mut Drawable,
     ) {
         // As soon as an enemy moves out, let it go
-        if drawable.world_bounds.right() <= self.world_data.world_left() {
+        if drawable.world_bounds.right() <= self.world_data.bounds().left() {
             entities
                 .delete(entity)
                 .expect("Enemy entity couldn't be deleted");

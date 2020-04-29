@@ -37,7 +37,7 @@ impl Enemy {
             .with(
                 Enemy::build_drawable_with_left_bottom(
                     tile,
-                    world_data.world_right(),
+                    world_data.bounds().right(),
                     world_bottom,
                 ),
                 drawables_storage,

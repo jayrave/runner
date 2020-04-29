@@ -13,7 +13,7 @@ pub struct Ground;
 impl Ground {
     pub fn create_all_tiles(world: &mut World, world_data: &WorldData) {
         let total_row_count = u8::try_from(
-            (world_data.world_bottom() - world_data.world_surface_at())
+            (world_data.bounds().bottom() - world_data.world_surface_at())
                 / i32::from(GROUND_TILE_WORLD_DIMENSION),
         )
         .expect("Too many ground tiles to draw!");
@@ -22,7 +22,7 @@ impl Ground {
             Ground::create_ground_row(
                 world,
                 world_data,
-                world_data.world_bottom() - i32::from(GROUND_TILE_WORLD_DIMENSION * row_number),
+                world_data.bounds().bottom() - i32::from(GROUND_TILE_WORLD_DIMENSION * row_number),
                 if row_number == total_row_count {
                     data::EnvironmentTile::GrassyGround
                 } else {
@@ -40,7 +40,7 @@ impl Ground {
     ) {
         // It is ..= so we would have one extra tile. This way we can draw
         // partial tiles at the end & cover all of the window width
-        for world_left in (world_data.world_left()..=world_data.world_right())
+        for world_left in (world_data.bounds().left()..=world_data.bounds().right())
             .step_by(GROUND_TILE_WORLD_DIMENSION.into())
         {
             world

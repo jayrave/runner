@@ -24,11 +24,11 @@ impl GroundSystem {
     fn update(&self, drawable: &mut Drawable) {
         // World left will be in negative & so if this diff is positive, the tile
         // is completely outside the world. Wrap it around
-        let diff = self.world_data.world_left() - drawable.world_bounds.right();
+        let diff = self.world_data.bounds().left() - drawable.world_bounds.right();
         if diff > 0 {
             drawable
                 .world_bounds
-                .set_x(self.world_data.world_right() - diff);
+                .set_x(self.world_data.bounds().right() - diff);
         }
 
         // Every tile needs to be moved to the left by a few world coordinates

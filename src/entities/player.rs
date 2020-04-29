@@ -24,7 +24,8 @@ impl Player {
                     tile: data::CharacterTile::Run1,
                 }),
                 world_bounds: Rect::new(
-                    world_data.world_left() + i32::try_from(world_data.world_width() / 8).unwrap(),
+                    world_data.bounds().left()
+                        + i32::try_from(world_data.bounds().width() / 8).unwrap(),
                     Player::running_y(world_data),
                     PLAYER_TILE_WORLD_WIDTH.into(),
                     PLAYER_TILE_WORLD_HEIGHT.into(),

@@ -27,7 +27,7 @@ impl PlantSystem {
 
     fn move_or_remove(&self, drawable: &mut Drawable, entity: Entity, entities: &Entities) {
         // As soon as a plant moves out, let it go
-        if drawable.world_bounds.right() <= self.world_data.world_left() {
+        if drawable.world_bounds.right() <= self.world_data.bounds().left() {
             entities
                 .delete(entity)
                 .expect("Plant entity couldn't be deleted");
