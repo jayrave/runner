@@ -26,5 +26,7 @@ pub mod data {
     pub enum Input {
         Up,
         Down,
+        Left,
+        Right,
     }
 }

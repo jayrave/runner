@@ -36,6 +36,8 @@ impl<'a> System<'a> for EventSystem {
                     Keycode::Escape => should_finish_game = true,
                     Keycode::Space | Keycode::Up => user_input = Some(data::Input::Up),
                     Keycode::Down => user_input = Some(data::Input::Down),
+                    Keycode::Left => user_input = Some(data::Input::Left),
+                    Keycode::Right => user_input = Some(data::Input::Right),
                     _ => {}
                 },
                 _ => {}

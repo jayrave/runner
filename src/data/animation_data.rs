@@ -8,6 +8,7 @@ pub struct AnimationData {
     ticks_in_player_slide: u8,
     ticks_in_player_run_step: u8,
     player_jump_height_in_wc: u8,
+    player_extra_input_speed_in_wc_per_tick: u8,
 
     // Enemy related
     enemy_speed_in_wc_per_tick: u8,
@@ -25,6 +26,7 @@ impl Default for AnimationData {
             ticks_in_player_slide: 40,
             ticks_in_player_run_step: 12,
             player_jump_height_in_wc: 120,
+            player_extra_input_speed_in_wc_per_tick: 4,
 
             enemy_speed_in_wc_per_tick: 6,
             ticks_in_enemy_movement: 12,
@@ -60,6 +62,10 @@ impl AnimationData {
 
     pub fn player_jump_height_in_wc(&self) -> u8 {
         self.player_jump_height_in_wc
+    }
+
+    pub fn player_extra_input_speed_in_wc_per_tick(&self) -> u8 {
+        self.player_extra_input_speed_in_wc_per_tick
     }
 
     pub fn enemy_speed_in_wc_per_tick(&self) -> u8 {

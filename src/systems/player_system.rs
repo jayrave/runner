@@ -87,12 +87,33 @@ impl PlayerSystem {
                         components::input::data::Input::Down => {
                             self.start_slide(current_tick, animatable, drawable)
                         }
+
+                        _ => {
+                            let x_offset: i32 = match input {
+                                components::input::data::Input::Left => -1,
+                                components::input::data::Input::Right => 1,
+                                _ => 0,
+                            } * i32::from(
+                                self.animation_data
+                                    .player_extra_input_speed_in_wc_per_tick(),
+                            );
+
+                            self.continue_run(
+                                current_tick,
+                                current_step_started_at_tick,
+                                x_offset,
+                                animatable,
+                                drawable,
+                                tile,
+                            )
+                        }
                     },
 
                     // Nothing else to do! Just continue running
                     None => self.continue_run(
                         current_tick,
                         current_step_started_at_tick,
+                        0,
                         animatable,
                         drawable,
                         tile,
@@ -163,6 +184,7 @@ impl PlayerSystem {
         &self,
         current_tick: u64,
         run_started_at_tick: u64,
+        x_offset: i32,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
         current_tile: data::CharacterTile,
@@ -183,6 +205,9 @@ impl PlayerSystem {
                 },
             )
         }
+
+        // Move the player horizontally in the screen if wished for
+        drawable.world_bounds.offset(x_offset, 0);
     }
 
     fn update_drawable_for_surface_level_tile(
