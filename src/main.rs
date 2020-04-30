@@ -67,7 +67,7 @@ fn setup_ecs<'a, 'b>(
     world.register::<components::Enemy>();
     world.register::<components::Ground>();
     world.register::<components::Plant>();
-    world.register::<components::Player>();
+    world.register::<components::player::Player>();
     world.register::<components::input::InputControlled>();
 
     // Create entities

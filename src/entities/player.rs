@@ -14,7 +14,7 @@ impl Player {
     pub fn create(world: &mut World, world_data: &WorldData) {
         world
             .create_entity()
-            .with(components::Player)
+            .with(components::player::Player::new())
             .with(components::input::InputControlled::new())
             .with(components::Animatable {
                 current_step_started_at_tick: 0,

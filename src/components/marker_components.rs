@@ -12,7 +12,3 @@ pub struct Ground;
 #[derive(Component, Default)]
 #[storage(NullStorage)]
 pub struct Plant;
-
-#[derive(Component, Default)]
-#[storage(NullStorage)]
-pub struct Player;

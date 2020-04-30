@@ -34,18 +34,20 @@ impl InputControlled {
         }
     }
 
-    pub fn consume_input(&mut self) -> Option<data::Direction> {
-        if self.up {
-            Some(data::Direction::Up)
-        } else if self.down {
-            Some(data::Direction::Down)
-        } else if self.left {
-            Some(data::Direction::Left)
-        } else if self.right {
-            Some(data::Direction::Right)
-        } else {
-            None
-        }
+    pub fn up_engaged(&self) -> bool {
+        self.up
+    }
+
+    pub fn down_engaged(&self) -> bool {
+        self.down
+    }
+
+    pub fn left_engaged(&self) -> bool {
+        self.left
+    }
+
+    pub fn right_engaged(&self) -> bool {
+        self.right
     }
 }
 

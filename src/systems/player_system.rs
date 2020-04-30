@@ -1,18 +1,18 @@
-use crate::components;
 use crate::components::input::InputControlled;
-use crate::components::Player;
+use crate::components::player::data as player_data;
+use crate::components::player::Player;
 use crate::components::{Animatable, Drawable};
 use crate::entities;
 
-use crate::graphics::data;
+use crate::graphics::data as graphics_data;
 use crate::resources::GameTick;
 
 use crate::data::{AnimationData, WorldData};
 use specs::join::Join;
 use specs::shred::ResourceId;
-use specs::SystemData;
 use specs::World;
 use specs::{ReadExpect, System, WriteStorage};
+use specs::{ReadStorage, SystemData};
 use std::convert::TryFrom;
 
 pub struct PlayerSystem {
@@ -43,96 +43,151 @@ impl PlayerSystem {
         }
     }
 
+    fn input_to_action(input_ctrl: &InputControlled) -> Option<player_data::Action> {
+        let mut input_action = None;
+        // Order of precedence of actions:
+        //  - Vertical & horizontal together
+        //  - Only vertical
+        //  - Only horizontal
+
+        if input_ctrl.up_engaged()
+            && input_ctrl.right_engaged()
+            && !input_ctrl.down_engaged()
+            && !input_ctrl.left_engaged()
+        {
+            input_action = Some(player_data::Action::ForwardJump)
+        }
+
+        if input_action.is_none() && input_ctrl.up_engaged() && !input_ctrl.down_engaged() {
+            input_action = Some(player_data::Action::Jump)
+        }
+
+        if input_action.is_none() && input_ctrl.down_engaged() && !input_ctrl.up_engaged() {
+            input_action = Some(player_data::Action::Slide)
+        }
+
+        if input_action.is_none() && input_ctrl.right_engaged() && !input_ctrl.left_engaged() {
+            input_action = Some(player_data::Action::FastRun)
+        }
+
+        if input_action.is_none() && input_ctrl.left_engaged() && !input_ctrl.right_engaged() {
+            input_action = Some(player_data::Action::SlowRun)
+        }
+
+        input_action
+    }
+
     fn update(
         &self,
         current_tick: u64,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
-        input_controlled: &mut InputControlled,
+        input_controlled: &InputControlled,
+        player: &mut Player,
     ) {
         let tile = drawable.tile_data.tile;
         let current_step_started_at_tick = animatable.current_step_started_at_tick;
 
-        if let data::Tile::Character { tile } = tile {
-            match tile {
-                // Already an input based animation is going on. Transfer the control
-                // over to that to either carry on the animation or to finish it. When
-                // an animation is going on, we don't care about more inputs from the
-                // user
-                data::CharacterTile::Jump => self.continue_jump_or_start_running(
-                    current_tick,
-                    current_step_started_at_tick,
-                    animatable,
-                    drawable,
-                ),
+        match player.current_action {
+            // Already an uninterruptible input based animation is going on. Transfer
+            // the control over to that to either carry on the animation or to finish
+            // it. We don't worry about new inputs at this point
+            player_data::Action::ForwardJump => self.continue_jump_or_start_running(
+                current_tick,
+                current_step_started_at_tick,
+                animatable,
+                drawable,
+                player,
+            ),
 
-                // Same comment as jump applies here too
-                data::CharacterTile::Slide => self.continue_slide_or_start_running(
-                    current_tick,
-                    current_step_started_at_tick,
-                    animatable,
-                    drawable,
-                ),
+            // Another uninterruptible animation
+            player_data::Action::Jump => self.continue_jump_or_start_running(
+                current_tick,
+                current_step_started_at_tick,
+                animatable,
+                drawable,
+                player,
+            ),
 
-                // No input based animation going on. Gotta check if we should start
-                // one now
-                _ => match input_controlled.consume_input() {
-                    // There is some input! Start a new input based animation
-                    Some(input) => match input {
-                        // Gotta jump!
-                        components::input::data::Direction::Up => {
-                            self.start_jump(current_tick, animatable, drawable)
-                        }
+            // Another uninterruptible animation
+            player_data::Action::Slide => self.continue_slide_or_start_running(
+                current_tick,
+                current_step_started_at_tick,
+                animatable,
+                drawable,
+                player,
+            ),
 
-                        // Gotta slide!
-                        components::input::data::Direction::Down => {
-                            self.start_slide(current_tick, animatable, drawable)
-                        }
+            // No input based animation going on. Gotta check if we should start
+            // one now
+            player_data::Action::FastRun
+            | player_data::Action::SlowRun
+            | player_data::Action::Run => match PlayerSystem::input_to_action(input_controlled) {
+                // Some new input based action to start
+                Some(action) => match action {
+                    player_data::Action::ForwardJump => {
+                        self.start_jump(current_tick, animatable, drawable, player)
+                    }
 
-                        _ => {
-                            let x_offset: i32 = match input {
-                                components::input::data::Direction::Left => -1,
-                                components::input::data::Direction::Right => 1,
-                                _ => 0,
-                            } * i32::from(
+                    player_data::Action::Jump => {
+                        self.start_jump(current_tick, animatable, drawable, player)
+                    }
+
+                    player_data::Action::Slide => {
+                        self.start_slide(current_tick, animatable, drawable, player)
+                    }
+
+                    player_data::Action::FastRun
+                    | player_data::Action::SlowRun
+                    | player_data::Action::Run => {
+                        let offset_multiplier = match action {
+                            player_data::Action::SlowRun => -1,
+                            player_data::Action::FastRun => 1,
+                            _ => 0,
+                        };
+
+                        let x_offset: i32 = offset_multiplier
+                            * i32::from(
                                 self.animation_data
                                     .player_extra_input_speed_in_wc_per_tick(),
                             );
 
-                            self.continue_run(
-                                current_tick,
-                                current_step_started_at_tick,
-                                x_offset,
-                                animatable,
-                                drawable,
-                                tile,
-                            )
-                        }
-                    },
-
-                    // Nothing else to do! Just continue running
-                    None => self.continue_run(
-                        current_tick,
-                        current_step_started_at_tick,
-                        0,
-                        animatable,
-                        drawable,
-                        tile,
-                    ),
+                        self.continue_run(
+                            current_tick,
+                            current_step_started_at_tick,
+                            x_offset,
+                            animatable,
+                            drawable,
+                            player,
+                            tile,
+                        )
+                    }
                 },
-            }
-        }
 
-        // If the input isn't consumed because there is another animation
-        // already running, we don't want the input to be left around to be
-        // used later! So, no matter what happens at the end of each tick,
-        // clear the user input to allow taking in more
-        input_controlled.consume_input();
+                // Nothing else to do! Just continue running
+                None => self.continue_run(
+                    current_tick,
+                    current_step_started_at_tick,
+                    0,
+                    animatable,
+                    drawable,
+                    player,
+                    tile,
+                ),
+            },
+        }
     }
 
-    fn start_slide(&self, current_tick: u64, animatable: &mut Animatable, drawable: &mut Drawable) {
+    fn start_slide(
+        &self,
+        current_tick: u64,
+        animatable: &mut Animatable,
+        drawable: &mut Drawable,
+        player: &mut Player,
+    ) {
         animatable.current_step_started_at_tick = current_tick;
-        self.update_drawable_for_surface_level_tile(drawable, data::CharacterTile::Slide);
+        player.current_action = player_data::Action::Slide;
+        self.update_drawable_for_surface_level_tile(drawable, graphics_data::CharacterTile::Slide);
     }
 
     fn continue_slide_or_start_running(
@@ -141,6 +196,7 @@ impl PlayerSystem {
         slide_started_at_tick: u64,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
+        player: &mut Player,
     ) {
         let continue_slide = slide_started_at_tick
             + u64::from(self.animation_data.ticks_in_player_slide())
@@ -149,12 +205,19 @@ impl PlayerSystem {
         // If we are just continuing to slide, no need to update any drawable
         // data. Otherwise, will have to switch to running
         if !continue_slide {
-            self.start_run(current_tick, animatable, drawable)
+            self.start_run(current_tick, animatable, drawable, player)
         }
     }
 
-    fn start_jump(&self, current_tick: u64, animatable: &mut Animatable, drawable: &mut Drawable) {
+    fn start_jump(
+        &self,
+        current_tick: u64,
+        animatable: &mut Animatable,
+        drawable: &mut Drawable,
+        player: &mut Player,
+    ) {
         animatable.current_step_started_at_tick = current_tick;
+        player.current_action = player_data::Action::Jump;
         self.update_drawable_for_jump_tile(current_tick, current_tick, drawable);
     }
 
@@ -164,6 +227,7 @@ impl PlayerSystem {
         jump_started_at_tick: u64,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
+        player: &mut Player,
     ) {
         let continue_jump = jump_started_at_tick
             + u64::from(self.animation_data.ticks_in_player_jump())
@@ -172,13 +236,20 @@ impl PlayerSystem {
         if continue_jump {
             self.update_drawable_for_jump_tile(current_tick, jump_started_at_tick, drawable)
         } else {
-            self.start_run(current_tick, animatable, drawable)
+            self.start_run(current_tick, animatable, drawable, player)
         }
     }
 
-    fn start_run(&self, current_tick: u64, animatable: &mut Animatable, drawable: &mut Drawable) {
+    fn start_run(
+        &self,
+        current_tick: u64,
+        animatable: &mut Animatable,
+        drawable: &mut Drawable,
+        player: &mut Player,
+    ) {
         animatable.current_step_started_at_tick = current_tick;
-        self.update_drawable_for_surface_level_tile(drawable, data::CharacterTile::Run1);
+        player.current_action = player_data::Action::Run;
+        self.update_drawable_for_surface_level_tile(drawable, graphics_data::CharacterTile::Run1);
     }
 
     fn continue_run(
@@ -188,7 +259,8 @@ impl PlayerSystem {
         x_offset: i32,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
-        current_tile: data::CharacterTile,
+        player: &mut Player,
+        current_tile: graphics_data::Tile,
     ) {
         let ticks_in_run_step: u64 = if x_offset == 0 {
             u64::from(self.animation_data.ticks_in_player_run_step())
@@ -206,10 +278,13 @@ impl PlayerSystem {
             self.update_drawable_for_surface_level_tile(
                 drawable,
                 match current_tile {
-                    data::CharacterTile::Run1 => data::CharacterTile::Run2,
-                    data::CharacterTile::Run2 => data::CharacterTile::Run3,
-                    data::CharacterTile::Run3 => data::CharacterTile::Run1,
-                    _ => data::CharacterTile::Run1, //  Fallback
+                    graphics_data::Tile::Character { tile } => match tile {
+                        graphics_data::CharacterTile::Run1 => graphics_data::CharacterTile::Run2,
+                        graphics_data::CharacterTile::Run2 => graphics_data::CharacterTile::Run3,
+                        graphics_data::CharacterTile::Run3 => graphics_data::CharacterTile::Run1,
+                        _ => graphics_data::CharacterTile::Run1, //  Fallback
+                    },
+                    _ => graphics_data::CharacterTile::Run1, //  Fallback
                 },
             )
         }
@@ -225,14 +300,17 @@ impl PlayerSystem {
                 drawable.world_bounds.set_x(world_x_with_offset);
             }
         }
+
+        player.current_action = player_data::Action::Run;
     }
 
     fn update_drawable_for_surface_level_tile(
         &self,
         drawable: &mut Drawable,
-        tile: data::CharacterTile,
+        tile: graphics_data::CharacterTile,
     ) {
-        drawable.tile_data = data::build_tile_data(data::Tile::Character { tile });
+        drawable.tile_data =
+            graphics_data::build_tile_data(graphics_data::Tile::Character { tile });
         drawable
             .world_bounds
             .set_y(entities::Player::running_y(&self.world_data));
@@ -244,8 +322,8 @@ impl PlayerSystem {
         jump_started_at_tick: u64,
         drawable: &mut Drawable,
     ) {
-        drawable.tile_data = data::build_tile_data(data::Tile::Character {
-            tile: data::CharacterTile::Jump,
+        drawable.tile_data = graphics_data::build_tile_data(graphics_data::Tile::Character {
+            tile: graphics_data::CharacterTile::Jump,
         });
 
         let ticks_since_jump_started = (current_tick - jump_started_at_tick) as f32;
@@ -264,18 +342,18 @@ pub struct PlayerSystemData<'a> {
     animatable_storage: WriteStorage<'a, Animatable>,
     drawables_storage: WriteStorage<'a, Drawable>,
     players_storage: WriteStorage<'a, Player>,
-    input_controlled_storage: WriteStorage<'a, InputControlled>,
+    input_controlled_storage: ReadStorage<'a, InputControlled>,
 }
 
 impl<'a> System<'a> for PlayerSystem {
     type SystemData = PlayerSystemData<'a>;
 
     fn run(&mut self, mut data: Self::SystemData) {
-        for (_, mut animatable, mut drawable, mut input_controlled) in (
-            &mut data.players_storage,
+        for (mut animatable, mut drawable, input_controlled, mut player) in (
             &mut data.animatable_storage,
             &mut data.drawables_storage,
-            &mut data.input_controlled_storage,
+            &data.input_controlled_storage,
+            &mut data.players_storage,
         )
             .join()
         {
@@ -286,7 +364,8 @@ impl<'a> System<'a> for PlayerSystem {
                     current_tick,
                     &mut animatable,
                     &mut drawable,
-                    &mut input_controlled,
+                    &input_controlled,
+                    &mut player,
                 )
             }
         }
