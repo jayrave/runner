@@ -7,6 +7,8 @@ pub struct AnimationData {
     ticks_in_player_jump: u8,
     ticks_in_player_slide: u8,
     ticks_in_player_run_step: u8,
+    ticks_multiplier_for_faster_running: f32,
+    ticks_multiplier_for_slower_running: f32,
     player_jump_height_in_wc: u8,
     player_extra_input_speed_in_wc_per_tick: u8,
 
@@ -25,6 +27,8 @@ impl Default for AnimationData {
             ticks_in_player_jump: 60,
             ticks_in_player_slide: 40,
             ticks_in_player_run_step: 12,
+            ticks_multiplier_for_faster_running: 0.5,
+            ticks_multiplier_for_slower_running: 2.0,
             player_jump_height_in_wc: 120,
             player_extra_input_speed_in_wc_per_tick: 4,
 
@@ -58,6 +62,14 @@ impl AnimationData {
 
     pub fn ticks_in_player_run_step(&self) -> u8 {
         self.ticks_in_player_run_step
+    }
+
+    pub fn ticks_multiplier_for_faster_running(&self) -> f32 {
+        self.ticks_multiplier_for_faster_running
+    }
+
+    pub fn ticks_multiplier_for_slower_running(&self) -> f32 {
+        self.ticks_multiplier_for_slower_running
     }
 
     pub fn player_jump_height_in_wc(&self) -> u8 {

@@ -1,8 +1,6 @@
 use sdl2::pixels::Color;
 use sdl2::rect::{Point, Rect};
 
-use std::convert::TryFrom;
-
 #[derive(Copy, Clone, Debug)]
 pub struct WorldData {
     sky_color: Color,

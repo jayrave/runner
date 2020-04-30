@@ -8,7 +8,6 @@ use crate::graphics::data;
 use crate::resources::GameTick;
 
 use crate::data::{AnimationData, WorldData};
-use sdl2::rect::Point;
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::SystemData;
@@ -191,11 +190,18 @@ impl PlayerSystem {
         drawable: &mut Drawable,
         current_tile: data::CharacterTile,
     ) {
-        let change_tile = run_started_at_tick
-            + u64::from(self.animation_data.ticks_in_player_run_step())
-            <= current_tick;
+        let ticks_in_run_step: u64 = if x_offset == 0 {
+            u64::from(self.animation_data.ticks_in_player_run_step())
+        } else {
+            (f32::from(self.animation_data.ticks_in_player_run_step())
+                * if x_offset < 0 {
+                    self.animation_data.ticks_multiplier_for_slower_running()
+                } else {
+                    self.animation_data.ticks_multiplier_for_faster_running()
+                }) as u64
+        };
 
-        if change_tile {
+        if run_started_at_tick + ticks_in_run_step <= current_tick {
             animatable.current_step_started_at_tick = current_tick;
             self.update_drawable_for_surface_level_tile(
                 drawable,
