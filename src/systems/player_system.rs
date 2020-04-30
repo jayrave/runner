@@ -80,19 +80,19 @@ impl PlayerSystem {
                     // There is some input! Start a new input based animation
                     Some(input) => match input {
                         // Gotta jump!
-                        components::input::data::Input::Up => {
+                        components::input::data::Direction::Up => {
                             self.start_jump(current_tick, animatable, drawable)
                         }
 
                         // Gotta slide!
-                        components::input::data::Input::Down => {
+                        components::input::data::Direction::Down => {
                             self.start_slide(current_tick, animatable, drawable)
                         }
 
                         _ => {
                             let x_offset: i32 = match input {
-                                components::input::data::Input::Left => -1,
-                                components::input::data::Input::Right => 1,
+                                components::input::data::Direction::Left => -1,
+                                components::input::data::Direction::Right => 1,
                                 _ => 0,
                             } * i32::from(
                                 self.animation_data

@@ -79,7 +79,7 @@ fn setup_ecs<'a, 'b>(
     let dispatcher = DispatcherBuilder::new()
         .with(systems::GameTickUpdater, "game_tick_updater", &[])
         .with_barrier()
-        .with(systems::EventSystem, "event_system", &[])
+        .with(systems::EventSystem::new(), "event_system", &[])
         .with_barrier() // To let event system to work before any other system
         .with(
             systems::GroundSystem::new(animation_data, world_data),
