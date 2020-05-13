@@ -19,7 +19,6 @@ pub mod data {
     #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
     pub enum Action {
         FastRun,
-        ForwardJump,
         Jump,
         Run,
         Slide,

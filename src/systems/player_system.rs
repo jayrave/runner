@@ -50,14 +50,6 @@ impl PlayerSystem {
         //  - Only vertical
         //  - Only horizontal
 
-        if input_ctrl.up_engaged()
-            && input_ctrl.right_engaged()
-            && !input_ctrl.down_engaged()
-            && !input_ctrl.left_engaged()
-        {
-            input_action = Some(player_data::Action::ForwardJump)
-        }
-
         if input_action.is_none() && input_ctrl.up_engaged() && !input_ctrl.down_engaged() {
             input_action = Some(player_data::Action::Jump)
         }
@@ -92,15 +84,6 @@ impl PlayerSystem {
             // Already an uninterruptible input based animation is going on. Transfer
             // the control over to that to either carry on the animation or to finish
             // it. We don't worry about new inputs at this point
-            player_data::Action::ForwardJump => self.continue_jump_or_start_running(
-                current_tick,
-                current_step_started_at_tick,
-                animatable,
-                drawable,
-                player,
-            ),
-
-            // Another uninterruptible animation
             player_data::Action::Jump => self.continue_jump_or_start_running(
                 current_tick,
                 current_step_started_at_tick,
@@ -125,10 +108,6 @@ impl PlayerSystem {
             | player_data::Action::Run => match PlayerSystem::input_to_action(input_controlled) {
                 // Some new input based action to start
                 Some(action) => match action {
-                    player_data::Action::ForwardJump => {
-                        self.start_jump(current_tick, animatable, drawable, player)
-                    }
-
                     player_data::Action::Jump => {
                         self.start_jump(current_tick, animatable, drawable, player)
                     }
