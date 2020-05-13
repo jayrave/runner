@@ -4,7 +4,7 @@ pub struct AnimationData {
     min_ticks_between_plants: u64,
 
     // Player related
-    ticks_in_player_jump: u8,
+    ticks_in_player_max_jump: u8,
     ticks_in_player_slide: u8,
     ticks_in_player_run_step: u8,
     ticks_multiplier_for_faster_running: f32,
@@ -24,7 +24,7 @@ impl Default for AnimationData {
             ground_speed_in_wc_per_tick: 4,
             min_ticks_between_plants: 250,
 
-            ticks_in_player_jump: 60,
+            ticks_in_player_max_jump: 60,
             ticks_in_player_slide: 40,
             ticks_in_player_run_step: 12,
             ticks_multiplier_for_faster_running: 0.5,
@@ -52,8 +52,8 @@ impl AnimationData {
         self.min_ticks_between_plants
     }
 
-    pub fn ticks_in_player_jump(&self) -> u8 {
-        self.ticks_in_player_jump
+    pub fn ticks_in_player_max_jump(&self) -> u8 {
+        self.ticks_in_player_max_jump
     }
 
     pub fn ticks_in_player_slide(&self) -> u8 {

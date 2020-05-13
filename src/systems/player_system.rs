@@ -18,8 +18,9 @@ use std::convert::TryFrom;
 pub struct PlayerSystem {
     animation_data: AnimationData,
     world_data: WorldData,
-    jump_gravity: f32,
-    jump_velocity: f32,
+    initial_jump_velocity: f32,
+    jump_up_gravity: f32,
+    fall_down_gravity: f32,
 }
 
 impl PlayerSystem {
@@ -29,17 +30,18 @@ impl PlayerSystem {
         //      Video: https://www.youtube.com/watch?v=hG9SzQxaCm8
         //      Slides: http://www.mathforgameprogrammers.com/gdc2016/GDC2016_Pittman_Kyle_BuildingABetterJump.pdf
 
-        let ticks_to_hit_apex_in_jump: f32 = animation_data.ticks_in_player_jump() as f32 / 2.0;
-        let jump_gravity: f32 = (-2.0 * animation_data.player_jump_height_in_wc() as f32)
-            / (ticks_to_hit_apex_in_jump.powf(2.0));
+        let ticks_to_hit_apex: f32 = animation_data.ticks_in_player_max_jump() as f32 / 2.0;
+        let jump_up_gravity: f32 = (-2.0 * animation_data.player_jump_height_in_wc() as f32)
+            / (ticks_to_hit_apex.powf(2.0));
 
-        let jump_velocity: f32 = -jump_gravity * ticks_to_hit_apex_in_jump;
+        let initial_jump_velocity: f32 = -jump_up_gravity * ticks_to_hit_apex;
 
         PlayerSystem {
             animation_data,
             world_data,
-            jump_gravity,
-            jump_velocity,
+            initial_jump_velocity,
+            jump_up_gravity,
+            fall_down_gravity: jump_up_gravity * 2.0,
         }
     }
 
@@ -89,6 +91,7 @@ impl PlayerSystem {
                 current_step_started_at_tick,
                 animatable,
                 drawable,
+                input_controlled,
                 player,
             ),
 
@@ -108,9 +111,13 @@ impl PlayerSystem {
             | player_data::Action::Run => match PlayerSystem::input_to_action(input_controlled) {
                 // Some new input based action to start
                 Some(action) => match action {
-                    player_data::Action::Jump => {
-                        self.start_jump(current_tick, animatable, drawable, player)
-                    }
+                    player_data::Action::Jump => self.start_jump(
+                        current_tick,
+                        animatable,
+                        drawable,
+                        input_controlled,
+                        player,
+                    ),
 
                     player_data::Action::Slide => {
                         self.start_slide(current_tick, animatable, drawable, player)
@@ -193,11 +200,12 @@ impl PlayerSystem {
         current_tick: u64,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
+        input_ctrl: &InputControlled,
         player: &mut Player,
     ) {
         animatable.current_step_started_at_tick = current_tick;
         player.current_action = player_data::Action::Jump;
-        self.update_drawable_for_jump_tile(current_tick, current_tick, drawable);
+        self.update_drawable_for_jump_tile(current_tick, current_tick, drawable, input_ctrl);
     }
 
     fn continue_jump_or_start_running(
@@ -206,14 +214,20 @@ impl PlayerSystem {
         jump_started_at_tick: u64,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
+        input_ctrl: &InputControlled,
         player: &mut Player,
     ) {
         let continue_jump = jump_started_at_tick
-            + u64::from(self.animation_data.ticks_in_player_jump())
+            + u64::from(self.animation_data.ticks_in_player_max_jump())
             >= current_tick;
 
         if continue_jump {
-            self.update_drawable_for_jump_tile(current_tick, jump_started_at_tick, drawable)
+            self.update_drawable_for_jump_tile(
+                current_tick,
+                jump_started_at_tick,
+                drawable,
+                input_ctrl,
+            )
         } else {
             self.start_run(current_tick, animatable, drawable, player)
         }
@@ -300,18 +314,28 @@ impl PlayerSystem {
         current_tick: u64,
         jump_started_at_tick: u64,
         drawable: &mut Drawable,
+        input_ctrl: &InputControlled,
     ) {
         drawable.tile_data = graphics_data::build_tile_data(graphics_data::Tile::Character {
             tile: graphics_data::CharacterTile::Jump,
         });
 
         let ticks_since_jump_started = (current_tick - jump_started_at_tick) as f32;
-        let height = ((self.jump_gravity * ticks_since_jump_started.powf(2.0)) / 2.0)
-            + (self.jump_velocity * ticks_since_jump_started);
+        let ticks_to_max_height = self.animation_data.ticks_in_player_max_jump() as f32 / 2.0;
+        let gravity_to_use =
+            if input_ctrl.up_engaged() && ticks_since_jump_started < ticks_to_max_height {
+                self.jump_up_gravity
+            } else {
+                self.fall_down_gravity
+            };
 
+        let height = ((gravity_to_use * ticks_since_jump_started.powf(2.0)) / 2.0)
+            + (self.initial_jump_velocity * ticks_since_jump_started);
+
+        let running_y = entities::Player::running_y(&self.world_data);
         drawable
             .world_bounds
-            .set_y(entities::Player::running_y(&self.world_data) - height.round() as i32);
+            .set_y((running_y - height.round() as i32).min(running_y));
     }
 }
 
