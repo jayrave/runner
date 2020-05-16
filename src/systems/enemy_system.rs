@@ -80,8 +80,8 @@ impl EnemySystem {
 
     fn can_create_new_enemy(&mut self, game_tick: &GameTick) -> bool {
         let ticks_animated = game_tick.ticks_animated();
-        let ticks_since_last_plant = ticks_animated - self.last_enemy_at_tick;
-        if ticks_since_last_plant > self.animation_data.min_ticks_between_enemies()
+        let ticks_since_last_enemy = ticks_animated - self.last_enemy_at_tick;
+        if ticks_since_last_enemy > self.animation_data.min_ticks_between_enemies()
             && ticks_animated % 60 == 0
             && rand::thread_rng().gen_range(1, 11) == 5
         {
@@ -116,7 +116,7 @@ impl<'a> System<'a> for EnemySystem {
     type SystemData = EnemySystemData<'a>;
 
     fn run(&mut self, mut data: Self::SystemData) {
-        // animate/remove existing plants
+        // animate/remove existing enemies
         for (_, entity, mut animatable, mut drawable) in (
             &data.enemies_storage,
             &data.entities,

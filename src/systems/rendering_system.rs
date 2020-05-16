@@ -14,11 +14,8 @@ use std::convert::TryFrom;
 
 // Tiles should be drawn in a particular order to get the correct Z-index cheaply.
 // This should be changed if the tiles drawn are going to change
-const TILE_DRAW_ORDER: [TileSheet; 3] = [
-    TileSheet::Environment,
-    TileSheet::Enemy,
-    TileSheet::Character,
-];
+const TILE_DRAW_ORDER: [TileSheet; 3] =
+    [TileSheet::Platform, TileSheet::Enemy, TileSheet::Character];
 
 pub struct RenderingSystem<'a> {
     world_data: WorldData,
@@ -60,7 +57,7 @@ impl<'a> RenderingSystem<'a> {
                     let texture = match drawable.tile_data.tile_sheet {
                         TileSheet::Character => &self.textures.character_texture,
                         TileSheet::Enemy => &self.textures.enemy_texture,
-                        TileSheet::Environment => &self.textures.environment_texture,
+                        TileSheet::Platform => &self.textures.platform_texture,
                     };
 
                     self.canvas

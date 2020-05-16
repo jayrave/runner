@@ -1,7 +1,6 @@
 #[derive(Copy, Clone, Debug)]
 pub struct AnimationData {
     ground_speed_in_wc_per_tick: u8,
-    min_ticks_between_plants: u64,
 
     // Player related
     ticks_in_player_max_jump: u8,
@@ -22,7 +21,6 @@ impl Default for AnimationData {
     fn default() -> Self {
         AnimationData {
             ground_speed_in_wc_per_tick: 4,
-            min_ticks_between_plants: 250,
 
             ticks_in_player_max_jump: 60,
             ticks_in_player_slide: 40,
@@ -46,10 +44,6 @@ impl AnimationData {
 
     pub fn ground_speed_in_wc_per_tick(&self) -> u8 {
         self.ground_speed_in_wc_per_tick
-    }
-
-    pub fn min_ticks_between_plants(&self) -> u64 {
-        self.min_ticks_between_plants
     }
 
     pub fn ticks_in_player_max_jump(&self) -> u8 {

@@ -5,7 +5,7 @@ use sdl2::video::WindowContext;
 pub struct Textures<'a> {
     pub character_texture: Texture<'a>,
     pub enemy_texture: Texture<'a>,
-    pub environment_texture: Texture<'a>,
+    pub platform_texture: Texture<'a>,
 }
 
 impl<'a> Textures<'a> {
@@ -16,14 +16,12 @@ impl<'a> Textures<'a> {
             Textures::load_from_file("character_tile_sheet.png", texture_creator);
 
         let enemy_texture = Textures::load_from_file("enemy_tile_sheet.png", texture_creator);
-
-        let environment_texture =
-            Textures::load_from_file("environment_tile_sheet.png", texture_creator);
+        let platform_texture = Textures::load_from_file("platform_tile_sheet.png", texture_creator);
 
         Textures {
             character_texture,
             enemy_texture,
-            environment_texture,
+            platform_texture,
         }
     }
 

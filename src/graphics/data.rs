@@ -1,6 +1,6 @@
 use sdl2::rect::Rect;
 
-const ENVIRONMENT_TILE_DIMENSION: u8 = 64;
+const PLATFORM_TILE_DIMENSION: u8 = 64;
 const CHARACTER_TILE_WIDTH: u8 = 96;
 const CHARACTER_TILE_HEIGHT: u8 = 128;
 
@@ -8,14 +8,14 @@ const CHARACTER_TILE_HEIGHT: u8 = 128;
 pub enum TileSheet {
     Character,
     Enemy,
-    Environment,
+    Platform,
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Tile {
     Character { tile: CharacterTile },
     Enemy { tile: EnemyTile },
-    Environment { tile: EnvironmentTile },
+    Platform { tile: PlatformTile },
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -42,10 +42,9 @@ pub enum EnemyTile {
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
-pub enum EnvironmentTile {
+pub enum PlatformTile {
     GrassyGround,
     Ground,
-    Plant,
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -89,12 +88,11 @@ pub fn build_tile_data(tile: Tile) -> TileData {
             }
         }
 
-        Tile::Environment { tile } => {
-            tile_sheet = TileSheet::Environment;
+        Tile::Platform { tile } => {
+            tile_sheet = TileSheet::Platform;
             bounds_in_tile_sheet = match tile {
-                EnvironmentTile::GrassyGround => build_env_bounds(TilePos { row: 0, col: 0 }),
-                EnvironmentTile::Ground => build_env_bounds(TilePos { row: 0, col: 3 }),
-                EnvironmentTile::Plant => build_env_bounds(TilePos { row: 5, col: 2 }),
+                PlatformTile::GrassyGround => build_env_bounds(TilePos { row: 0, col: 0 }),
+                PlatformTile::Ground => build_env_bounds(TilePos { row: 0, col: 3 }),
             }
         }
     };
@@ -116,11 +114,7 @@ fn build_char_bounds(tile_pos: TilePos) -> Rect {
 }
 
 fn build_env_bounds(tile_pos: TilePos) -> Rect {
-    build_bounds(
-        tile_pos,
-        ENVIRONMENT_TILE_DIMENSION,
-        ENVIRONMENT_TILE_DIMENSION,
-    )
+    build_bounds(tile_pos, PLATFORM_TILE_DIMENSION, PLATFORM_TILE_DIMENSION)
 }
 
 fn build_bounds(tile_pos: TilePos, tile_width: u8, tile_height: u8) -> Rect {

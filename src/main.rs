@@ -66,7 +66,6 @@ fn setup_ecs<'a, 'b>(
     world.register::<components::Drawable>();
     world.register::<components::Enemy>();
     world.register::<components::Ground>();
-    world.register::<components::Plant>();
     world.register::<components::player::Player>();
     world.register::<components::input::InputControlled>();
 
@@ -84,11 +83,6 @@ fn setup_ecs<'a, 'b>(
         .with(
             systems::GroundSystem::new(animation_data, world_data),
             "ground_system",
-            &[],
-        )
-        .with(
-            systems::PlantSystem::new(animation_data, world_data),
-            "plant_system",
             &[],
         )
         .with(

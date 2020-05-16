@@ -24,9 +24,9 @@ impl Ground {
                 world_data,
                 world_data.bounds().bottom() - i32::from(GROUND_TILE_WORLD_DIMENSION * row_number),
                 if row_number == total_row_count {
-                    data::EnvironmentTile::GrassyGround
+                    data::PlatformTile::GrassyGround
                 } else {
-                    data::EnvironmentTile::Ground
+                    data::PlatformTile::Ground
                 },
             )
         }
@@ -36,7 +36,7 @@ impl Ground {
         world: &mut World,
         world_data: &WorldData,
         tile_top_at_world_y: i32,
-        with_tile: data::EnvironmentTile,
+        with_tile: data::PlatformTile,
     ) {
         // It is ..= so we would have one extra tile. This way we can draw
         // partial tiles at the end & cover all of the window width
@@ -47,7 +47,7 @@ impl Ground {
                 .create_entity()
                 .with(components::Ground)
                 .with(components::Drawable {
-                    tile_data: data::build_tile_data(data::Tile::Environment { tile: with_tile }),
+                    tile_data: data::build_tile_data(data::Tile::Platform { tile: with_tile }),
                     world_bounds: Rect::new(
                         world_left,
                         tile_top_at_world_y,

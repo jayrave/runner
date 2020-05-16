@@ -8,4 +8,3 @@ pub use animatable::Animatable;
 pub use drawable::Drawable;
 pub use marker_components::Enemy;
 pub use marker_components::Ground;
-pub use marker_components::Plant;
