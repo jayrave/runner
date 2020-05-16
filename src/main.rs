@@ -102,6 +102,7 @@ fn setup_ecs<'a, 'b>(
             &[],
         )
         .with_thread_local(systems::RenderingSystem::new(world_data, canvas, textures))
+        .with_thread_local(systems::FrameLimiter::new(60))
         .build();
 
     (world, dispatcher)
