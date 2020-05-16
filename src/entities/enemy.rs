@@ -21,6 +21,7 @@ impl Enemy {
         let world_bottom = match tile {
             EnemyTile::BatFly1 | EnemyTile::BatFly2 => 0,
             EnemyTile::BeeFly1 | EnemyTile::BeeFly2 => 0,
+            EnemyTile::BugRun1 | EnemyTile::BugRun2 => world_data.world_surface_at(),
             EnemyTile::MouseRun1 | EnemyTile::MouseRun2 => world_data.world_surface_at(),
             EnemyTile::SpiderRun1 | EnemyTile::SpiderRun2 => world_data.world_surface_at(),
         };

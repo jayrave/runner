@@ -60,6 +60,8 @@ impl EnemySystem {
                         EnemyTile::BatFly2 => EnemyTile::BatFly1,
                         EnemyTile::BeeFly1 => EnemyTile::BeeFly2,
                         EnemyTile::BeeFly2 => EnemyTile::BeeFly1,
+                        EnemyTile::BugRun1 => EnemyTile::BugRun2,
+                        EnemyTile::BugRun2 => EnemyTile::BugRun1,
                         EnemyTile::MouseRun1 => EnemyTile::MouseRun2,
                         EnemyTile::MouseRun2 => EnemyTile::MouseRun1,
                         EnemyTile::SpiderRun1 => EnemyTile::SpiderRun2,
@@ -91,10 +93,11 @@ impl EnemySystem {
     }
 
     fn get_random_enemy_tile() -> data::EnemyTile {
-        match rand::thread_rng().gen_range(1, 5) {
+        match rand::thread_rng().gen_range(1, 6) {
             1 => data::EnemyTile::BatFly1,
             2 => data::EnemyTile::BeeFly1,
-            3 => data::EnemyTile::MouseRun1,
+            3 => data::EnemyTile::BugRun1,
+            4 => data::EnemyTile::MouseRun1,
             _ => data::EnemyTile::SpiderRun1,
         }
     }
