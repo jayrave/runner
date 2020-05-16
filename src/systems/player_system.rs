@@ -14,7 +14,6 @@ use specs::World;
 use specs::{ReadExpect, System, WriteStorage};
 use specs::{ReadStorage, SystemData};
 use std::convert::TryFrom;
-use crate::components::player::data::Action::Jump;
 
 pub struct PlayerSystem {
     animation_data: AnimationData,
@@ -31,7 +30,7 @@ struct JumpPhysics {
 }
 
 impl JumpPhysics {
-    fn from_ground(current_tick: u64, animation_data: &AnimationData, world_data: &WorldData) -> JumpPhysics {
+    fn from_ground(current_tick: u64, animation_data: &AnimationData) -> JumpPhysics {
         let gravity = JumpPhysics::compute_gravity(animation_data);
         let initial_velocity = JumpPhysics::compute_initial_velocity(animation_data, gravity);
         JumpPhysics {
@@ -62,23 +61,30 @@ impl JumpPhysics {
     fn compute_height(&self, current_tick: u64) -> i32 {
         let ticks_since_jump_started = (current_tick - self.start_at_tick) as f32;
         (((self.gravity * ticks_since_jump_started.powf(2.0)) / 2.0)
-            + (self.initial_jump_velocity * ticks_since_jump_started)) as i32 + self.initial_height
+            + (self.initial_jump_velocity * ticks_since_jump_started)) as i32
+            + self.initial_height
     }
 
-    fn update_gravity_if_required(self, current_tick: u64, current_height: i32) -> JumpPhysics {
+    fn update_gravity_if_required(
+        self,
+        current_tick: u64,
+        current_height: i32,
+        input_ctrl: &InputControlled,
+    ) -> JumpPhysics {
         if !self.is_lower_gravity {
             self
         } else {
             let ticks_since_jump_started = (current_tick - self.start_at_tick) as f32;
-            let current_velocity = self.initial_jump_velocity + (self.gravity * ticks_since_jump_started);
-            if current_velocity > 0.0 {
+            let current_velocity =
+                self.initial_jump_velocity + (self.gravity * ticks_since_jump_started);
+            if input_ctrl.up_engaged() && current_velocity > 0.0 {
                 self
             } else {
                 JumpPhysics {
                     start_at_tick: current_tick,
                     initial_height: current_height,
                     initial_jump_velocity: 0.0,
-                    gravity: self.gravity * 8.0,
+                    gravity: self.gravity * 2.0,
                     is_lower_gravity: false,
                 }
             }
@@ -91,7 +97,7 @@ impl PlayerSystem {
         PlayerSystem {
             animation_data,
             world_data,
-            jump_physics: None
+            jump_physics: None,
         }
     }
 
@@ -254,7 +260,7 @@ impl PlayerSystem {
     ) {
         animatable.current_step_started_at_tick = current_tick;
         player.current_action = player_data::Action::Jump;
-        self.jump_physics = Some(JumpPhysics::from_ground(current_tick, &self.animation_data, &self.world_data));
+        self.jump_physics = Some(JumpPhysics::from_ground(current_tick, &self.animation_data));
 
         self.update_drawable_for_jump_tile(current_tick, drawable, input_ctrl);
     }
@@ -267,11 +273,7 @@ impl PlayerSystem {
         input_ctrl: &InputControlled,
         player: &mut Player,
     ) {
-        let still_jumping = self.update_drawable_for_jump_tile(
-            current_tick,
-            drawable,
-            input_ctrl,
-        );
+        let still_jumping = self.update_drawable_for_jump_tile(current_tick, drawable, input_ctrl);
 
         if !still_jumping {
             self.start_run(current_tick, animatable, drawable, player)
@@ -367,7 +369,7 @@ impl PlayerSystem {
 
         let jump_physics = match self.jump_physics.take() {
             Some(physics) => physics,
-            None => JumpPhysics::from_ground(current_tick, &self.animation_data, &self.world_data),
+            None => JumpPhysics::from_ground(current_tick, &self.animation_data),
         };
 
         let height = jump_physics.compute_height(current_tick);
@@ -375,7 +377,8 @@ impl PlayerSystem {
         let new_y = (running_y - height).min(running_y);
         drawable.world_bounds.set_y(new_y);
 
-        let jump_physics = jump_physics.update_gravity_if_required(current_tick, height);
+        let jump_physics =
+            jump_physics.update_gravity_if_required(current_tick, height, input_ctrl);
         self.jump_physics = Some(jump_physics);
 
         // If the player is at the same height as the ground, jump animation
