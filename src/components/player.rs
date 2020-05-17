@@ -18,10 +18,8 @@ impl Player {
 pub mod data {
     #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
     pub enum Action {
-        FastRun,
         Jump,
         Run,
         Slide,
-        SlowRun,
     }
 }

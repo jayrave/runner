@@ -101,13 +101,9 @@ impl PlayerSystem {
         }
     }
 
-    fn input_to_action(input_ctrl: &InputControlled) -> Option<player_data::Action> {
+    fn input_to_vertical_action(input_ctrl: &InputControlled) -> Option<player_data::Action> {
+        // Order of precedence of actions: jump over slide
         let mut input_action = None;
-        // Order of precedence of actions:
-        //  - Vertical & horizontal together
-        //  - Only vertical
-        //  - Only horizontal
-
         if input_action.is_none() && input_ctrl.up_engaged() && !input_ctrl.down_engaged() {
             input_action = Some(player_data::Action::Jump)
         }
@@ -116,15 +112,19 @@ impl PlayerSystem {
             input_action = Some(player_data::Action::Slide)
         }
 
-        if input_action.is_none() && input_ctrl.right_engaged() && !input_ctrl.left_engaged() {
-            input_action = Some(player_data::Action::FastRun)
-        }
-
-        if input_action.is_none() && input_ctrl.left_engaged() && !input_ctrl.right_engaged() {
-            input_action = Some(player_data::Action::SlowRun)
-        }
-
         input_action
+    }
+
+    fn input_to_x_offset(&self, input_ctrl: &InputControlled) -> i32 {
+        let extra_speed_multiplier = if input_ctrl.right_engaged() && !input_ctrl.left_engaged() {
+            1
+        } else if input_ctrl.left_engaged() && !input_ctrl.right_engaged() {
+            -1
+        } else {
+            0 // Player will run at place which will keep the player keep up with ground
+        };
+
+        extra_speed_multiplier * i32::from(self.player_data.extra_input_speed_in_wc_per_tick)
     }
 
     fn update(
@@ -132,11 +132,12 @@ impl PlayerSystem {
         current_tick: u64,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
-        input_controlled: &InputControlled,
+        input_ctrl: &InputControlled,
         player: &mut Player,
     ) {
         let tile = drawable.tile_data.tile;
         let current_step_started_at_tick = animatable.current_step_started_at_tick;
+        let x_offset = self.input_to_x_offset(input_ctrl);
 
         match player.current_action {
             // Already an uninterruptible input based animation is going on. Transfer
@@ -146,7 +147,7 @@ impl PlayerSystem {
                 current_tick,
                 animatable,
                 drawable,
-                input_controlled,
+                input_ctrl,
                 player,
             ),
 
@@ -159,60 +160,52 @@ impl PlayerSystem {
                 player,
             ),
 
-            // No input based animation going on. Gotta check if we should start
-            // one now
-            player_data::Action::FastRun
-            | player_data::Action::SlowRun
-            | player_data::Action::Run => match PlayerSystem::input_to_action(input_controlled) {
+            // No input based animation going on. Gotta check if we should start one now
+            player_data::Action::Run => match PlayerSystem::input_to_vertical_action(input_ctrl) {
                 // Some new input based action to start
                 Some(action) => match action {
-                    player_data::Action::Jump => self.start_jump(
-                        current_tick,
-                        animatable,
-                        drawable,
-                        input_controlled,
-                        player,
-                    ),
+                    player_data::Action::Jump => {
+                        self.start_jump(current_tick, animatable, drawable, input_ctrl, player)
+                    }
 
                     player_data::Action::Slide => {
                         self.start_slide(current_tick, animatable, drawable, player)
                     }
 
-                    player_data::Action::FastRun
-                    | player_data::Action::SlowRun
-                    | player_data::Action::Run => {
-                        let offset_multiplier = match action {
-                            player_data::Action::SlowRun => -1,
-                            player_data::Action::FastRun => 1,
-                            _ => 0,
-                        };
-
-                        let x_offset: i32 = offset_multiplier
-                            * i32::from(self.player_data.extra_input_speed_in_wc_per_tick);
-
-                        self.continue_run(
-                            current_tick,
-                            current_step_started_at_tick,
-                            x_offset,
-                            animatable,
-                            drawable,
-                            player,
-                            tile,
-                        )
-                    }
+                    player_data::Action::Run => self.continue_run(
+                        current_tick,
+                        current_step_started_at_tick,
+                        x_offset,
+                        animatable,
+                        drawable,
+                        player,
+                        tile,
+                    ),
                 },
 
                 // Nothing else to do! Just continue running
                 None => self.continue_run(
                     current_tick,
                     current_step_started_at_tick,
-                    0,
+                    x_offset,
                     animatable,
                     drawable,
                     player,
                     tile,
                 ),
             },
+        }
+
+        // Move the player horizontally in the screen if wished for
+        if x_offset != 0 {
+            let world_x_with_offset = drawable.world_bounds.x() + x_offset;
+            if world_x_with_offset >= self.world_data.bounds().left()
+                && world_x_with_offset
+                    <= (self.world_data.bounds().right()
+                        - i32::try_from(drawable.world_bounds.width()).unwrap())
+            {
+                drawable.world_bounds.set_x(world_x_with_offset);
+            }
         }
     }
 
@@ -323,18 +316,6 @@ impl PlayerSystem {
                     _ => graphics_data::CharacterTile::Run1, //  Fallback
                 },
             )
-        }
-
-        // Move the player horizontally in the screen if wished for
-        if x_offset != 0 {
-            let world_x_with_offset = drawable.world_bounds.x() + x_offset;
-            if world_x_with_offset >= self.world_data.bounds().left()
-                && world_x_with_offset
-                    <= (self.world_data.bounds().right()
-                        - i32::try_from(drawable.world_bounds.width()).unwrap())
-            {
-                drawable.world_bounds.set_x(world_x_with_offset);
-            }
         }
 
         player.current_action = player_data::Action::Run;
