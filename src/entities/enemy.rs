@@ -1,5 +1,6 @@
 use crate::components;
 use crate::components::{Animatable, Drawable};
+use crate::data::enemy_data::{Animation, EnemyData};
 use crate::data::WorldData;
 use crate::graphics::data;
 use crate::graphics::data::EnemyTile;
@@ -11,6 +12,7 @@ pub struct Enemy;
 
 impl Enemy {
     pub fn create(
+        enemy_data: &EnemyData,
         world_data: &WorldData,
         tile: data::EnemyTile,
         entities: &Entities,
@@ -18,17 +20,37 @@ impl Enemy {
         drawables_storage: &mut WriteStorage<Drawable>,
         enemies_storage: &mut WriteStorage<components::Enemy>,
     ) {
-        let world_bottom = match tile {
-            EnemyTile::BatFly1 | EnemyTile::BatFly2 => 0,
-            EnemyTile::BeeFly1 | EnemyTile::BeeFly2 => 0,
-            EnemyTile::BugRun1 | EnemyTile::BugRun2 => world_data.world_surface_at(),
-            EnemyTile::MouseRun1 | EnemyTile::MouseRun2 => world_data.world_surface_at(),
-            EnemyTile::SpiderRun1 | EnemyTile::SpiderRun2 => world_data.world_surface_at(),
+        let world_bottom: i32;
+        let animation: Animation;
+        match tile {
+            EnemyTile::BatFly1 | EnemyTile::BatFly2 => {
+                world_bottom = 0;
+                animation = enemy_data.bat_animation;
+            }
+            EnemyTile::BeeFly1 | EnemyTile::BeeFly2 => {
+                world_bottom = 0;
+                animation = enemy_data.bee_animation;
+            }
+            EnemyTile::BugRun1 | EnemyTile::BugRun2 => {
+                world_bottom = world_data.world_surface_at();
+                animation = enemy_data.bug_animation;
+            }
+            EnemyTile::MouseRun1 | EnemyTile::MouseRun2 => {
+                world_bottom = world_data.world_surface_at();
+                animation = enemy_data.mouse_animation;
+            }
+            EnemyTile::SpiderRun1 | EnemyTile::SpiderRun2 => {
+                world_bottom = world_data.world_surface_at();
+                animation = enemy_data.spider_animation;
+            }
         };
 
         entities
             .build_entity()
-            .with(components::Enemy, enemies_storage)
+            .with(
+                components::Enemy::new(animation.speed_in_wc_per_tick, animation.ticks_in_movement),
+                enemies_storage,
+            )
             .with(
                 components::Animatable {
                     current_step_started_at_tick: 0,

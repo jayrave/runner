@@ -90,7 +90,7 @@ fn setup_ecs<'a, 'b>(
             &[],
         )
         .with(
-            systems::EnemySystem::new(data::EnemyData::new(), world_data),
+            systems::EnemySystem::new(data::enemy_data::EnemyData::new(), world_data),
             "enemy_system",
             &[],
         )

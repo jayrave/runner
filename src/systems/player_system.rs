@@ -236,9 +236,8 @@ impl PlayerSystem {
         drawable: &mut Drawable,
         player: &mut Player,
     ) {
-        let continue_slide = slide_started_at_tick
-            + u64::from(self.player_data.ticks_in_slide)
-            >= current_tick;
+        let continue_slide =
+            slide_started_at_tick + u64::from(self.player_data.ticks_in_slide) >= current_tick;
 
         // If we are just continuing to slide, no need to update any drawable
         // data. Otherwise, will have to switch to running

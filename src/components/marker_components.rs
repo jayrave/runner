@@ -3,8 +3,4 @@ use specs::NullStorage;
 
 #[derive(Component, Default)]
 #[storage(NullStorage)]
-pub struct Enemy;
-
-#[derive(Component, Default)]
-#[storage(NullStorage)]
 pub struct Ground;

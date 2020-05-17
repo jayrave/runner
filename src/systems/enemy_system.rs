@@ -1,6 +1,7 @@
 use crate::components::Enemy;
 use crate::components::{Animatable, Drawable};
-use crate::data::{EnemyData, WorldData};
+use crate::data::enemy_data::EnemyData;
+use crate::data::WorldData;
 use crate::entities;
 use crate::graphics::data;
 use crate::graphics::data::EnemyTile;
@@ -32,6 +33,7 @@ impl EnemySystem {
         current_tick: u64,
         entities: &Entities,
         entity: Entity,
+        enemy: &Enemy,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
     ) {
@@ -44,11 +46,11 @@ impl EnemySystem {
             // For every tick, the enemy should move at least a bit
             drawable
                 .world_bounds
-                .offset(-i32::from(self.enemy_data.speed_in_wc_per_tick), 0);
+                .offset(-i32::from(enemy.speed_in_wc_per_tick), 0);
 
             // Each step should last for a few ticks
             let move_to_next_animation_frame = animatable.current_step_started_at_tick
-                + u64::from(self.enemy_data.ticks_in_movement)
+                + u64::from(enemy.ticks_in_movement)
                 <= current_tick;
 
             if move_to_next_animation_frame {
@@ -116,7 +118,7 @@ impl<'a> System<'a> for EnemySystem {
 
     fn run(&mut self, mut data: Self::SystemData) {
         // animate/remove existing enemies
-        for (_, entity, mut animatable, mut drawable) in (
+        for (enemy, entity, mut animatable, mut drawable) in (
             &data.enemies_storage,
             &data.entities,
             &mut data.animatables_storage,
@@ -131,6 +133,7 @@ impl<'a> System<'a> for EnemySystem {
                     current_tick,
                     &data.entities,
                     entity,
+                    &enemy,
                     &mut animatable,
                     &mut drawable,
                 )
@@ -140,6 +143,7 @@ impl<'a> System<'a> for EnemySystem {
         // Create new enemies if possible & required
         if self.can_create_new_enemy(&data.game_tick) {
             entities::Enemy::create(
+                &self.enemy_data,
                 &self.world_data,
                 EnemySystem::get_random_enemy_tile(),
                 &data.entities,

@@ -1,21 +1,4 @@
 #[derive(Copy, Clone, Debug)]
-pub struct EnemyData {
-    pub speed_in_wc_per_tick: u8,
-    pub ticks_in_movement: u8,
-    pub min_ticks_between_enemies: u64,
-}
-
-impl EnemyData {
-    pub fn new() -> Self {
-        Self {
-            speed_in_wc_per_tick: 6,
-            ticks_in_movement: 12,
-            min_ticks_between_enemies: 180,
-        }
-    }
-}
-
-#[derive(Copy, Clone, Debug)]
 pub struct GroundData {
     pub speed_in_wc_per_tick: u8,
 }
