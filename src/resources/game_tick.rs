@@ -5,7 +5,7 @@ use std::time::SystemTime;
 /// eg., we could be moving a character 5 world coordinates per tick.
 /// If tick timing is changed, all the related computations may have
 /// to be updated accordingly too
-const MILLISECONDS_IN_A_TICK: u8 = 16;
+pub const MILLISECONDS_IN_A_TICK: u8 = 16;
 
 /// To track data about the ticks we have dealt or should deal with.
 ///
