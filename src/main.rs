@@ -74,24 +74,23 @@ fn setup_ecs<'a, 'b>(
     entities::Player::create(&mut world, &world_data);
 
     // Orchestrate systems
-    let animation_data = data::AnimationData::new();
     let dispatcher = DispatcherBuilder::new()
         .with(systems::GameTickUpdater, "game_tick_updater", &[])
         .with_barrier()
         .with(systems::EventSystem::new(), "event_system", &[])
         .with_barrier() // To let event system to work before any other system
         .with(
-            systems::GroundSystem::new(animation_data, world_data),
+            systems::GroundSystem::new(data::GroundData::new(), world_data),
             "ground_system",
             &[],
         )
         .with(
-            systems::PlayerSystem::new(animation_data, world_data),
+            systems::PlayerSystem::new(data::PlayerData::new(), world_data),
             "player_system",
             &[],
         )
         .with(
-            systems::EnemySystem::new(animation_data, world_data),
+            systems::EnemySystem::new(data::EnemyData::new(), world_data),
             "enemy_system",
             &[],
         )

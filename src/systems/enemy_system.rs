@@ -1,6 +1,6 @@
 use crate::components::Enemy;
 use crate::components::{Animatable, Drawable};
-use crate::data::{AnimationData, WorldData};
+use crate::data::{EnemyData, WorldData};
 use crate::entities;
 use crate::graphics::data;
 use crate::graphics::data::EnemyTile;
@@ -13,15 +13,15 @@ use specs::{Entities, Entity, SystemData};
 use specs::{ReadExpect, System, WriteStorage};
 
 pub struct EnemySystem {
-    animation_data: AnimationData,
+    enemy_data: EnemyData,
     world_data: WorldData,
     last_enemy_at_tick: u64,
 }
 
 impl EnemySystem {
-    pub fn new(animation_data: AnimationData, world_data: WorldData) -> EnemySystem {
+    pub fn new(enemy_data: EnemyData, world_data: WorldData) -> EnemySystem {
         EnemySystem {
-            animation_data,
+            enemy_data,
             world_data,
             last_enemy_at_tick: 0,
         }
@@ -42,14 +42,13 @@ impl EnemySystem {
                 .expect("Enemy entity couldn't be deleted");
         } else {
             // For every tick, the enemy should move at least a bit
-            drawable.world_bounds.offset(
-                -i32::from(self.animation_data.enemy_speed_in_wc_per_tick()),
-                0,
-            );
+            drawable
+                .world_bounds
+                .offset(-i32::from(self.enemy_data.speed_in_wc_per_tick), 0);
 
             // Each step should last for a few ticks
             let move_to_next_animation_frame = animatable.current_step_started_at_tick
-                + u64::from(self.animation_data.ticks_in_enemy_movement())
+                + u64::from(self.enemy_data.ticks_in_movement)
                 <= current_tick;
 
             if move_to_next_animation_frame {
@@ -81,7 +80,7 @@ impl EnemySystem {
     fn can_create_new_enemy(&mut self, game_tick: &GameTick) -> bool {
         let ticks_animated = game_tick.ticks_animated();
         let ticks_since_last_enemy = ticks_animated - self.last_enemy_at_tick;
-        if ticks_since_last_enemy > self.animation_data.min_ticks_between_enemies()
+        if ticks_since_last_enemy > self.enemy_data.min_ticks_between_enemies
             && ticks_animated % 60 == 0
             && rand::thread_rng().gen_range(1, 11) == 5
         {

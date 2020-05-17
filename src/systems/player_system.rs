@@ -7,7 +7,7 @@ use crate::entities;
 use crate::graphics::data as graphics_data;
 use crate::resources::GameTick;
 
-use crate::data::{AnimationData, WorldData};
+use crate::data::{PlayerData, WorldData};
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::World;
@@ -16,7 +16,7 @@ use specs::{ReadStorage, SystemData};
 use std::convert::TryFrom;
 
 pub struct PlayerSystem {
-    animation_data: AnimationData,
+    player_data: PlayerData,
     world_data: WorldData,
     jump_physics: Option<JumpPhysics>,
 }
@@ -30,9 +30,9 @@ struct JumpPhysics {
 }
 
 impl JumpPhysics {
-    fn from_ground(current_tick: u64, animation_data: &AnimationData) -> JumpPhysics {
-        let gravity = JumpPhysics::compute_gravity(animation_data);
-        let initial_velocity = JumpPhysics::compute_initial_velocity(animation_data, gravity);
+    fn from_ground(current_tick: u64, player_data: &PlayerData) -> JumpPhysics {
+        let gravity = JumpPhysics::compute_gravity(player_data);
+        let initial_velocity = JumpPhysics::compute_initial_velocity(player_data, gravity);
         JumpPhysics {
             start_at_tick: current_tick,
             initial_height: 0,
@@ -42,19 +42,19 @@ impl JumpPhysics {
         }
     }
 
-    fn compute_gravity(animation_data: &AnimationData) -> f32 {
+    fn compute_gravity(player_data: &PlayerData) -> f32 {
         // Derived using math from a GDC talk (for smooth parabolic jump):
         //      GDC link: https://www.gdcvault.com/play/1023559/Math-for-Game-Programmers-Building
         //      Video: https://www.youtube.com/watch?v=hG9SzQxaCm8
         //      Slides: http://www.mathforgameprogrammers.com/gdc2016/GDC2016_Pittman_Kyle_BuildingABetterJump.pdf
 
-        let ticks_to_hit_apex: f32 = animation_data.ticks_in_player_max_jump() as f32 / 2.0;
-        (-2.0 * animation_data.player_jump_height_in_wc() as f32) / (ticks_to_hit_apex.powf(2.0))
+        let ticks_to_hit_apex: f32 = player_data.ticks_in_max_jump as f32 / 2.0;
+        (-2.0 * player_data.jump_height_in_wc as f32) / (ticks_to_hit_apex.powf(2.0))
     }
 
-    fn compute_initial_velocity(animation_data: &AnimationData, gravity: f32) -> f32 {
+    fn compute_initial_velocity(player_data: &PlayerData, gravity: f32) -> f32 {
         // Same method as described for gravity
-        let ticks_to_hit_apex: f32 = animation_data.ticks_in_player_max_jump() as f32 / 2.0;
+        let ticks_to_hit_apex: f32 = player_data.ticks_in_max_jump as f32 / 2.0;
         -gravity * ticks_to_hit_apex
     }
 
@@ -93,9 +93,9 @@ impl JumpPhysics {
 }
 
 impl PlayerSystem {
-    pub fn new(animation_data: AnimationData, world_data: WorldData) -> PlayerSystem {
+    pub fn new(player_data: PlayerData, world_data: WorldData) -> PlayerSystem {
         PlayerSystem {
-            animation_data,
+            player_data,
             world_data,
             jump_physics: None,
         }
@@ -188,10 +188,7 @@ impl PlayerSystem {
                         };
 
                         let x_offset: i32 = offset_multiplier
-                            * i32::from(
-                                self.animation_data
-                                    .player_extra_input_speed_in_wc_per_tick(),
-                            );
+                            * i32::from(self.player_data.extra_input_speed_in_wc_per_tick);
 
                         self.continue_run(
                             current_tick,
@@ -240,7 +237,7 @@ impl PlayerSystem {
         player: &mut Player,
     ) {
         let continue_slide = slide_started_at_tick
-            + u64::from(self.animation_data.ticks_in_player_slide())
+            + u64::from(self.player_data.ticks_in_slide)
             >= current_tick;
 
         // If we are just continuing to slide, no need to update any drawable
@@ -260,7 +257,7 @@ impl PlayerSystem {
     ) {
         animatable.current_step_started_at_tick = current_tick;
         player.current_action = player_data::Action::Jump;
-        self.jump_physics = Some(JumpPhysics::from_ground(current_tick, &self.animation_data));
+        self.jump_physics = Some(JumpPhysics::from_ground(current_tick, &self.player_data));
 
         self.update_drawable_for_jump_tile(current_tick, drawable, input_ctrl);
     }
@@ -303,13 +300,13 @@ impl PlayerSystem {
         current_tile: graphics_data::Tile,
     ) {
         let ticks_in_run_step: u64 = if x_offset == 0 {
-            u64::from(self.animation_data.ticks_in_player_run_step())
+            u64::from(self.player_data.ticks_in_run_step)
         } else {
-            (f32::from(self.animation_data.ticks_in_player_run_step())
+            (f32::from(self.player_data.ticks_in_run_step)
                 * if x_offset < 0 {
-                    self.animation_data.ticks_multiplier_for_slower_running()
+                    self.player_data.ticks_multiplier_for_slower_running
                 } else {
-                    self.animation_data.ticks_multiplier_for_faster_running()
+                    self.player_data.ticks_multiplier_for_faster_running
                 }) as u64
         };
 
@@ -369,7 +366,7 @@ impl PlayerSystem {
 
         let jump_physics = match self.jump_physics.take() {
             Some(physics) => physics,
-            None => JumpPhysics::from_ground(current_tick, &self.animation_data),
+            None => JumpPhysics::from_ground(current_tick, &self.player_data),
         };
 
         let height = jump_physics.compute_height(current_tick);

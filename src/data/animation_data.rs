@@ -1,88 +1,54 @@
 #[derive(Copy, Clone, Debug)]
-pub struct AnimationData {
-    ground_speed_in_wc_per_tick: u8,
-
-    // Player related
-    ticks_in_player_max_jump: u8,
-    ticks_in_player_slide: u8,
-    ticks_in_player_run_step: u8,
-    ticks_multiplier_for_faster_running: f32,
-    ticks_multiplier_for_slower_running: f32,
-    player_jump_height_in_wc: u8,
-    player_extra_input_speed_in_wc_per_tick: u8,
-
-    // Enemy related
-    enemy_speed_in_wc_per_tick: u8,
-    ticks_in_enemy_movement: u8,
-    min_ticks_between_enemies: u64,
+pub struct EnemyData {
+    pub speed_in_wc_per_tick: u8,
+    pub ticks_in_movement: u8,
+    pub min_ticks_between_enemies: u64,
 }
 
-impl Default for AnimationData {
-    fn default() -> Self {
-        AnimationData {
-            ground_speed_in_wc_per_tick: 4,
-
-            ticks_in_player_max_jump: 60,
-            ticks_in_player_slide: 40,
-            ticks_in_player_run_step: 12,
-            ticks_multiplier_for_faster_running: 0.5,
-            ticks_multiplier_for_slower_running: 2.0,
-            player_jump_height_in_wc: 120,
-            player_extra_input_speed_in_wc_per_tick: 4,
-
-            enemy_speed_in_wc_per_tick: 6,
-            ticks_in_enemy_movement: 12,
+impl EnemyData {
+    pub fn new() -> Self {
+        Self {
+            speed_in_wc_per_tick: 6,
+            ticks_in_movement: 12,
             min_ticks_between_enemies: 180,
         }
     }
 }
 
-impl AnimationData {
-    pub fn new() -> AnimationData {
-        AnimationData::default()
-    }
+#[derive(Copy, Clone, Debug)]
+pub struct GroundData {
+    pub speed_in_wc_per_tick: u8,
+}
 
-    pub fn ground_speed_in_wc_per_tick(&self) -> u8 {
-        self.ground_speed_in_wc_per_tick
+impl GroundData {
+    pub fn new() -> Self {
+        Self {
+            speed_in_wc_per_tick: 4,
+        }
     }
+}
 
-    pub fn ticks_in_player_max_jump(&self) -> u8 {
-        self.ticks_in_player_max_jump
-    }
+#[derive(Copy, Clone, Debug)]
+pub struct PlayerData {
+    pub ticks_in_max_jump: u8,
+    pub ticks_in_slide: u8,
+    pub ticks_in_run_step: u8,
+    pub ticks_multiplier_for_faster_running: f32,
+    pub ticks_multiplier_for_slower_running: f32,
+    pub jump_height_in_wc: u8,
+    pub extra_input_speed_in_wc_per_tick: u8,
+}
 
-    pub fn ticks_in_player_slide(&self) -> u8 {
-        self.ticks_in_player_slide
-    }
-
-    pub fn ticks_in_player_run_step(&self) -> u8 {
-        self.ticks_in_player_run_step
-    }
-
-    pub fn ticks_multiplier_for_faster_running(&self) -> f32 {
-        self.ticks_multiplier_for_faster_running
-    }
-
-    pub fn ticks_multiplier_for_slower_running(&self) -> f32 {
-        self.ticks_multiplier_for_slower_running
-    }
-
-    pub fn player_jump_height_in_wc(&self) -> u8 {
-        self.player_jump_height_in_wc
-    }
-
-    pub fn player_extra_input_speed_in_wc_per_tick(&self) -> u8 {
-        self.player_extra_input_speed_in_wc_per_tick
-    }
-
-    pub fn enemy_speed_in_wc_per_tick(&self) -> u8 {
-        self.enemy_speed_in_wc_per_tick
-    }
-
-    pub fn ticks_in_enemy_movement(&self) -> u8 {
-        self.ticks_in_enemy_movement
-    }
-
-    pub fn min_ticks_between_enemies(&self) -> u64 {
-        self.min_ticks_between_enemies
+impl PlayerData {
+    pub fn new() -> Self {
+        Self {
+            ticks_in_max_jump: 60,
+            ticks_in_slide: 40,
+            ticks_in_run_step: 12,
+            ticks_multiplier_for_faster_running: 0.5,
+            ticks_multiplier_for_slower_running: 2.0,
+            jump_height_in_wc: 120,
+            extra_input_speed_in_wc_per_tick: 4,
+        }
     }
 }
