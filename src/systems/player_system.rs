@@ -158,6 +158,7 @@ impl PlayerSystem {
                 animatable,
                 drawable,
                 player,
+                input_ctrl,
             ),
 
             // No input based animation going on. Gotta check if we should start one now
@@ -168,9 +169,14 @@ impl PlayerSystem {
                         self.start_jump(current_tick, animatable, drawable, input_ctrl, player)
                     }
 
-                    player_data::Action::Slide => {
-                        self.start_slide(current_tick, animatable, drawable, player)
-                    }
+                    player_data::Action::Slide => self.start_slide(
+                        current_tick,
+                        current_tick,
+                        animatable,
+                        drawable,
+                        player,
+                        input_ctrl,
+                    ),
 
                     player_data::Action::Run => self.continue_run(
                         current_tick,
@@ -212,13 +218,20 @@ impl PlayerSystem {
     fn start_slide(
         &self,
         current_tick: u64,
+        slide_started_at_tick: u64,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
         player: &mut Player,
+        input_ctrl: &InputControlled,
     ) {
         animatable.current_step_started_at_tick = current_tick;
         player.current_action = player_data::Action::Slide;
-        self.update_drawable_for_surface_level_tile(drawable, graphics_data::CharacterTile::Slide);
+        self.update_drawable_for_slide_tile(
+            current_tick,
+            slide_started_at_tick,
+            drawable,
+            input_ctrl,
+        );
     }
 
     fn continue_slide_or_start_running(
@@ -228,12 +241,15 @@ impl PlayerSystem {
         animatable: &mut Animatable,
         drawable: &mut Drawable,
         player: &mut Player,
+        input_ctrl: &InputControlled,
     ) {
-        let continue_slide =
-            slide_started_at_tick + u64::from(self.player_data.ticks_in_slide) >= current_tick;
-
-        // If we are just continuing to slide, no need to update any drawable
-        // data. Otherwise, will have to switch to running
+        let continue_slide = self.update_drawable_for_slide_tile(
+            current_tick,
+            slide_started_at_tick,
+            drawable,
+            input_ctrl,
+        );
+        
         if !continue_slide {
             self.start_run(current_tick, animatable, drawable, player)
         }
@@ -263,7 +279,6 @@ impl PlayerSystem {
         player: &mut Player,
     ) {
         let still_jumping = self.update_drawable_for_jump_tile(current_tick, drawable, input_ctrl);
-
         if !still_jumping {
             self.start_run(current_tick, animatable, drawable, player)
         }
@@ -278,7 +293,7 @@ impl PlayerSystem {
     ) {
         animatable.current_step_started_at_tick = current_tick;
         player.current_action = player_data::Action::Run;
-        self.update_drawable_for_surface_level_tile(drawable, graphics_data::CharacterTile::Run1);
+        self.update_drawable_for_run_tile(drawable, graphics_data::CharacterTile::Run1);
     }
 
     fn continue_run(
@@ -304,7 +319,7 @@ impl PlayerSystem {
 
         if run_started_at_tick + ticks_in_run_step <= current_tick {
             animatable.current_step_started_at_tick = current_tick;
-            self.update_drawable_for_surface_level_tile(
+            self.update_drawable_for_run_tile(
                 drawable,
                 match current_tile {
                     graphics_data::Tile::Character { tile } => match tile {
@@ -321,7 +336,7 @@ impl PlayerSystem {
         player.current_action = player_data::Action::Run;
     }
 
-    fn update_drawable_for_surface_level_tile(
+    fn update_drawable_for_run_tile(
         &self,
         drawable: &mut Drawable,
         tile: graphics_data::CharacterTile,
@@ -331,6 +346,29 @@ impl PlayerSystem {
         drawable
             .world_bounds
             .set_y(entities::Player::running_y(&self.world_data));
+    }
+
+    /// returns [true] if player is still going through the slide
+    fn update_drawable_for_slide_tile(
+        &self,
+        current_tick: u64,
+        slide_started_at_tick: u64,
+        drawable: &mut Drawable,
+        input_ctrl: &InputControlled,
+    ) -> bool {
+        drawable.tile_data = graphics_data::build_tile_data(graphics_data::Tile::Character {
+            tile: graphics_data::CharacterTile::Slide,
+        });
+
+        drawable
+            .world_bounds
+            .set_y(entities::Player::running_y(&self.world_data));
+
+        let enough_ticks_passed_in_slide =
+            current_tick >= slide_started_at_tick + u64::from(self.player_data.ticks_in_slide);
+
+        // Slide can go on only for so long & also `down` should be engaged
+        input_ctrl.down_engaged() && !enough_ticks_passed_in_slide
     }
 
     /// returns [true] if player is still going through the jump
