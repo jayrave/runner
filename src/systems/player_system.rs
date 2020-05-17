@@ -116,15 +116,13 @@ impl PlayerSystem {
     }
 
     fn input_to_x_offset(&self, input_ctrl: &InputControlled) -> i32 {
-        let extra_speed_multiplier = if input_ctrl.right_engaged() && !input_ctrl.left_engaged() {
-            1
+        if input_ctrl.right_engaged() && !input_ctrl.left_engaged() {
+            self.player_data.speed_in_wc_per_tick_fast_run.into()
         } else if input_ctrl.left_engaged() && !input_ctrl.right_engaged() {
-            -1
+            -(i32::from(self.player_data.speed_in_wc_per_tick_slow_run))
         } else {
             0 // Player will run at place which will keep the player keep up with ground
-        };
-
-        extra_speed_multiplier * i32::from(self.player_data.extra_input_speed_in_wc_per_tick)
+        }
     }
 
     fn update(

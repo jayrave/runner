@@ -75,7 +75,7 @@ fn setup_ecs<'a, 'b>(
 
     // Orchestrate systems
     let ground_data = data::GroundData::new();
-    let player_data = data::PlayerData::new();
+    let player_data = data::PlayerData::new(&ground_data);
     let dispatcher = DispatcherBuilder::new()
         .with(systems::GameTickUpdater, "game_tick_updater", &[])
         .with_barrier()
