@@ -80,15 +80,25 @@ impl Enemy {
         world_bottom: i32,
     ) -> Drawable {
         let tile_data = data::build_tile_data(data::Tile::Enemy { tile });
-        let height_in_world = tile_data.bounds_in_tile_sheet.height() / 2;
+        let (width_in_world, height_in_world) = Enemy::build_world_bounds(tile);
         components::Drawable {
             tile_data,
             world_bounds: Rect::new(
                 world_left,
                 world_bottom - i32::try_from(height_in_world).expect("u32 too big for i32"),
-                tile_data.bounds_in_tile_sheet.width() / 2,
+                width_in_world,
                 height_in_world,
             ),
+        }
+    }
+
+    fn build_world_bounds(tile: data::EnemyTile) -> (u32, u32) {
+        match tile {
+            EnemyTile::BatFly1 | EnemyTile::BatFly2 => (36, 24),
+            EnemyTile::BeeFly1 | EnemyTile::BeeFly2 => (21, 18),
+            EnemyTile::BugRun1 | EnemyTile::BugRun2 => (14, 9),
+            EnemyTile::MouseRun1 | EnemyTile::MouseRun2 => (20, 12),
+            EnemyTile::SpiderRun1 | EnemyTile::SpiderRun2 => (24, 18),
         }
     }
 }

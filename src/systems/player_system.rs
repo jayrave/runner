@@ -249,7 +249,7 @@ impl PlayerSystem {
             drawable,
             input_ctrl,
         );
-        
+
         if !continue_slide {
             self.start_run(current_tick, animatable, drawable, player)
         }
