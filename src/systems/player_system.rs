@@ -16,7 +16,6 @@ use specs::{ReadStorage, SystemData};
 use std::convert::TryFrom;
 
 pub struct PlayerSystem {
-    player_data: PlayerData,
     world_data: WorldData,
     jump_physics: Option<JumpPhysics>,
 }
@@ -93,9 +92,8 @@ impl JumpPhysics {
 }
 
 impl PlayerSystem {
-    pub fn new(player_data: PlayerData, world_data: WorldData) -> PlayerSystem {
+    pub fn new(world_data: WorldData) -> PlayerSystem {
         PlayerSystem {
-            player_data,
             world_data,
             jump_physics: None,
         }
@@ -115,11 +113,11 @@ impl PlayerSystem {
         input_action
     }
 
-    fn input_to_x_offset(&self, input_ctrl: &InputControlled) -> i32 {
+    fn input_to_x_offset(&self, player_data: &PlayerData, input_ctrl: &InputControlled) -> i32 {
         if input_ctrl.right_engaged() && !input_ctrl.left_engaged() {
-            self.player_data.speed_in_wc_per_tick_fast_run.into()
+            player_data.speed_in_wc_per_tick_fast_run.into()
         } else if input_ctrl.left_engaged() && !input_ctrl.right_engaged() {
-            -(i32::from(self.player_data.speed_in_wc_per_tick_slow_run))
+            -(i32::from(player_data.speed_in_wc_per_tick_slow_run))
         } else {
             0 // Player will run at place which will keep the player keep up with ground
         }
@@ -128,6 +126,7 @@ impl PlayerSystem {
     fn update(
         &mut self,
         current_tick: u64,
+        player_data: &PlayerData,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
         input_ctrl: &InputControlled,
@@ -135,7 +134,7 @@ impl PlayerSystem {
     ) {
         let tile = drawable.tile_data.tile;
         let current_step_started_at_tick = animatable.current_step_started_at_tick;
-        let x_offset = self.input_to_x_offset(input_ctrl);
+        let x_offset = self.input_to_x_offset(player_data, input_ctrl);
 
         match player.current_action {
             // Already an uninterruptible input based animation is going on. Transfer
@@ -143,6 +142,7 @@ impl PlayerSystem {
             // it. We don't worry about new inputs at this point
             player_data::Action::Jump => self.continue_jump_or_start_running(
                 current_tick,
+                player_data,
                 animatable,
                 drawable,
                 input_ctrl,
@@ -153,6 +153,7 @@ impl PlayerSystem {
             player_data::Action::Slide => self.continue_slide_or_start_running(
                 current_tick,
                 current_step_started_at_tick,
+                player_data,
                 animatable,
                 drawable,
                 player,
@@ -163,13 +164,19 @@ impl PlayerSystem {
             player_data::Action::Run => match PlayerSystem::input_to_vertical_action(input_ctrl) {
                 // Some new input based action to start
                 Some(action) => match action {
-                    player_data::Action::Jump => {
-                        self.start_jump(current_tick, animatable, drawable, input_ctrl, player)
-                    }
+                    player_data::Action::Jump => self.start_jump(
+                        current_tick,
+                        player_data,
+                        animatable,
+                        drawable,
+                        input_ctrl,
+                        player,
+                    ),
 
                     player_data::Action::Slide => self.start_slide(
                         current_tick,
                         current_tick,
+                        player_data,
                         animatable,
                         drawable,
                         player,
@@ -180,6 +187,7 @@ impl PlayerSystem {
                         current_tick,
                         current_step_started_at_tick,
                         x_offset,
+                        player_data,
                         animatable,
                         drawable,
                         player,
@@ -192,6 +200,7 @@ impl PlayerSystem {
                     current_tick,
                     current_step_started_at_tick,
                     x_offset,
+                    player_data,
                     animatable,
                     drawable,
                     player,
@@ -217,6 +226,7 @@ impl PlayerSystem {
         &self,
         current_tick: u64,
         slide_started_at_tick: u64,
+        player_data: &PlayerData,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
         player: &mut Player,
@@ -227,6 +237,7 @@ impl PlayerSystem {
         self.update_drawable_for_slide_tile(
             current_tick,
             slide_started_at_tick,
+            player_data,
             drawable,
             input_ctrl,
         );
@@ -236,6 +247,7 @@ impl PlayerSystem {
         &self,
         current_tick: u64,
         slide_started_at_tick: u64,
+        player_data: &PlayerData,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
         player: &mut Player,
@@ -244,6 +256,7 @@ impl PlayerSystem {
         let continue_slide = self.update_drawable_for_slide_tile(
             current_tick,
             slide_started_at_tick,
+            player_data,
             drawable,
             input_ctrl,
         );
@@ -256,6 +269,7 @@ impl PlayerSystem {
     fn start_jump(
         &mut self,
         current_tick: u64,
+        player_data: &PlayerData,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
         input_ctrl: &InputControlled,
@@ -263,20 +277,22 @@ impl PlayerSystem {
     ) {
         animatable.current_step_started_at_tick = current_tick;
         player.current_action = player_data::Action::Jump;
-        self.jump_physics = Some(JumpPhysics::from_ground(current_tick, &self.player_data));
+        self.jump_physics = Some(JumpPhysics::from_ground(current_tick, player_data));
 
-        self.update_drawable_for_jump_tile(current_tick, drawable, input_ctrl);
+        self.update_drawable_for_jump_tile(current_tick, player_data, drawable, input_ctrl);
     }
 
     fn continue_jump_or_start_running(
         &mut self,
         current_tick: u64,
+        player_data: &PlayerData,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
         input_ctrl: &InputControlled,
         player: &mut Player,
     ) {
-        let still_jumping = self.update_drawable_for_jump_tile(current_tick, drawable, input_ctrl);
+        let still_jumping =
+            self.update_drawable_for_jump_tile(current_tick, player_data, drawable, input_ctrl);
         if !still_jumping {
             self.start_run(current_tick, animatable, drawable, player)
         }
@@ -299,19 +315,20 @@ impl PlayerSystem {
         current_tick: u64,
         run_started_at_tick: u64,
         x_offset: i32,
+        player_data: &PlayerData,
         animatable: &mut Animatable,
         drawable: &mut Drawable,
         player: &mut Player,
         current_tile: graphics_data::Tile,
     ) {
         let ticks_in_run_step: u64 = if x_offset == 0 {
-            u64::from(self.player_data.ticks_in_run_step)
+            u64::from(player_data.ticks_in_run_step)
         } else {
-            (f32::from(self.player_data.ticks_in_run_step)
+            (f32::from(player_data.ticks_in_run_step)
                 * if x_offset < 0 {
-                    self.player_data.ticks_multiplier_for_slower_running
+                    player_data.ticks_multiplier_for_slower_running
                 } else {
-                    self.player_data.ticks_multiplier_for_faster_running
+                    player_data.ticks_multiplier_for_faster_running
                 }) as u64
         };
 
@@ -351,6 +368,7 @@ impl PlayerSystem {
         &self,
         current_tick: u64,
         slide_started_at_tick: u64,
+        player_data: &PlayerData,
         drawable: &mut Drawable,
         input_ctrl: &InputControlled,
     ) -> bool {
@@ -363,7 +381,7 @@ impl PlayerSystem {
             .set_y(entities::Player::running_y(&self.world_data));
 
         let enough_ticks_passed_in_slide =
-            current_tick >= slide_started_at_tick + u64::from(self.player_data.ticks_in_slide);
+            current_tick >= slide_started_at_tick + u64::from(player_data.ticks_in_slide);
 
         // Slide can go on only for so long & also `down` should be engaged
         input_ctrl.down_engaged() && !enough_ticks_passed_in_slide
@@ -373,6 +391,7 @@ impl PlayerSystem {
     fn update_drawable_for_jump_tile(
         &mut self,
         current_tick: u64,
+        player_data: &PlayerData,
         drawable: &mut Drawable,
         input_ctrl: &InputControlled,
     ) -> bool {
@@ -382,7 +401,7 @@ impl PlayerSystem {
 
         let jump_physics = match self.jump_physics.take() {
             Some(physics) => physics,
-            None => JumpPhysics::from_ground(current_tick, &self.player_data),
+            None => JumpPhysics::from_ground(current_tick, player_data),
         };
 
         let height = jump_physics.compute_height(current_tick);
@@ -403,6 +422,7 @@ impl PlayerSystem {
 #[derive(SystemData)]
 pub struct PlayerSystemData<'a> {
     game_tick: ReadExpect<'a, GameTick>,
+    player_data: ReadExpect<'a, PlayerData>,
     animatable_storage: WriteStorage<'a, Animatable>,
     drawables_storage: WriteStorage<'a, Drawable>,
     players_storage: WriteStorage<'a, Player>,
@@ -426,6 +446,7 @@ impl<'a> System<'a> for PlayerSystem {
             for current_tick in start_tick..end_tick {
                 self.update(
                     current_tick,
+                    &data.player_data,
                     &mut animatable,
                     &mut drawable,
                     &input_controlled,

@@ -14,21 +14,13 @@ use specs::{Entities, Entity, SystemData};
 use specs::{ReadExpect, System, WriteStorage};
 
 pub struct EnemySystem {
-    enemy_data: EnemyData,
-    player_data: PlayerData,
     world_data: WorldData,
     last_enemy_at_tick: u64,
 }
 
 impl EnemySystem {
-    pub fn new(
-        enemy_data: EnemyData,
-        player_data: PlayerData,
-        world_data: WorldData,
-    ) -> EnemySystem {
+    pub fn new(world_data: WorldData) -> EnemySystem {
         EnemySystem {
-            enemy_data,
-            player_data,
             world_data,
             last_enemy_at_tick: 0,
         }
@@ -85,11 +77,11 @@ impl EnemySystem {
         }
     }
 
-    fn can_create_new_enemy(&mut self, game_tick: &GameTick) -> bool {
+    fn can_create_new_enemy(&mut self, game_tick: &GameTick, enemy_data: &EnemyData) -> bool {
         let ticks_animated = game_tick.ticks_animated();
         let ticks_since_last_enemy = ticks_animated - self.last_enemy_at_tick;
-        let create_enemy = ticks_since_last_enemy > self.enemy_data.min_ticks_between_enemies
-            && rand::thread_rng().gen_range(0, self.enemy_data.randomness_factor) == 0;
+        let create_enemy = ticks_since_last_enemy > enemy_data.min_ticks_between_enemies
+            && rand::thread_rng().gen_range(0, enemy_data.randomness_factor) == 0;
 
         if create_enemy {
             self.last_enemy_at_tick = ticks_animated;
@@ -113,6 +105,8 @@ impl EnemySystem {
 #[derive(SystemData)]
 pub struct EnemySystemData<'a> {
     entities: Entities<'a>,
+    enemy_data: ReadExpect<'a, EnemyData>,
+    player_data: ReadExpect<'a, PlayerData>,
     animatables_storage: WriteStorage<'a, Animatable>,
     enemies_storage: WriteStorage<'a, Enemy>,
     drawables_storage: WriteStorage<'a, Drawable>,
@@ -147,10 +141,10 @@ impl<'a> System<'a> for EnemySystem {
         }
 
         // Create new enemies if possible & required
-        if self.can_create_new_enemy(&data.game_tick) {
+        if self.can_create_new_enemy(&data.game_tick, &data.enemy_data) {
             entities::Enemy::create(
-                &self.enemy_data,
-                &self.player_data,
+                &data.enemy_data,
+                &data.player_data,
                 &self.world_data,
                 EnemySystem::get_random_enemy_tile(),
                 &data.entities,
