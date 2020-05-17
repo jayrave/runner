@@ -82,10 +82,10 @@ impl EnemySystem {
     fn can_create_new_enemy(&mut self, game_tick: &GameTick) -> bool {
         let ticks_animated = game_tick.ticks_animated();
         let ticks_since_last_enemy = ticks_animated - self.last_enemy_at_tick;
-        if ticks_since_last_enemy > self.enemy_data.min_ticks_between_enemies
-            && ticks_animated % 60 == 0
-            && rand::thread_rng().gen_range(1, 11) == 5
-        {
+        let create_enemy = ticks_since_last_enemy > self.enemy_data.min_ticks_between_enemies
+            && rand::thread_rng().gen_range(0, self.enemy_data.randomness_factor) == 0;
+
+        if create_enemy {
             self.last_enemy_at_tick = ticks_animated;
             true
         } else {
