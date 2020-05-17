@@ -1,7 +1,7 @@
 use crate::components::Enemy;
 use crate::components::{Animatable, Drawable};
 use crate::data::enemy_data::EnemyData;
-use crate::data::WorldData;
+use crate::data::{PlayerData, WorldData};
 use crate::entities;
 use crate::graphics::data;
 use crate::graphics::data::EnemyTile;
@@ -15,14 +15,20 @@ use specs::{ReadExpect, System, WriteStorage};
 
 pub struct EnemySystem {
     enemy_data: EnemyData,
+    player_data: PlayerData,
     world_data: WorldData,
     last_enemy_at_tick: u64,
 }
 
 impl EnemySystem {
-    pub fn new(enemy_data: EnemyData, world_data: WorldData) -> EnemySystem {
+    pub fn new(
+        enemy_data: EnemyData,
+        player_data: PlayerData,
+        world_data: WorldData,
+    ) -> EnemySystem {
         EnemySystem {
             enemy_data,
+            player_data,
             world_data,
             last_enemy_at_tick: 0,
         }
@@ -144,6 +150,7 @@ impl<'a> System<'a> for EnemySystem {
         if self.can_create_new_enemy(&data.game_tick) {
             entities::Enemy::create(
                 &self.enemy_data,
+                &self.player_data,
                 &self.world_data,
                 EnemySystem::get_random_enemy_tile(),
                 &data.entities,

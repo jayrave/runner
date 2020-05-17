@@ -1,18 +1,22 @@
 use crate::components;
 use crate::components::{Animatable, Drawable};
 use crate::data::enemy_data::{Animation, EnemyData};
-use crate::data::WorldData;
+use crate::data::{PlayerData, WorldData};
 use crate::graphics::data;
 use crate::graphics::data::EnemyTile;
 use sdl2::rect::Rect;
 use specs::{Entities, WriteStorage};
 use std::convert::TryFrom;
 
+const HIGH_ENEMY_MULTIPLIER: f32 = 0.9;
+const MID_ENEMY_MULTIPLIER: f32 = 0.45;
+
 pub struct Enemy;
 
 impl Enemy {
     pub fn create(
         enemy_data: &EnemyData,
+        player_data: &PlayerData,
         world_data: &WorldData,
         tile: data::EnemyTile,
         entities: &Entities,
@@ -20,28 +24,30 @@ impl Enemy {
         drawables_storage: &mut WriteStorage<Drawable>,
         enemies_storage: &mut WriteStorage<components::Enemy>,
     ) {
-        let world_bottom: i32;
         let animation: Animation;
+        let tile_world_bottom: i32;
         match tile {
             EnemyTile::BatFly1 | EnemyTile::BatFly2 => {
-                world_bottom = 0;
                 animation = enemy_data.bat_animation;
+                tile_world_bottom = world_data.world_surface_at()
+                    - (player_data.max_jump_height_in_wc as f32 * HIGH_ENEMY_MULTIPLIER) as i32;
             }
             EnemyTile::BeeFly1 | EnemyTile::BeeFly2 => {
-                world_bottom = 0;
                 animation = enemy_data.bee_animation;
+                tile_world_bottom = world_data.world_surface_at()
+                    - (player_data.max_jump_height_in_wc as f32 * MID_ENEMY_MULTIPLIER) as i32;
             }
             EnemyTile::BugRun1 | EnemyTile::BugRun2 => {
-                world_bottom = world_data.world_surface_at();
                 animation = enemy_data.bug_animation;
+                tile_world_bottom = world_data.world_surface_at();
             }
             EnemyTile::MouseRun1 | EnemyTile::MouseRun2 => {
-                world_bottom = world_data.world_surface_at();
                 animation = enemy_data.mouse_animation;
+                tile_world_bottom = world_data.world_surface_at();
             }
             EnemyTile::SpiderRun1 | EnemyTile::SpiderRun2 => {
-                world_bottom = world_data.world_surface_at();
                 animation = enemy_data.spider_animation;
+                tile_world_bottom = world_data.world_surface_at();
             }
         };
 
@@ -61,7 +67,7 @@ impl Enemy {
                 Enemy::build_drawable_with_left_bottom(
                     tile,
                     world_data.bounds().right(),
-                    world_bottom,
+                    tile_world_bottom,
                 ),
                 drawables_storage,
             )

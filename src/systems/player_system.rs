@@ -49,7 +49,7 @@ impl JumpPhysics {
         //      Slides: http://www.mathforgameprogrammers.com/gdc2016/GDC2016_Pittman_Kyle_BuildingABetterJump.pdf
 
         let ticks_to_hit_apex: f32 = player_data.ticks_in_max_jump as f32 / 2.0;
-        (-2.0 * player_data.jump_height_in_wc as f32) / (ticks_to_hit_apex.powf(2.0))
+        (-2.0 * player_data.max_jump_height_in_wc as f32) / (ticks_to_hit_apex.powf(2.0))
     }
 
     fn compute_initial_velocity(player_data: &PlayerData, gravity: f32) -> f32 {
