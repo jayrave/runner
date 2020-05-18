@@ -113,14 +113,27 @@ impl PlayerSystem {
         input_action
     }
 
-    fn input_to_x_offset(&self, player_data: &PlayerData, input_ctrl: &InputControlled) -> i32 {
-        if input_ctrl.right_engaged() && !input_ctrl.left_engaged() {
+    fn input_to_bounded_x_offset(
+        &self,
+        player_data: &PlayerData,
+        drawable: &mut Drawable,
+        input_ctrl: &InputControlled,
+    ) -> i32 {
+        let x_offset = if input_ctrl.right_engaged() && !input_ctrl.left_engaged() {
             player_data.speed_in_wc_per_tick_fast_run.into()
         } else if input_ctrl.left_engaged() && !input_ctrl.right_engaged() {
             -(i32::from(player_data.speed_in_wc_per_tick_slow_run))
         } else {
             0 // Player will run at place which will keep the player keep up with ground
-        }
+        };
+
+        let new_x = drawable.world_bounds.x() + x_offset;
+        let new_x = new_x.max(self.world_data.bounds().left()).min(
+            self.world_data.bounds().right()
+                - i32::try_from(drawable.world_bounds.width()).unwrap(),
+        );
+
+        new_x - drawable.world_bounds.x()
     }
 
     fn update(
@@ -134,8 +147,12 @@ impl PlayerSystem {
     ) {
         let tile = drawable.tile_data.tile;
         let current_step_started_at_tick = animatable.current_step_started_at_tick;
-        let x_offset = self.input_to_x_offset(player_data, input_ctrl);
 
+        // Move the player horizontally in the screen if wished for
+        let bounded_x_offset = self.input_to_bounded_x_offset(player_data, drawable, input_ctrl);
+        drawable.world_bounds.offset(bounded_x_offset, 0);
+
+        // Move (if required) & animate with appropriate action
         match player.current_action {
             // Already an uninterruptible input based animation is going on. Transfer
             // the control over to that to either carry on the animation or to finish
@@ -186,7 +203,7 @@ impl PlayerSystem {
                     player_data::Action::Run => self.continue_run(
                         current_tick,
                         current_step_started_at_tick,
-                        x_offset,
+                        bounded_x_offset,
                         player_data,
                         animatable,
                         drawable,
@@ -199,7 +216,7 @@ impl PlayerSystem {
                 None => self.continue_run(
                     current_tick,
                     current_step_started_at_tick,
-                    x_offset,
+                    bounded_x_offset,
                     player_data,
                     animatable,
                     drawable,
@@ -207,18 +224,6 @@ impl PlayerSystem {
                     tile,
                 ),
             },
-        }
-
-        // Move the player horizontally in the screen if wished for
-        if x_offset != 0 {
-            let world_x_with_offset = drawable.world_bounds.x() + x_offset;
-            if world_x_with_offset >= self.world_data.bounds().left()
-                && world_x_with_offset
-                    <= (self.world_data.bounds().right()
-                        - i32::try_from(drawable.world_bounds.width()).unwrap())
-            {
-                drawable.world_bounds.set_x(world_x_with_offset);
-            }
         }
     }
 
