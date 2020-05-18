@@ -91,6 +91,8 @@ fn setup_ecs<'a, 'b>(
         .with(systems::GroundSystem::new(world_data), "ground_system", &[])
         .with(systems::PlayerSystem::new(world_data), "player_system", &[])
         .with(systems::EnemySystem::new(world_data), "enemy_system", &[])
+        .with_barrier()
+        .with(systems::CollisionSystem, "collision_system", &[])
         .with_thread_local(systems::RenderingSystem::new(world_data, canvas, textures))
         .with_thread_local(systems::FrameLimiter::new(60))
         .build();
