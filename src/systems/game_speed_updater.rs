@@ -38,8 +38,7 @@ impl<'a> System<'a> for GameSpeedUpdater {
 
     fn run(&mut self, mut data: Self::SystemData) {
         let tick_animated = data.game_tick.ticks_animated();
-        if self.last_speed_up_at_tick + u64::from(SPEED_UP_TICK_INTERVAL) <= tick_animated
-        {
+        if self.last_speed_up_at_tick + u64::from(SPEED_UP_TICK_INTERVAL) <= tick_animated {
             let multiplier = self.last_multiplier * 2.0;
             let ground_data = GroundData::new(multiplier);
             let enemy_data = EnemyData::new(&ground_data);
