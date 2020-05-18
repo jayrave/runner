@@ -8,8 +8,10 @@ use specs::WriteExpect;
 use specs::{ReadExpect, System};
 
 // Speed up once every 10 seconds
-const SPEED_UP_TICK_INTERVAL: u16 =
-    (10 * 1000) / (crate::resources::game_tick::MILLISECONDS_IN_A_TICK as u16);
+const SPEED_UP_MULTIPLIER: f32 = 1.1;
+const SPEED_UP_INTERVAL_IN_SECONDS: u8 = 10;
+const SPEED_UP_TICK_INTERVAL: u16 = (SPEED_UP_INTERVAL_IN_SECONDS as u16 * 1000)
+    / (crate::resources::game_tick::MILLISECONDS_IN_A_TICK as u16);
 
 pub struct GameSpeedUpdater {
     last_speed_up_at_tick: u64,
@@ -39,7 +41,7 @@ impl<'a> System<'a> for GameSpeedUpdater {
     fn run(&mut self, mut data: Self::SystemData) {
         let tick_animated = data.game_tick.ticks_animated();
         if self.last_speed_up_at_tick + u64::from(SPEED_UP_TICK_INTERVAL) <= tick_animated {
-            let multiplier = self.last_multiplier * 2.0;
+            let multiplier = self.last_multiplier * SPEED_UP_MULTIPLIER;
             let ground_data = GroundData::new(multiplier);
             let enemy_data = EnemyData::new(&ground_data);
             let player_data = PlayerData::new();
