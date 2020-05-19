@@ -11,6 +11,12 @@ use std::convert::TryFrom;
 const HIGH_ENEMY_MULTIPLIER: f32 = 0.9;
 const MID_ENEMY_MULTIPLIER: f32 = 0.45;
 
+const TILE_TO_WORLD_DIVIDER_BAT: f32 = 2.0;
+const TILE_TO_WORLD_DIVIDER_BEE: f32 = 2.5;
+const TILE_TO_WORLD_DIVIDER_BUG: f32 = 3.5;
+const TILE_TO_WORLD_DIVIDER_MOUSE: f32 = 2.5;
+const TILE_TO_WORLD_DIVIDER_SPIDER: f32 = 3.0;
+
 pub struct Enemy;
 
 impl Enemy {
@@ -80,7 +86,9 @@ impl Enemy {
         world_bottom: i32,
     ) -> Drawable {
         let tile_data = data::build_tile_data(data::Tile::Enemy { tile });
-        let (width_in_world, height_in_world) = Enemy::build_world_bounds(tile);
+        let (width_in_world, height_in_world) =
+            Enemy::build_world_bounds(tile, &tile_data.bounds_in_tile_sheet);
+        
         components::Drawable {
             tile_data,
             world_bounds: Rect::new(
@@ -92,13 +100,18 @@ impl Enemy {
         }
     }
 
-    fn build_world_bounds(tile: data::EnemyTile) -> (u32, u32) {
-        match tile {
-            EnemyTile::BatFly1 | EnemyTile::BatFly2 => (36, 24),
-            EnemyTile::BeeFly1 | EnemyTile::BeeFly2 => (21, 18),
-            EnemyTile::BugRun1 | EnemyTile::BugRun2 => (14, 9),
-            EnemyTile::MouseRun1 | EnemyTile::MouseRun2 => (20, 12),
-            EnemyTile::SpiderRun1 | EnemyTile::SpiderRun2 => (24, 18),
-        }
+    fn build_world_bounds(tile: data::EnemyTile, tile_bounds: &Rect) -> (u32, u32) {
+        let divider = match tile {
+            EnemyTile::BatFly1 | EnemyTile::BatFly2 => TILE_TO_WORLD_DIVIDER_BAT,
+            EnemyTile::BeeFly1 | EnemyTile::BeeFly2 => TILE_TO_WORLD_DIVIDER_BEE,
+            EnemyTile::BugRun1 | EnemyTile::BugRun2 => TILE_TO_WORLD_DIVIDER_BUG,
+            EnemyTile::MouseRun1 | EnemyTile::MouseRun2 => TILE_TO_WORLD_DIVIDER_MOUSE,
+            EnemyTile::SpiderRun1 | EnemyTile::SpiderRun2 => TILE_TO_WORLD_DIVIDER_SPIDER,
+        };
+
+        (
+            (tile_bounds.width() as f32 / divider) as u32,
+            (tile_bounds.height() as f32 / divider) as u32,
+        )
     }
 }
