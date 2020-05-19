@@ -1,12 +1,13 @@
 use crate::components;
+use crate::components::Drawable;
 use crate::data::WorldData;
 use crate::graphics::data;
+
 use sdl2::rect::Rect;
 use specs::{Builder, World, WorldExt};
 use std::convert::TryFrom;
 
-const PLAYER_TILE_WORLD_WIDTH: u8 = 48;
-const PLAYER_TILE_WORLD_HEIGHT: u8 = 64;
+const TILE_TO_WORLD_DIVIDER: u32 = 2;
 
 pub struct Player;
 
@@ -19,22 +20,31 @@ impl Player {
             .with(components::Animatable {
                 current_step_started_at_tick: 0,
             })
-            .with(components::Drawable {
-                tile_data: data::build_tile_data(data::Tile::Character {
-                    tile: data::CharacterTile::Run1,
-                }),
-                world_bounds: Rect::new(
-                    world_data.bounds().left()
-                        + i32::try_from(world_data.bounds().width() / 8).unwrap(),
-                    Player::running_y(world_data),
-                    PLAYER_TILE_WORLD_WIDTH.into(),
-                    PLAYER_TILE_WORLD_HEIGHT.into(),
-                ),
-            })
+            .with(Player::build_drawable_with_left_bottom(
+                data::CharacterTile::Run1,
+                world_data.bounds().left() + (world_data.bounds().width() / 8) as i32,
+                world_data.world_surface_at(),
+            ))
             .build();
     }
 
-    pub fn running_y(world_data: &WorldData) -> i32 {
-        world_data.world_surface_at() - i32::from(PLAYER_TILE_WORLD_HEIGHT)
+    pub fn build_drawable_with_left_bottom(
+        tile: data::CharacterTile,
+        world_left: i32,
+        world_bottom: i32,
+    ) -> Drawable {
+        let tile_data = data::build_tile_data(data::Tile::Character { tile });
+        let width_in_world = tile_data.bounds_in_tile_sheet.width() / TILE_TO_WORLD_DIVIDER;
+        let height_in_world = tile_data.bounds_in_tile_sheet.height() / TILE_TO_WORLD_DIVIDER;
+
+        components::Drawable {
+            tile_data,
+            world_bounds: Rect::new(
+                world_left,
+                world_bottom - i32::try_from(height_in_world).expect("u32 too big for i32"),
+                width_in_world,
+                height_in_world,
+            ),
+        }
     }
 }

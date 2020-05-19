@@ -1,8 +1,6 @@
 use sdl2::rect::Rect;
 
 const PLATFORM_TILE_DIMENSION: u8 = 64;
-const CHARACTER_TILE_WIDTH: u8 = 96;
-const CHARACTER_TILE_HEIGHT: u8 = 128;
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum TileSheet {
@@ -62,11 +60,11 @@ pub fn build_tile_data(tile: Tile) -> TileData {
         Tile::Character { tile } => {
             tile_sheet = TileSheet::Character;
             bounds_in_tile_sheet = match tile {
-                CharacterTile::Jump => build_char_bounds(TilePos { row: 0, col: 1 }),
-                CharacterTile::Slide => build_char_bounds(TilePos { row: 1, col: 1 }),
-                CharacterTile::Run1 => build_char_bounds(TilePos { row: 2, col: 6 }),
-                CharacterTile::Run2 => build_char_bounds(TilePos { row: 2, col: 7 }),
-                CharacterTile::Run3 => build_char_bounds(TilePos { row: 2, col: 8 }),
+                CharacterTile::Jump => Rect::new(105, 28, 80, 99),
+                CharacterTile::Slide => Rect::new(102, 182, 87, 74),
+                CharacterTile::Run1 => Rect::new(587, 293, 73, 88),
+                CharacterTile::Run2 => Rect::new(678, 287, 83, 94),
+                CharacterTile::Run3 => Rect::new(768, 285, 96, 91),
             }
         }
 
@@ -105,10 +103,6 @@ pub fn build_tile_data(tile: Tile) -> TileData {
 struct TilePos {
     row: u8,
     col: u8,
-}
-
-fn build_char_bounds(tile_pos: TilePos) -> Rect {
-    build_bounds(tile_pos, CHARACTER_TILE_WIDTH, CHARACTER_TILE_HEIGHT)
 }
 
 fn build_env_bounds(tile_pos: TilePos) -> Rect {

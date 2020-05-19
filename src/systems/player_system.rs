@@ -361,11 +361,11 @@ impl PlayerSystem {
         drawable: &mut Drawable,
         tile: graphics_data::CharacterTile,
     ) {
-        drawable.tile_data =
-            graphics_data::build_tile_data(graphics_data::Tile::Character { tile });
-        drawable
-            .world_bounds
-            .set_y(entities::Player::running_y(&self.world_data));
+        *drawable = entities::Player::build_drawable_with_left_bottom(
+            tile,
+            drawable.world_bounds.left(),
+            self.world_data.world_surface_at(),
+        );
     }
 
     /// returns [true] if player is still going through the slide
@@ -377,13 +377,11 @@ impl PlayerSystem {
         drawable: &mut Drawable,
         input_ctrl: &InputControlled,
     ) -> bool {
-        drawable.tile_data = graphics_data::build_tile_data(graphics_data::Tile::Character {
-            tile: graphics_data::CharacterTile::Slide,
-        });
-
-        drawable
-            .world_bounds
-            .set_y(entities::Player::running_y(&self.world_data));
+        *drawable = entities::Player::build_drawable_with_left_bottom(
+            graphics_data::CharacterTile::Slide,
+            drawable.world_bounds.left(),
+            self.world_data.world_surface_at(),
+        );
 
         let enough_ticks_passed_in_slide =
             current_tick >= slide_started_at_tick + u64::from(player_data.ticks_in_slide);
@@ -400,19 +398,20 @@ impl PlayerSystem {
         drawable: &mut Drawable,
         input_ctrl: &InputControlled,
     ) -> bool {
-        drawable.tile_data = graphics_data::build_tile_data(graphics_data::Tile::Character {
-            tile: graphics_data::CharacterTile::Jump,
-        });
-
         let jump_physics = match self.jump_physics.take() {
             Some(physics) => physics,
             None => JumpPhysics::from_ground(current_tick, player_data),
         };
 
         let height = jump_physics.compute_height(current_tick);
-        let running_y = entities::Player::running_y(&self.world_data);
-        let new_y = (running_y - height).min(running_y);
-        drawable.world_bounds.set_y(new_y);
+        let world_surface = self.world_data.world_surface_at();
+        let new_y = (world_surface - height).min(world_surface);
+
+        *drawable = entities::Player::build_drawable_with_left_bottom(
+            graphics_data::CharacterTile::Jump,
+            drawable.world_bounds.left(),
+            new_y,
+        );
 
         let jump_physics =
             jump_physics.update_gravity_if_required(current_tick, height, input_ctrl);
@@ -420,7 +419,7 @@ impl PlayerSystem {
 
         // If the player is at the same height as the ground, jump animation
         // has come to an end
-        (new_y != running_y) || height >= 0
+        (new_y != world_surface) || height >= 0
     }
 }
 
