@@ -70,7 +70,7 @@ impl Enemy {
                 animatables_storage,
             )
             .with(
-                Enemy::build_drawable_with_left_bottom(
+                Enemy::build_drawable_with_right_bottom(
                     tile,
                     world_data.bounds().right(),
                     tile_world_bottom,
@@ -80,9 +80,11 @@ impl Enemy {
             .build();
     }
 
-    pub fn build_drawable_with_left_bottom(
+    /// Instead of (left, bottom) like we do for player, we are taking
+    /// in (right, bottom) because enemies travel right to left
+    pub fn build_drawable_with_right_bottom(
         tile: data::EnemyTile,
-        world_left: i32,
+        world_right: i32,
         world_bottom: i32,
     ) -> Drawable {
         let tile_data = data::build_tile_data(data::Tile::Enemy { tile });
@@ -92,7 +94,7 @@ impl Enemy {
         components::Drawable {
             tile_data,
             world_bounds: Rect::new(
-                world_left,
+                world_right - i32::try_from(width_in_world).expect("u32 too big for i32"),
                 world_bottom - i32::try_from(height_in_world).expect("u32 too big for i32"),
                 width_in_world,
                 height_in_world,
