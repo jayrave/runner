@@ -21,14 +21,14 @@ impl EnemyData {
             // animate that fast
             bat_animation: Animation {
                 speed_in_wc_per_tick: (ground_data.speed_in_wc_per_tick + 4) as u16,
-                ticks_in_movement: 8,
+                ticks_in_movement: 20,
             },
 
             // Bees are slow than bats but owing to their wing size is
             // going to have a lot more flaps
             bee_animation: Animation {
                 speed_in_wc_per_tick: (ground_data.speed_in_wc_per_tick + 2) as u16,
-                ticks_in_movement: 2,
+                ticks_in_movement: 10,
             },
 
             // Bug needn't move. It just stays put on the ground
@@ -40,14 +40,14 @@ impl EnemyData {
             // Mouse should move
             mouse_animation: Animation {
                 speed_in_wc_per_tick: (ground_data.speed_in_wc_per_tick + 1) as u16,
-                ticks_in_movement: 6,
+                ticks_in_movement: 10,
             },
 
             // Spider should move. Our spider is pretty big. So, it can walk
             // a bit slower than the mouse
             spider_animation: Animation {
                 speed_in_wc_per_tick: (ground_data.speed_in_wc_per_tick + 2) as u16,
-                ticks_in_movement: 10,
+                ticks_in_movement: 14,
             },
         }
     }

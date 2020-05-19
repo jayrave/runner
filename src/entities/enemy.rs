@@ -88,7 +88,7 @@ impl Enemy {
         let tile_data = data::build_tile_data(data::Tile::Enemy { tile });
         let (width_in_world, height_in_world) =
             Enemy::build_world_bounds(tile, &tile_data.bounds_in_tile_sheet);
-        
+
         components::Drawable {
             tile_data,
             world_bounds: Rect::new(
