@@ -12,7 +12,9 @@ use specs::WorldExt;
 mod components;
 mod data;
 mod entities;
+mod frame_limiter;
 mod graphics;
+mod renderer;
 mod resources;
 mod systems;
 
@@ -38,7 +40,12 @@ pub fn main() {
     let textures = graphics::textures::Textures::load_from_files(&texture_creator);
 
     setup_splash_screen(&world_data, &mut canvas);
-    run_game_loop(&mut event_pump, setup_ecs(world_data, canvas, textures));
+    run_game_loop(
+        &mut event_pump,
+        setup_ecs(world_data),
+        renderer::Renderer::new(world_data, canvas, textures),
+        frame_limiter::FrameLimiter::new(60),
+    );
 }
 
 fn setup_splash_screen(world_data: &WorldData, canvas: &mut WindowCanvas) {
@@ -49,11 +56,7 @@ fn setup_splash_screen(world_data: &WorldData, canvas: &mut WindowCanvas) {
     canvas.present();
 }
 
-fn setup_ecs<'a, 'b>(
-    world_data: WorldData,
-    canvas: WindowCanvas,
-    textures: graphics::textures::Textures<'b>,
-) -> (World, Dispatcher<'a, 'b>) {
+fn setup_ecs<'a, 'b>(world_data: WorldData) -> (World, Dispatcher<'a, 'b>) {
     let mut world = World::new();
 
     // Insert resources
@@ -93,14 +96,17 @@ fn setup_ecs<'a, 'b>(
         .with(systems::EnemySystem::new(world_data), "enemy_system", &[])
         .with_barrier()
         .with(systems::CollisionSystem, "collision_system", &[])
-        .with_thread_local(systems::RenderingSystem::new(world_data, canvas, textures))
-        .with_thread_local(systems::FrameLimiter::new(60))
         .build();
 
     (world, dispatcher)
 }
 
-fn run_game_loop(event_pump: &mut EventPump, inputs: (World, Dispatcher)) {
+fn run_game_loop(
+    event_pump: &mut EventPump,
+    inputs: (World, Dispatcher),
+    mut renderer: renderer::Renderer,
+    mut frame_limiter: frame_limiter::FrameLimiter,
+) {
     let (mut world, mut dispatcher) = inputs;
     'running: loop {
         // Drain event pump to event queue
@@ -111,6 +117,15 @@ fn run_game_loop(event_pump: &mut EventPump, inputs: (World, Dispatcher)) {
         // Work the systems
         dispatcher.dispatch(&world);
         world.maintain();
+
+        // Display whatever we have
+        renderer.draw_if_required(
+            &world.fetch::<resources::GameTick>(),
+            Some(world.read_storage()),
+        );
+
+        // We don't want to drink up too much power
+        frame_limiter.limit_as_required();
 
         // Check & finish the game if required
         if world.fetch::<resources::GameFinisher>().should_finish() {

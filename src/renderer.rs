@@ -6,10 +6,7 @@ use crate::resources::GameTick;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use specs::join::Join;
-use specs::shred::ResourceId;
-use specs::SystemData;
-use specs::World;
-use specs::{ReadExpect, ReadStorage, System};
+use specs::ReadStorage;
 use std::convert::TryFrom;
 
 // Tiles should be drawn in a particular order to get the correct Z-index cheaply.
@@ -17,22 +14,35 @@ use std::convert::TryFrom;
 const TILE_DRAW_ORDER: [TileSheet; 3] =
     [TileSheet::Platform, TileSheet::Enemy, TileSheet::Character];
 
-pub struct RenderingSystem<'a> {
+pub struct Renderer<'a> {
     world_data: WorldData,
     canvas: WindowCanvas,
     textures: textures::Textures<'a>,
 }
 
-impl<'a> RenderingSystem<'a> {
+impl<'a> Renderer<'a> {
     pub fn new(
         world_data: WorldData,
         canvas: WindowCanvas,
         textures: textures::Textures<'a>,
-    ) -> RenderingSystem {
-        RenderingSystem {
+    ) -> Renderer {
+        Renderer {
             world_data,
             canvas,
             textures,
+        }
+    }
+
+    pub fn draw_if_required(
+        &mut self,
+        game_tick: &GameTick,
+        drawables: Option<ReadStorage<Drawable>>,
+    ) {
+        // There is no use in drawing if the game didn't move forward
+        if let Some(drawables_storage) = drawables {
+            if game_tick.ticked() {
+                self.draw(drawables_storage);
+            }
         }
     }
 
@@ -64,7 +74,7 @@ impl<'a> RenderingSystem<'a> {
                         .copy(
                             texture,
                             drawable.tile_data.bounds_in_tile_sheet,
-                            RenderingSystem::world_to_screen_coordinates(
+                            Renderer::world_to_screen_coordinates(
                                 &drawable.world_bounds,
                                 &viewport,
                             ),
@@ -75,23 +85,5 @@ impl<'a> RenderingSystem<'a> {
         }
 
         self.canvas.present();
-    }
-}
-
-#[derive(SystemData)]
-pub struct RenderingSystemData<'a> {
-    drawables_storage: ReadStorage<'a, Drawable>,
-    game_tick: ReadExpect<'a, GameTick>,
-}
-
-impl<'a, 'b> System<'a> for RenderingSystem<'b> {
-    type SystemData = RenderingSystemData<'a>;
-
-    fn run(&mut self, data: Self::SystemData) {
-        // There is no use in drawing a frame if the systems weren't
-        // even asked to update their animation
-        if data.game_tick.ticked() {
-            self.draw(data.drawables_storage);
-        }
     }
 }

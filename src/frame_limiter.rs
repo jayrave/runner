@@ -1,4 +1,3 @@
-use specs::System;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
 
@@ -15,12 +14,8 @@ impl FrameLimiter {
             last_call: Instant::now(),
         }
     }
-}
 
-impl<'a> System<'a> for FrameLimiter {
-    type SystemData = ();
-
-    fn run(&mut self, _: Self::SystemData) {
+    pub fn limit_as_required(&mut self) {
         loop {
             let elapsed = Instant::now() - self.last_call;
             if elapsed >= self.frame_duration {
