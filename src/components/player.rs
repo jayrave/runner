@@ -5,12 +5,14 @@ use specs::VecStorage;
 #[storage(VecStorage)]
 pub struct Player {
     pub current_action: data::Action,
+    pub is_hit: bool,
 }
 
 impl Player {
     pub fn new() -> Player {
         Player {
             current_action: data::Action::Run,
+            is_hit: false,
         }
     }
 }

@@ -18,6 +18,7 @@ pub enum Tile {
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum CharacterTile {
+    Hit,
     Jump,
     Slide,
     Still,
@@ -61,6 +62,7 @@ pub fn build_tile_data(tile: Tile) -> TileData {
         Tile::Character { tile } => {
             tile_sheet = TileSheet::Character;
             bounds_in_tile_sheet = match tile {
+                CharacterTile::Hit => Rect::new(385, 34, 95, 90),
                 CharacterTile::Jump => Rect::new(105, 28, 80, 99),
                 CharacterTile::Slide => Rect::new(102, 182, 87, 74),
                 CharacterTile::Still => Rect::new(16, 32, 64, 96),

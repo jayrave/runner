@@ -5,14 +5,15 @@ use crate::components::{Animatable, Drawable};
 use crate::entities;
 
 use crate::graphics::data as graphics_data;
-use crate::resources::GamePlayTick;
+use crate::resources::{GamePlay, GamePlayTick};
 
 use crate::data::{PlayerData, WorldData};
+use crate::graphics::data::CharacterTile;
 use specs::join::Join;
 use specs::shred::ResourceId;
-use specs::World;
 use specs::{ReadExpect, System, WriteStorage};
 use specs::{ReadStorage, SystemData};
+use specs::{World, WriteExpect};
 use std::convert::TryFrom;
 
 pub struct PlayerSystem {
@@ -425,6 +426,7 @@ impl PlayerSystem {
 
 #[derive(SystemData)]
 pub struct PlayerSystemData<'a> {
+    game_play: WriteExpect<'a, GamePlay>,
     game_play_tick: ReadExpect<'a, GamePlayTick>,
     player_data: ReadExpect<'a, PlayerData>,
     animatable_storage: WriteStorage<'a, Animatable>,
@@ -448,14 +450,24 @@ impl<'a> System<'a> for PlayerSystem {
             let start_tick = data.game_play_tick.ticks_animated();
             let end_tick = start_tick + data.game_play_tick.ticks_to_animate();
             for current_tick in start_tick..end_tick {
-                self.update(
-                    current_tick,
-                    &data.player_data,
-                    &mut animatable,
-                    &mut drawable,
-                    &input_controlled,
-                    &mut player,
-                )
+                if player.is_hit {
+                    *drawable = entities::Player::build_drawable_with_left_bottom(
+                        CharacterTile::Hit,
+                        drawable.world_bounds.left(),
+                        drawable.world_bounds.bottom(),
+                    );
+
+                    data.game_play.mark_over()
+                } else {
+                    self.update(
+                        current_tick,
+                        &data.player_data,
+                        &mut animatable,
+                        &mut drawable,
+                        &input_controlled,
+                        &mut player,
+                    )
+                }
             }
         }
     }
