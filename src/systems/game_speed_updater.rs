@@ -43,7 +43,7 @@ impl<'a> System<'a> for GameSpeedUpdater {
         if self.last_speed_up_at_tick + u64::from(SPEED_UP_TICK_INTERVAL) <= tick_animated {
             let multiplier = self.last_multiplier * SPEED_UP_MULTIPLIER;
             let ground_data = GroundData::new(multiplier);
-            let enemy_data = EnemyData::new(&ground_data);
+            let enemy_data = EnemyData::new(ground_data);
             let player_data = PlayerData::new();
 
             *data.ground_data = ground_data;

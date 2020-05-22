@@ -21,7 +21,7 @@ impl GroundSystem {
         &self,
         entities: &Entities,
         entity: Entity,
-        ground_data: &GroundData,
+        ground_data: GroundData,
         drawable: &mut Drawable,
     ) {
         // Every tile needs to be moved to the left by a few world coordinates. Even
@@ -66,7 +66,7 @@ impl<'a> System<'a> for GroundSystem {
             .join()
         {
             for _ in 0..data.game_play_tick.ticks_to_animate() {
-                self.move_or_remove(&data.entities, entity, &data.ground_data, &mut drawable);
+                self.move_or_remove(&data.entities, entity, *data.ground_data, &mut drawable);
             }
 
             // Track data to figure out ground tiles to create. Make sure to do this

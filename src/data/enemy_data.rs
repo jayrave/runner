@@ -12,7 +12,7 @@ pub struct EnemyData {
 }
 
 impl EnemyData {
-    pub fn new(ground_data: &GroundData) -> Self {
+    pub fn new(ground_data: GroundData) -> Self {
         Self {
             min_ticks_between_enemies: 180,
             randomness_factor: 6,

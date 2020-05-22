@@ -21,7 +21,7 @@ impl<'a, 'b> GameWorld<'a, 'b> {
 
         // Insert resources
         let ground_data = data::GroundData::new(1.0);
-        world.insert(data::enemy_data::EnemyData::new(&ground_data));
+        world.insert(data::enemy_data::EnemyData::new(ground_data));
         world.insert(data::PlayerData::new());
         world.insert(ground_data);
         world.insert(resources::EventQueue::new());
