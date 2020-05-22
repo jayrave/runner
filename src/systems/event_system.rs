@@ -1,7 +1,6 @@
 use crate::components::input::data::Direction;
 use crate::components::input::InputControlled;
 use crate::resources::EventQueue;
-use crate::resources::GameFinisher;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use specs::join::Join;
@@ -27,7 +26,6 @@ impl EventSystem {
 #[derive(SystemData)]
 pub struct EventSystemData<'a> {
     event_queue: WriteExpect<'a, EventQueue>,
-    game_finisher: WriteExpect<'a, GameFinisher>,
     input_controlled_storage: WriteStorage<'a, InputControlled>,
 }
 
@@ -49,16 +47,13 @@ impl<'a> System<'a> for EventSystem {
         // Replay events for all components. Instead of finding one up &
         // one down, we want all events to be directly delivered to the
         // components to be true to user input
-        let mut should_finish_game = false;
         for input_cntl in (&mut data.input_controlled_storage).join() {
             for event in self.queue.iter() {
                 match event {
-                    Event::Quit { .. } => should_finish_game = true,
                     Event::KeyDown {
                         keycode: Some(keycode),
                         ..
                     } => match keycode {
-                        Keycode::Escape => should_finish_game = true,
                         Keycode::Space | Keycode::Up => input_cntl.update_key_down(Direction::Up),
                         Keycode::Down => input_cntl.update_key_down(Direction::Down),
                         Keycode::Left => input_cntl.update_key_down(Direction::Left),
@@ -78,10 +73,6 @@ impl<'a> System<'a> for EventSystem {
                     _ => {}
                 }
             }
-        }
-
-        if should_finish_game {
-            data.game_finisher.finish();
         }
     }
 }

@@ -3,6 +3,9 @@ extern crate sdl2;
 use sdl2::render::WindowCanvas;
 
 use crate::data::WorldData;
+use crate::resources::EventQueue;
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
 use sdl2::EventPump;
 use specs::Dispatcher;
 use specs::DispatcherBuilder;
@@ -65,7 +68,6 @@ fn setup_ecs<'a, 'b>(world_data: WorldData) -> (World, Dispatcher<'a, 'b>) {
     world.insert(data::PlayerData::new());
     world.insert(ground_data);
     world.insert(resources::EventQueue::new());
-    world.insert(resources::GameFinisher::new());
     world.insert(resources::GamePlay::new());
     world.insert(resources::GamePlayTick::new());
 
@@ -115,9 +117,16 @@ fn run_game_loop(
             .fetch_mut::<resources::EventQueue>()
             .populate(event_pump);
 
+        // Check & finish the game if required
+        if user_wishes_to_quit(&world.fetch()) {
+            break 'running;
+        }
+
         // Work the systems
-        dispatcher.dispatch(&world);
-        world.maintain();
+        if !world.fetch::<resources::GamePlay>().is_over() {
+            dispatcher.dispatch(&world);
+            world.maintain();
+        }
 
         // Display whatever we have
         renderer.draw_if_required(
@@ -127,10 +136,21 @@ fn run_game_loop(
 
         // We don't want to drink up too much power
         frame_limiter.limit_as_required();
+    }
+}
 
-        // Check & finish the game if required
-        if world.fetch::<resources::GameFinisher>().should_finish() {
-            break 'running;
+fn user_wishes_to_quit(event_queue: &EventQueue) -> bool {
+    let mut should_finish_game = false;
+    for event in event_queue.iter() {
+        match event {
+            Event::Quit { .. } => should_finish_game = true,
+            Event::KeyDown {
+                keycode: Some(keycode),
+                ..
+            } => should_finish_game = keycode == &Keycode::Escape,
+            _ => {}
         }
     }
+
+    should_finish_game
 }
