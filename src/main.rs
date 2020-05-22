@@ -65,8 +65,9 @@ fn setup_ecs<'a, 'b>(world_data: WorldData) -> (World, Dispatcher<'a, 'b>) {
     world.insert(data::PlayerData::new());
     world.insert(ground_data);
     world.insert(resources::EventQueue::new());
-    world.insert(resources::GameTick::new());
     world.insert(resources::GameFinisher::new());
+    world.insert(resources::GamePlay::new());
+    world.insert(resources::GameTick::new());
 
     // Register components
     world.register::<components::Animatable>();

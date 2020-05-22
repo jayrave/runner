@@ -1,7 +1,7 @@
 use crate::components::player::Player;
 use crate::components::{Drawable, Enemy};
 
-use crate::resources::{GameFinisher, GameTick};
+use crate::resources::{GamePlay, GameTick};
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::World;
@@ -13,7 +13,7 @@ pub struct CollisionSystem;
 
 #[derive(SystemData)]
 pub struct CollisionSystemData<'a> {
-    game_finisher: WriteExpect<'a, GameFinisher>,
+    game_play: WriteExpect<'a, GamePlay>,
     game_tick: ReadExpect<'a, GameTick>,
     enemies_storage: ReadStorage<'a, Enemy>,
     players_storage: ReadStorage<'a, Player>,
@@ -31,7 +31,7 @@ impl<'a> System<'a> for CollisionSystem {
                         .world_bounds
                         .has_intersection(enemy_drawable.world_bounds)
                     {
-                        data.game_finisher.finish();
+                        data.game_play.mark_over();
                         return;
                     }
                 }
