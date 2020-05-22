@@ -73,12 +73,12 @@ fn run_game_loop(
             .fetch_mut::<resources::EventQueue>()
             .reset_and_populate(event_pump);
 
-        // Check & finish the game if required
-        if should_quit_on_handling_input(
-            &game_world.world.fetch(),
-            &mut game_world.world.fetch_mut(),
-        ) {
-            break 'running;
+        // Check & finish the game or start a new game if required
+        let result = handle_input(&game_world.world.fetch(), &mut game_world.world.fetch_mut());
+        match result {
+            HandleInputResult::Quit => break 'running,
+            HandleInputResult::Continue => {}
+            HandleInputResult::StartNewGame => game_world = GameWorld::setup(world_data),
         }
 
         // Work the systems
@@ -98,22 +98,34 @@ fn run_game_loop(
     }
 }
 
-fn should_quit_on_handling_input(event_queue: &EventQueue, game_play: &mut GamePlay) -> bool {
-    let mut should_finish_game = false;
+enum HandleInputResult {
+    Continue,
+    StartNewGame,
+    Quit,
+}
+
+fn handle_input(event_queue: &EventQueue, game_play: &mut GamePlay) -> HandleInputResult {
     for event in event_queue.iter() {
         match event {
-            Event::Quit { .. } => should_finish_game = true,
+            Event::Quit { .. } => return HandleInputResult::Quit,
             Event::KeyDown {
                 keycode: Some(keycode),
                 ..
             } => match keycode {
-                Keycode::Escape => should_finish_game = true,
-                Keycode::Space => game_play.mark_started(),
+                Keycode::Escape => return HandleInputResult::Quit,
+                Keycode::Space => {
+                    if !game_play.is_started() {
+                        game_play.mark_started();
+                        return HandleInputResult::Continue;
+                    } else if game_play.is_over() {
+                        return HandleInputResult::StartNewGame;
+                    }
+                }
                 _ => {}
             },
             _ => {}
         }
     }
 
-    should_finish_game
+    HandleInputResult::Continue
 }

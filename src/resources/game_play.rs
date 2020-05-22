@@ -19,6 +19,14 @@ impl GamePlay {
         self.is_over = true
     }
 
+    pub fn is_started(&self) -> bool {
+        self.is_started
+    }
+
+    pub fn is_over(&self) -> bool {
+        self.is_over
+    }
+
     pub fn should_allow(&self) -> bool {
         self.is_started && !self.is_over
     }
