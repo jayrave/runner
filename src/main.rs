@@ -67,7 +67,7 @@ fn setup_ecs<'a, 'b>(world_data: WorldData) -> (World, Dispatcher<'a, 'b>) {
     world.insert(resources::EventQueue::new());
     world.insert(resources::GameFinisher::new());
     world.insert(resources::GamePlay::new());
-    world.insert(resources::GameTick::new());
+    world.insert(resources::GamePlayTick::new());
 
     // Register components
     world.register::<components::Animatable>();
@@ -82,13 +82,13 @@ fn setup_ecs<'a, 'b>(world_data: WorldData) -> (World, Dispatcher<'a, 'b>) {
     entities::Player::create(&mut world, &world_data);
 
     // Orchestrate systems
-    let game_tick_updater = "game_tick_updater";
+    let game_play_tick_updater = "game_play_tick_updater";
     let dispatcher = DispatcherBuilder::new()
-        .with(systems::GameTickUpdater, game_tick_updater, &[])
+        .with(systems::GamePlayTickUpdater, game_play_tick_updater, &[])
         .with(
             systems::EventSystem::new(),
             "event_system",
-            &[game_tick_updater],
+            &[game_play_tick_updater],
         )
         .with(systems::GameSpeedUpdater::new(), "game_speed_updater", &[])
         .with_barrier() // To let event system & game updaters to work before any other systems
@@ -121,7 +121,7 @@ fn run_game_loop(
 
         // Display whatever we have
         renderer.draw_if_required(
-            &world.fetch::<resources::GameTick>(),
+            &world.fetch::<resources::GamePlayTick>(),
             Some(world.read_storage()),
         );
 

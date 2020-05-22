@@ -5,7 +5,7 @@ use crate::data::{PlayerData, WorldData};
 use crate::entities;
 use crate::graphics::data;
 use crate::graphics::data::EnemyTile;
-use crate::resources::GameTick;
+use crate::resources::GamePlayTick;
 use rand::Rng;
 use specs::join::Join;
 use specs::shred::ResourceId;
@@ -77,8 +77,12 @@ impl EnemySystem {
         }
     }
 
-    fn can_create_new_enemy(&mut self, game_tick: &GameTick, enemy_data: &EnemyData) -> bool {
-        let ticks_animated = game_tick.ticks_animated();
+    fn can_create_new_enemy(
+        &mut self,
+        game_play_tick: &GamePlayTick,
+        enemy_data: &EnemyData,
+    ) -> bool {
+        let ticks_animated = game_play_tick.ticks_animated();
         let ticks_since_last_enemy = ticks_animated - self.last_enemy_at_tick;
         let create_enemy = ticks_since_last_enemy > enemy_data.min_ticks_between_enemies
             && rand::thread_rng().gen_range(0, enemy_data.randomness_factor) == 0;
@@ -110,7 +114,7 @@ pub struct EnemySystemData<'a> {
     animatables_storage: WriteStorage<'a, Animatable>,
     enemies_storage: WriteStorage<'a, Enemy>,
     drawables_storage: WriteStorage<'a, Drawable>,
-    game_tick: ReadExpect<'a, GameTick>,
+    game_play_tick: ReadExpect<'a, GamePlayTick>,
 }
 
 impl<'a> System<'a> for EnemySystem {
@@ -126,8 +130,8 @@ impl<'a> System<'a> for EnemySystem {
         )
             .join()
         {
-            let start_tick = data.game_tick.ticks_animated();
-            let end_tick = start_tick + data.game_tick.ticks_to_animate();
+            let start_tick = data.game_play_tick.ticks_animated();
+            let end_tick = start_tick + data.game_play_tick.ticks_to_animate();
             for current_tick in start_tick..end_tick {
                 self.move_or_remove(
                     current_tick,
@@ -141,7 +145,7 @@ impl<'a> System<'a> for EnemySystem {
         }
 
         // Create new enemies if possible & required
-        if self.can_create_new_enemy(&data.game_tick, &data.enemy_data) {
+        if self.can_create_new_enemy(&data.game_play_tick, &data.enemy_data) {
             entities::Enemy::create(
                 &data.enemy_data,
                 &data.player_data,

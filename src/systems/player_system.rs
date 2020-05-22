@@ -5,7 +5,7 @@ use crate::components::{Animatable, Drawable};
 use crate::entities;
 
 use crate::graphics::data as graphics_data;
-use crate::resources::GameTick;
+use crate::resources::GamePlayTick;
 
 use crate::data::{PlayerData, WorldData};
 use specs::join::Join;
@@ -425,7 +425,7 @@ impl PlayerSystem {
 
 #[derive(SystemData)]
 pub struct PlayerSystemData<'a> {
-    game_tick: ReadExpect<'a, GameTick>,
+    game_play_tick: ReadExpect<'a, GamePlayTick>,
     player_data: ReadExpect<'a, PlayerData>,
     animatable_storage: WriteStorage<'a, Animatable>,
     drawables_storage: WriteStorage<'a, Drawable>,
@@ -445,8 +445,8 @@ impl<'a> System<'a> for PlayerSystem {
         )
             .join()
         {
-            let start_tick = data.game_tick.ticks_animated();
-            let end_tick = start_tick + data.game_tick.ticks_to_animate();
+            let start_tick = data.game_play_tick.ticks_animated();
+            let end_tick = start_tick + data.game_play_tick.ticks_to_animate();
             for current_tick in start_tick..end_tick {
                 self.update(
                     current_tick,

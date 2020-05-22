@@ -2,7 +2,7 @@ use crate::components::Drawable;
 use crate::data::WorldData;
 use crate::graphics::data::TileSheet;
 use crate::graphics::textures;
-use crate::resources::GameTick;
+use crate::resources::GamePlayTick;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use specs::join::Join;
@@ -35,12 +35,12 @@ impl<'a> Renderer<'a> {
 
     pub fn draw_if_required(
         &mut self,
-        game_tick: &GameTick,
+        game_play_tick: &GamePlayTick,
         drawables: Option<ReadStorage<Drawable>>,
     ) {
         // There is no use in drawing if the game didn't move forward
         if let Some(drawables_storage) = drawables {
-            if game_tick.ticked() {
+            if game_play_tick.ticked() {
                 self.draw(drawables_storage);
             }
         }

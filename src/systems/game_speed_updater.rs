@@ -1,6 +1,6 @@
 use crate::data::enemy_data::EnemyData;
 use crate::data::{GroundData, PlayerData};
-use crate::resources::GameTick;
+use crate::resources::GamePlayTick;
 use specs::shred::ResourceId;
 use specs::SystemData;
 use specs::World;
@@ -11,7 +11,7 @@ use specs::{ReadExpect, System};
 const SPEED_UP_MULTIPLIER: f32 = 1.1;
 const SPEED_UP_INTERVAL_IN_SECONDS: u8 = 10;
 const SPEED_UP_TICK_INTERVAL: u16 = (SPEED_UP_INTERVAL_IN_SECONDS as u16 * 1000)
-    / (crate::resources::game_tick::MILLISECONDS_IN_A_TICK as u16);
+    / (crate::resources::game_play_tick::MILLISECONDS_IN_A_TICK as u16);
 
 pub struct GameSpeedUpdater {
     last_speed_up_at_tick: u64,
@@ -29,7 +29,7 @@ impl GameSpeedUpdater {
 
 #[derive(SystemData)]
 pub struct SpeedSystemData<'a> {
-    game_tick: ReadExpect<'a, GameTick>,
+    game_play_tick: ReadExpect<'a, GamePlayTick>,
     ground_data: WriteExpect<'a, GroundData>,
     enemy_data: WriteExpect<'a, EnemyData>,
     player_data: WriteExpect<'a, PlayerData>,
@@ -39,7 +39,7 @@ impl<'a> System<'a> for GameSpeedUpdater {
     type SystemData = SpeedSystemData<'a>;
 
     fn run(&mut self, mut data: Self::SystemData) {
-        let tick_animated = data.game_tick.ticks_animated();
+        let tick_animated = data.game_play_tick.ticks_animated();
         if self.last_speed_up_at_tick + u64::from(SPEED_UP_TICK_INTERVAL) <= tick_animated {
             let multiplier = self.last_multiplier * SPEED_UP_MULTIPLIER;
             let ground_data = GroundData::new(multiplier);

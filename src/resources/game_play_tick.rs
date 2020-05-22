@@ -13,7 +13,7 @@ pub const MILLISECONDS_IN_A_TICK: u8 = 16;
 /// provide hardware/frame rate independent experience, we need to
 /// run our systems once to cover a set amount of time (one tick)
 /// no matter which system we are run on
-pub struct GameTick {
+pub struct GamePlayTick {
     /// Number of ticks animated by our systems since the start of
     /// of the game
     ticks_animated: u64,
@@ -27,9 +27,9 @@ pub struct GameTick {
     last_ticks_to_animate_update_at: SystemTime,
 }
 
-impl GameTick {
-    pub fn new() -> GameTick {
-        GameTick {
+impl GamePlayTick {
+    pub fn new() -> GamePlayTick {
+        GamePlayTick {
             ticks_animated: 0,
             ticks_to_animate: 0,
             last_ticks_to_animate_update_at: SystemTime::now(),
