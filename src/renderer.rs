@@ -2,7 +2,6 @@ use crate::components::Drawable;
 use crate::data::WorldData;
 use crate::graphics::data::TileSheet;
 use crate::graphics::textures;
-use crate::resources::GamePlayTick;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use specs::join::Join;
@@ -33,30 +32,7 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    pub fn draw_if_required(
-        &mut self,
-        game_play_tick: &GamePlayTick,
-        drawables: Option<ReadStorage<Drawable>>,
-    ) {
-        // There is no use in drawing if the game didn't move forward
-        if let Some(drawables_storage) = drawables {
-            if game_play_tick.ticked() {
-                self.draw(drawables_storage);
-            }
-        }
-    }
-
-    fn world_to_screen_coordinates(tile_world_bounds: &Rect, viewport: &Rect) -> Rect {
-        let mut screen_coordinates = *tile_world_bounds;
-        screen_coordinates.offset(
-            i32::try_from(viewport.width() / 2).expect("u32/2 is not i32!"),
-            i32::try_from(viewport.height() / 2).expect("u32/2 is not i32!"),
-        );
-
-        screen_coordinates
-    }
-
-    fn draw(&mut self, drawables_storage: ReadStorage<Drawable>) {
+    pub fn draw(&mut self, drawables_storage: ReadStorage<Drawable>) {
         self.canvas.set_draw_color(self.world_data.sky_color());
         self.canvas.clear();
 
@@ -85,5 +61,15 @@ impl<'a> Renderer<'a> {
         }
 
         self.canvas.present();
+    }
+
+    fn world_to_screen_coordinates(tile_world_bounds: &Rect, viewport: &Rect) -> Rect {
+        let mut screen_coordinates = *tile_world_bounds;
+        screen_coordinates.offset(
+            i32::try_from(viewport.width() / 2).expect("u32/2 is not i32!"),
+            i32::try_from(viewport.height() / 2).expect("u32/2 is not i32!"),
+        );
+
+        screen_coordinates
     }
 }

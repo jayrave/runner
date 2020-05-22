@@ -129,10 +129,7 @@ fn run_game_loop(
         }
 
         // Display whatever we have
-        renderer.draw_if_required(
-            &world.fetch::<resources::GamePlayTick>(),
-            Some(world.read_storage()),
-        );
+        renderer.draw(world.read_storage());
 
         // We don't want to drink up too much power
         frame_limiter.limit_as_required();
