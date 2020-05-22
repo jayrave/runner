@@ -21,7 +21,7 @@ impl Player {
                 current_step_started_at_tick: 0,
             })
             .with(Player::build_drawable_with_left_bottom(
-                data::CharacterTile::Run1,
+                data::CharacterTile::Still,
                 world_data.bounds().left() + (world_data.bounds().width() / 8) as i32,
                 world_data.world_surface_at(),
             ))
