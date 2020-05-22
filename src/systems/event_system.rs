@@ -9,19 +9,8 @@ use specs::SystemData;
 use specs::World;
 use specs::WriteExpect;
 use specs::{System, WriteStorage};
-use std::collections::VecDeque;
 
-pub struct EventSystem {
-    queue: VecDeque<Event>,
-}
-
-impl EventSystem {
-    pub fn new() -> EventSystem {
-        EventSystem {
-            queue: VecDeque::new(),
-        }
-    }
-}
+pub struct EventSystem;
 
 #[derive(SystemData)]
 pub struct EventSystemData<'a> {
@@ -33,22 +22,11 @@ impl<'a> System<'a> for EventSystem {
     type SystemData = EventSystemData<'a>;
 
     fn run(&mut self, mut data: Self::SystemData) {
-        // Should start with a clean slate every time. We are going to
-        // handle all the events from the event queue & each
-        // `InputControlled` component must be informed about all the
-        // events. Since it would be inefficient to loop over the components
-        // for every event, we are collecting the event as the first step
-        // & replaying them separately for each component
-        self.queue.clear();
-        for event in data.event_queue.queue.drain(..) {
-            self.queue.push_back(event)
-        }
-
         // Replay events for all components. Instead of finding one up &
         // one down, we want all events to be directly delivered to the
         // components to be true to user input
         for input_cntl in (&mut data.input_controlled_storage).join() {
-            for event in self.queue.iter() {
+            for event in data.event_queue.iter() {
                 match event {
                     Event::KeyDown {
                         keycode: Some(keycode),

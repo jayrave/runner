@@ -6,7 +6,7 @@ use std::iter::Iterator;
 /// We are using `EventQueue` instead of straight up using `EventPump`
 /// since it is not `Send` & so can't be used directly in a specs `System`
 pub struct EventQueue {
-    pub queue: VecDeque<Event>,
+    queue: VecDeque<Event>,
 }
 
 impl EventQueue {
@@ -16,11 +16,8 @@ impl EventQueue {
         }
     }
 
-    pub fn clear(&mut self) {
-        self.queue.clear()
-    }
-
-    pub fn populate(&mut self, event_pump: &mut EventPump) {
+    pub fn reset_and_populate(&mut self, event_pump: &mut EventPump) {
+        self.queue.clear();
         for event in event_pump.poll_iter() {
             self.queue.push_back(event.clone());
         }

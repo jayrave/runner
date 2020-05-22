@@ -88,7 +88,7 @@ fn setup_ecs<'a, 'b>(world_data: WorldData) -> (World, Dispatcher<'a, 'b>) {
     let dispatcher = DispatcherBuilder::new()
         .with(systems::GamePlayTickUpdater, game_play_tick_updater, &[])
         .with(
-            systems::EventSystem::new(),
+            systems::EventSystem,
             "event_system",
             &[game_play_tick_updater],
         )
@@ -115,7 +115,7 @@ fn run_game_loop(
         // Drain event pump to event queue
         world
             .fetch_mut::<resources::EventQueue>()
-            .populate(event_pump);
+            .reset_and_populate(event_pump);
 
         // Check & finish the game if required
         if user_wishes_to_quit(&world.fetch()) {
