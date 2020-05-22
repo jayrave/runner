@@ -3,19 +3,19 @@ extern crate sdl2;
 use sdl2::render::WindowCanvas;
 
 use crate::data::WorldData;
+use crate::game_world::GameWorld;
 use crate::resources::{EventQueue, GamePlay};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::EventPump;
-use specs::Dispatcher;
-use specs::DispatcherBuilder;
-use specs::World;
+
 use specs::WorldExt;
 
 mod components;
 mod data;
 mod entities;
 mod frame_limiter;
+mod game_world;
 mod graphics;
 mod renderer;
 mod resources;
@@ -44,8 +44,8 @@ pub fn main() {
 
     setup_splash_screen(&world_data, &mut canvas);
     run_game_loop(
+        world_data,
         &mut event_pump,
-        setup_ecs(world_data),
         renderer::Renderer::new(world_data, canvas, textures),
         frame_limiter::FrameLimiter::new(60),
     );
@@ -59,77 +59,39 @@ fn setup_splash_screen(world_data: &WorldData, canvas: &mut WindowCanvas) {
     canvas.present();
 }
 
-fn setup_ecs<'a, 'b>(world_data: WorldData) -> (World, Dispatcher<'a, 'b>) {
-    let mut world = World::new();
-
-    // Insert resources
-    let ground_data = data::GroundData::new(1.0);
-    world.insert(data::enemy_data::EnemyData::new(&ground_data));
-    world.insert(data::PlayerData::new());
-    world.insert(ground_data);
-    world.insert(resources::EventQueue::new());
-    world.insert(resources::GamePlay::new());
-    world.insert(resources::GamePlayTick::new());
-
-    // Register components
-    world.register::<components::Animatable>();
-    world.register::<components::Drawable>();
-    world.register::<components::Enemy>();
-    world.register::<components::Ground>();
-    world.register::<components::player::Player>();
-    world.register::<components::input::InputControlled>();
-
-    // Create entities
-    entities::Ground::create_all_tiles(&mut world, &world_data);
-    entities::Player::create(&mut world, &world_data);
-
-    // Orchestrate systems
-    let game_play_tick_updater = "game_play_tick_updater";
-    let dispatcher = DispatcherBuilder::new()
-        .with(systems::GamePlayTickUpdater, game_play_tick_updater, &[])
-        .with(
-            systems::EventSystem,
-            "event_system",
-            &[game_play_tick_updater],
-        )
-        .with(systems::GameSpeedUpdater::new(), "game_speed_updater", &[])
-        .with_barrier() // To let event system & game updaters to work before any other systems
-        .with(systems::GroundSystem::new(world_data), "ground_system", &[])
-        .with(systems::PlayerSystem::new(world_data), "player_system", &[])
-        .with(systems::EnemySystem::new(world_data), "enemy_system", &[])
-        .with_barrier()
-        .with(systems::CollisionSystem, "collision_system", &[])
-        .build();
-
-    (world, dispatcher)
-}
-
 fn run_game_loop(
+    world_data: WorldData,
     event_pump: &mut EventPump,
-    inputs: (World, Dispatcher),
     mut renderer: renderer::Renderer,
     mut frame_limiter: frame_limiter::FrameLimiter,
 ) {
-    let (mut world, mut dispatcher) = inputs;
+    let mut game_world = GameWorld::setup(world_data);
     'running: loop {
         // Drain event pump to event queue
-        world
+        game_world
+            .world
             .fetch_mut::<resources::EventQueue>()
             .reset_and_populate(event_pump);
 
         // Check & finish the game if required
-        if should_quit_on_handling_input(&world.fetch(), &mut world.fetch_mut()) {
+        if should_quit_on_handling_input(
+            &game_world.world.fetch(),
+            &mut game_world.world.fetch_mut(),
+        ) {
             break 'running;
         }
 
         // Work the systems
-        if world.fetch::<resources::GamePlay>().should_allow() {
-            dispatcher.dispatch(&world);
-            world.maintain();
+        if game_world
+            .world
+            .fetch::<resources::GamePlay>()
+            .should_allow()
+        {
+            game_world.dispatch()
         }
 
         // Display whatever we have
-        renderer.draw(world.read_storage());
+        renderer.draw(game_world.world.read_storage());
 
         // We don't want to drink up too much power
         frame_limiter.limit_as_required();
