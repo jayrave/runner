@@ -3,7 +3,7 @@ extern crate sdl2;
 use sdl2::render::WindowCanvas;
 
 use crate::data::WorldData;
-use crate::resources::EventQueue;
+use crate::resources::{EventQueue, GamePlay};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::EventPump;
@@ -118,12 +118,12 @@ fn run_game_loop(
             .reset_and_populate(event_pump);
 
         // Check & finish the game if required
-        if user_wishes_to_quit(&world.fetch()) {
+        if should_quit_on_handling_input(&world.fetch(), &mut world.fetch_mut()) {
             break 'running;
         }
 
         // Work the systems
-        if !world.fetch::<resources::GamePlay>().is_over() {
+        if world.fetch::<resources::GamePlay>().should_allow() {
             dispatcher.dispatch(&world);
             world.maintain();
         }
@@ -136,7 +136,7 @@ fn run_game_loop(
     }
 }
 
-fn user_wishes_to_quit(event_queue: &EventQueue) -> bool {
+fn should_quit_on_handling_input(event_queue: &EventQueue, game_play: &mut GamePlay) -> bool {
     let mut should_finish_game = false;
     for event in event_queue.iter() {
         match event {
@@ -144,7 +144,11 @@ fn user_wishes_to_quit(event_queue: &EventQueue) -> bool {
             Event::KeyDown {
                 keycode: Some(keycode),
                 ..
-            } => should_finish_game = keycode == &Keycode::Escape,
+            } => match keycode {
+                Keycode::Escape => should_finish_game = true,
+                Keycode::Space => game_play.mark_started(),
+                _ => {}
+            },
             _ => {}
         }
     }
