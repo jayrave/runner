@@ -1,7 +1,7 @@
 use crate::components::Drawable;
 use crate::components::Ground;
 use crate::data::{GroundData, WorldData};
-use crate::resources::GamePlayTick;
+use crate::resources::GamePlay;
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::World;
@@ -46,7 +46,7 @@ impl GroundSystem {
 #[derive(SystemData)]
 pub struct GroundSystemData<'a> {
     entities: Entities<'a>,
-    game_play_tick: ReadExpect<'a, GamePlayTick>,
+    game_play: ReadExpect<'a, GamePlay>,
     ground_data: ReadExpect<'a, GroundData>,
     grounds_storage: WriteStorage<'a, Ground>,
     drawables_storage: WriteStorage<'a, Drawable>,
@@ -65,7 +65,7 @@ impl<'a> System<'a> for GroundSystem {
         )
             .join()
         {
-            for _ in 0..data.game_play_tick.ticks_to_animate() {
+            for _ in 0..data.game_play.ticks_to_animate() {
                 self.move_or_remove(&data.entities, entity, *data.ground_data, &mut drawable);
             }
 

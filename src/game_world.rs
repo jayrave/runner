@@ -26,7 +26,6 @@ impl<'a, 'b> GameWorld<'a, 'b> {
         world.insert(ground_data);
         world.insert(resources::EventQueue::new());
         world.insert(resources::GamePlay::new());
-        world.insert(resources::GamePlayTick::new());
 
         // Register components
         world.register::<components::Animatable>();

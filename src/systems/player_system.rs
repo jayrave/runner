@@ -5,7 +5,7 @@ use crate::components::{Animatable, Drawable};
 use crate::entities;
 
 use crate::graphics::data as graphics_data;
-use crate::resources::{GamePlay, GamePlayTick};
+use crate::resources::GamePlay;
 
 use crate::data::{PlayerData, WorldData};
 use crate::graphics::data::CharacterTile;
@@ -427,7 +427,6 @@ impl PlayerSystem {
 #[derive(SystemData)]
 pub struct PlayerSystemData<'a> {
     game_play: WriteExpect<'a, GamePlay>,
-    game_play_tick: ReadExpect<'a, GamePlayTick>,
     player_data: ReadExpect<'a, PlayerData>,
     animatable_storage: WriteStorage<'a, Animatable>,
     drawables_storage: WriteStorage<'a, Drawable>,
@@ -447,8 +446,8 @@ impl<'a> System<'a> for PlayerSystem {
         )
             .join()
         {
-            let start_tick = data.game_play_tick.ticks_animated();
-            let end_tick = start_tick + data.game_play_tick.ticks_to_animate();
+            let start_tick = data.game_play.ticks_animated();
+            let end_tick = start_tick + data.game_play.ticks_to_animate();
             for current_tick in start_tick..end_tick {
                 if player.is_hit {
                     *drawable = entities::Player::build_drawable_with_left_bottom(
