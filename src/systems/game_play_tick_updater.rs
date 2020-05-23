@@ -16,8 +16,6 @@ impl<'a> System<'a> for GamePlayTickUpdater {
     type SystemData = TickUpdaterSystemData<'a>;
 
     fn run(&mut self, mut data: Self::SystemData) {
-        if data.game_play.should_allow() {
-            data.game_play.update();
-        }
+        data.game_play.update_if_allowed()
     }
 }

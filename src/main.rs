@@ -82,11 +82,7 @@ fn run_game_loop(
         }
 
         // Work the systems
-        if game_world
-            .world
-            .fetch::<resources::GamePlay>()
-            .should_allow()
-        {
+        if game_world.world.fetch::<resources::GamePlay>().is_allowed() {
             game_world.dispatch()
         }
 

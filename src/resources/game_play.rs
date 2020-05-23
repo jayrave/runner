@@ -38,16 +38,10 @@ impl GamePlay {
             is_over: false,
             ticks_animated: 0,
             ticks_to_animate: 0,
+
+            // This will be overwritten when the play actually starts
             last_ticks_to_animate_update_at: SystemTime::now(),
         }
-    }
-
-    pub fn mark_started(&mut self) {
-        self.is_started = true
-    }
-
-    pub fn mark_over(&mut self) {
-        self.is_over = true
     }
 
     pub fn is_started(&self) -> bool {
@@ -58,7 +52,7 @@ impl GamePlay {
         self.is_over
     }
 
-    pub fn should_allow(&self) -> bool {
+    pub fn is_allowed(&self) -> bool {
         self.is_started && !self.is_over
     }
 
@@ -74,32 +68,47 @@ impl GamePlay {
         self.ticks_to_animate > 0
     }
 
-    /// `ticks_to_animate` will be reset for every call to `update`.
-    /// Make sure that systems have stepped through these many ticks.
-    /// Results are undefined if this isn't done
-    pub fn update(&mut self) {
-        // Make sure to update `animated` count & reset `to_animate` count
-        self.ticks_animated += self.ticks_to_animate;
-        self.ticks_to_animate = 0;
+    pub fn mark_started(&mut self) {
+        self.is_started = true;
 
-        // We want to make sure we advance our physics in deterministic steps
-        // all the time to be hardware independent
-        let mut ms_elapsed = self
-            .last_ticks_to_animate_update_at
-            .elapsed()
-            .unwrap()
-            .as_millis();
+        // The play is only marked now as started. Start computing
+        // the ticks relative to this time. Tried making this prop
+        // an `Option` but that didn't make the code any easier!
+        self.last_ticks_to_animate_update_at = SystemTime::now();
+    }
 
-        let mut ticks_to_animate = 0u64;
-        while ms_elapsed > MILLISECONDS_IN_A_TICK.into() {
-            ticks_to_animate += 1;
-            ms_elapsed -= u128::from(MILLISECONDS_IN_A_TICK)
-        }
+    pub fn mark_over(&mut self) {
+        self.is_over = true
+    }
 
-        if ticks_to_animate > 0 {
-            self.ticks_to_animate = ticks_to_animate;
-            self.last_ticks_to_animate_update_at +=
-                Duration::from_millis(ticks_to_animate * u64::from(MILLISECONDS_IN_A_TICK));
+    /// `ticks_to_animate` will be reset for every call to `update_if_allowed`
+    /// if game play is allowed. Make sure that systems have stepped through
+    /// these many ticks. Results are undefined if this isn't done
+    pub fn update_if_allowed(&mut self) {
+        if self.is_allowed() {
+            // Make sure to update `animated` count & reset `to_animate` count
+            self.ticks_animated += self.ticks_to_animate;
+            self.ticks_to_animate = 0;
+
+            // We want to make sure we advance our physics in deterministic steps
+            // all the time to be hardware independent
+            let mut ms_elapsed = self
+                .last_ticks_to_animate_update_at
+                .elapsed()
+                .unwrap()
+                .as_millis();
+
+            let mut ticks_to_animate = 0u64;
+            while ms_elapsed > MILLISECONDS_IN_A_TICK.into() {
+                ticks_to_animate += 1;
+                ms_elapsed -= u128::from(MILLISECONDS_IN_A_TICK)
+            }
+
+            if ticks_to_animate > 0 {
+                self.ticks_to_animate = ticks_to_animate;
+                self.last_ticks_to_animate_update_at +=
+                    Duration::from_millis(ticks_to_animate * u64::from(MILLISECONDS_IN_A_TICK));
+            }
         }
     }
 }
