@@ -15,14 +15,16 @@ use specs::{ReadExpect, System, WriteStorage};
 
 pub struct EnemySystem {
     world_data: WorldData,
-    last_enemy_at_tick: u64,
+    enemy_wave_started_at_tick: u64,
+    enemies_spawned_in_current_wave: u8,
 }
 
 impl EnemySystem {
     pub fn new(world_data: WorldData) -> EnemySystem {
         EnemySystem {
             world_data,
-            last_enemy_at_tick: 0,
+            enemy_wave_started_at_tick: 0,
+            enemies_spawned_in_current_wave: 0,
         }
     }
 
@@ -77,17 +79,37 @@ impl EnemySystem {
         }
     }
 
-    fn can_create_new_enemy(&mut self, game_play: &GamePlay, enemy_data: &EnemyData) -> bool {
-        let ticks_animated = game_play.ticks_animated();
-        let ticks_since_last_enemy = ticks_animated - self.last_enemy_at_tick;
-        let create_enemy = ticks_since_last_enemy > enemy_data.min_ticks_between_enemies
-            && rand::thread_rng().gen_range(0, enemy_data.randomness_factor) == 0;
+    fn should_spawn_enemy(&mut self, current_tick: u64, enemy_data: &EnemyData) -> bool {
+        // Start new wave if required
+        if current_tick - self.enemy_wave_started_at_tick > enemy_data.enemy_wave_ticks_count.into()
+        {
+            self.enemy_wave_started_at_tick = current_tick;
+            self.enemies_spawned_in_current_wave = 0;
+        }
 
-        if create_enemy {
-            self.last_enemy_at_tick = ticks_animated;
-            true
-        } else {
+        let enemies_remaining_in_wave = enemy_data.enemy_count_in_wave
+            - self
+                .enemies_spawned_in_current_wave
+                .min(enemy_data.enemy_count_in_wave);
+
+        if enemies_remaining_in_wave <= 0 {
             false
+        } else {
+            let ticks_remaining_in_wave: u64 = (self.enemy_wave_started_at_tick
+                + enemy_data.enemy_wave_ticks_count as u64)
+                - current_tick;
+
+            // Would panic if low == high. Hence `max(1)` for upper bound
+            let spawn_enemy = rand::thread_rng().gen_range(
+                0,
+                (ticks_remaining_in_wave / enemies_remaining_in_wave as u64).max(1),
+            ) == 0;
+
+            if spawn_enemy {
+                self.enemies_spawned_in_current_wave += 1
+            }
+
+            spawn_enemy
         }
     }
 
@@ -141,7 +163,7 @@ impl<'a> System<'a> for EnemySystem {
         }
 
         // Create new enemies if possible & required
-        if self.can_create_new_enemy(&data.game_play, &data.enemy_data) {
+        if self.should_spawn_enemy(data.game_play.ticks_animated(), &data.enemy_data) {
             entities::Enemy::create(
                 &data.enemy_data,
                 &data.player_data,

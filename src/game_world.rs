@@ -20,9 +20,8 @@ impl<'a, 'b> GameWorld<'a, 'b> {
         let mut world = World::new();
 
         // Insert resources
-        let starting_multiplier = 1.0;
-        let ground_data = data::GroundData::new(starting_multiplier);
-        world.insert(data::enemy_data::EnemyData::new(ground_data, starting_multiplier));
+        let ground_data = data::GroundData::new(1.0);
+        world.insert(data::enemy_data::EnemyData::new(world_data, ground_data));
         world.insert(data::PlayerData::new());
         world.insert(ground_data);
         world.insert(resources::EventQueue::new());
@@ -49,7 +48,11 @@ impl<'a, 'b> GameWorld<'a, 'b> {
                 "event_system",
                 &[game_play_tick_updater],
             )
-            .with(systems::GameSpeedUpdater::new(), "game_speed_updater", &[])
+            .with(
+                systems::GameSpeedUpdater::new(world_data),
+                "game_speed_updater",
+                &[],
+            )
             .with_barrier() // To let event system & game updaters to work before any other systems
             .with(systems::GroundSystem::new(world_data), "ground_system", &[])
             .with(systems::PlayerSystem::new(world_data), "player_system", &[])

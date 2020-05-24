@@ -1,5 +1,5 @@
 use crate::data::enemy_data::EnemyData;
-use crate::data::{GroundData, PlayerData};
+use crate::data::{GroundData, PlayerData, WorldData};
 use crate::resources::GamePlay;
 use specs::shred::ResourceId;
 use specs::SystemData;
@@ -16,13 +16,15 @@ const SPEED_UP_TICK_INTERVAL: u16 = (SPEED_UP_INTERVAL_IN_SECONDS as u16 * 1000)
 pub struct GameSpeedUpdater {
     last_speed_up_at_tick: u64,
     last_multiplier: f32,
+    world_data: WorldData,
 }
 
 impl GameSpeedUpdater {
-    pub fn new() -> Self {
+    pub fn new(world_data: WorldData) -> Self {
         Self {
             last_speed_up_at_tick: 0,
             last_multiplier: 1.0,
+            world_data,
         }
     }
 }
@@ -43,7 +45,7 @@ impl<'a> System<'a> for GameSpeedUpdater {
         if self.last_speed_up_at_tick + u64::from(SPEED_UP_TICK_INTERVAL) <= tick_animated {
             let multiplier = self.last_multiplier * SPEED_UP_MULTIPLIER;
             let ground_data = GroundData::new(multiplier);
-            let enemy_data = EnemyData::new(ground_data, multiplier);
+            let enemy_data = EnemyData::new(self.world_data, ground_data);
             let player_data = PlayerData::new();
 
             *data.ground_data = ground_data;

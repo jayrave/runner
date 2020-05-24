@@ -1,9 +1,9 @@
-use crate::data::GroundData;
+use crate::data::{GroundData, WorldData};
 
 #[derive(Copy, Clone, Debug)]
 pub struct EnemyData {
-    pub min_ticks_between_enemies: u64,
-    pub randomness_factor: u8,
+    pub enemy_wave_ticks_count: u16,
+    pub enemy_count_in_wave: u8,
     pub bat_animation: Animation,
     pub bee_animation: Animation,
     pub bug_animation: Animation,
@@ -15,12 +15,14 @@ impl EnemyData {
     /// Shouldn't use [speed_multiplier] to change the animation speed or
     /// the movement speed of the enemies since it is just the player who
     /// is speeding up & not the enemies
-    pub fn new(ground_data: GroundData, speed_multiplier: f32) -> Self {
+    pub fn new(world_data: WorldData, ground_data: GroundData) -> Self {
+        // Let's say that one enemy wave is one world length & we want
+        // a particular number of enemies in a wave
+        let wave_length_in_wc = world_data.bounds().width();
+        let wave_ticks_count = (wave_length_in_wc / ground_data.speed_in_wc_per_tick as u32) as u16;
         Self {
-            // Instead of multiplying, we are dividing here since to speed up,
-            // number of ticks must be reduced
-            min_ticks_between_enemies: (180.0 / speed_multiplier) as u64,
-            randomness_factor: 6,
+            enemy_wave_ticks_count: wave_ticks_count,
+            enemy_count_in_wave: 4,
 
             // Bats fly fast but since they have sizable wings, needn't
             // animate that fast
