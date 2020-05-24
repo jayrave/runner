@@ -70,7 +70,7 @@ impl Enemy {
                 animatables_storage,
             )
             .with(
-                Enemy::build_drawable_with_right_bottom(
+                Enemy::build_drawable_with_left_bottom(
                     tile,
                     world_data.bounds().right(),
                     tile_world_bottom,
@@ -100,6 +100,17 @@ impl Enemy {
                 height_in_world,
             ),
         }
+    }
+
+    fn build_drawable_with_left_bottom(
+        tile: data::EnemyTile,
+        world_left: i32,
+        world_bottom: i32,
+    ) -> Drawable {
+        // To prevent logic repetition, we will create a drawable with right & offset as required
+        let mut drawable = Enemy::build_drawable_with_right_bottom(tile, world_left, world_bottom);
+        drawable.world_bounds.offset(drawable.world_bounds.width() as i32, 0);
+        drawable
     }
 
     fn build_world_bounds(tile: data::EnemyTile, tile_bounds: &Rect) -> (u32, u32) {
