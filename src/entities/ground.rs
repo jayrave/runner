@@ -4,7 +4,6 @@ use crate::data::WorldData;
 use crate::graphics::data;
 use sdl2::rect::Rect;
 use specs::{Entities, World, WorldExt, WriteStorage};
-use std::convert::TryFrom;
 use std::iter::Iterator;
 
 const GROUND_TILE_WORLD_DIMENSION: u8 = 50;
@@ -29,14 +28,15 @@ impl Ground {
         drawables_storage: &mut WriteStorage<Drawable>,
         grounds_storage: &mut WriteStorage<components::Ground>,
     ) {
-        let total_row_count = u8::try_from(
-            (world_data.bounds().bottom() - world_data.world_surface_at())
-                / i32::from(GROUND_TILE_WORLD_DIMENSION),
-        )
-        .expect("Too many ground tiles to draw!");
+        // `ceil` is to make sure that even if ground tiles don't exactly add up to
+        // the surface, we can still enough tiles to cover the required area
+        let total_row_count = ((world_data.bounds().bottom() - world_data.world_surface_at())
+            as f32
+            / f32::from(GROUND_TILE_WORLD_DIMENSION))
+        .ceil() as u8;
 
-        for row_number in 1..=total_row_count {
-            let tile = if row_number == total_row_count {
+        for row_number in 0..total_row_count {
+            let tile = if row_number == 0 {
                 data::PlatformTile::GrassyGround
             } else {
                 data::PlatformTile::Ground
@@ -44,7 +44,7 @@ impl Ground {
 
             Ground::create_ground_row_starting_at_world_x(
                 starting_at_world_x,
-                world_data.bounds().bottom() - i32::from(GROUND_TILE_WORLD_DIMENSION * row_number),
+                world_data.world_surface_at() + i32::from(GROUND_TILE_WORLD_DIMENSION * row_number),
                 tile,
                 world_data,
                 entities,

@@ -109,7 +109,9 @@ impl Enemy {
     ) -> Drawable {
         // To prevent logic repetition, we will create a drawable with right & offset as required
         let mut drawable = Enemy::build_drawable_with_right_bottom(tile, world_left, world_bottom);
-        drawable.world_bounds.offset(drawable.world_bounds.width() as i32, 0);
+        drawable
+            .world_bounds
+            .offset(drawable.world_bounds.width() as i32, 0);
         drawable
     }
 

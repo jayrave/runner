@@ -11,7 +11,7 @@ impl Default for WorldData {
     fn default() -> Self {
         WorldData {
             sky_color: Color::RGB(58, 154, 216),
-            world_bounds: Rect::from_center(Point::new(0, 0), 800, 600),
+            world_bounds: Rect::from_center(Point::new(0, 0), 800, 400),
         }
     }
 }
@@ -30,6 +30,6 @@ impl WorldData {
     }
 
     pub fn world_surface_at(&self) -> i32 {
-        self.bounds().bottom() / 2
+        self.bounds().bottom() / 3
     }
 }
