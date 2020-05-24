@@ -12,9 +12,14 @@ pub struct EnemyData {
 }
 
 impl EnemyData {
-    pub fn new(ground_data: GroundData) -> Self {
+    /// Shouldn't use [speed_multiplier] to change the animation speed or
+    /// the movement speed of the enemies since it is just the player who
+    /// is speeding up & not the enemies
+    pub fn new(ground_data: GroundData, speed_multiplier: f32) -> Self {
         Self {
-            min_ticks_between_enemies: 180,
+            // Instead of multiplying, we are dividing here since to speed up,
+            // number of ticks must be reduced
+            min_ticks_between_enemies: (180.0 / speed_multiplier) as u64,
             randomness_factor: 6,
 
             // Bats fly fast but since they have sizable wings, needn't

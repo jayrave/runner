@@ -20,8 +20,9 @@ impl<'a, 'b> GameWorld<'a, 'b> {
         let mut world = World::new();
 
         // Insert resources
-        let ground_data = data::GroundData::new(1.0);
-        world.insert(data::enemy_data::EnemyData::new(ground_data));
+        let starting_multiplier = 1.0;
+        let ground_data = data::GroundData::new(starting_multiplier);
+        world.insert(data::enemy_data::EnemyData::new(ground_data, starting_multiplier));
         world.insert(data::PlayerData::new());
         world.insert(ground_data);
         world.insert(resources::EventQueue::new());
