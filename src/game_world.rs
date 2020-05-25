@@ -56,7 +56,11 @@ impl<'a, 'b> GameWorld<'a, 'b> {
                 &[],
             )
             .with_barrier() // To let event system & game updaters to work before any other systems
-            .with(systems::CloudSystem::new(ground_data, world_data), "cloud_system", &[])
+            .with(
+                systems::CloudSystem::new(ground_data, world_data),
+                "cloud_system",
+                &[],
+            )
             .with(systems::GroundSystem::new(world_data), "ground_system", &[])
             .with(systems::PlayerSystem::new(world_data), "player_system", &[])
             .with(systems::EnemySystem::new(world_data), "enemy_system", &[])

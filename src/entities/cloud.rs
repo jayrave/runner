@@ -51,7 +51,7 @@ impl Cloud {
     fn random_cloud_speed_in_wc_per_tick(ground_data: &GroundData) -> u16 {
         let random_cloud_speed_negator =
             rand::thread_rng().gen_range(MIN_SPEED_NEGATOR, MAX_SPEED_NEGATOR);
-        
+
         (i32::from(ground_data.speed_in_wc_per_tick) - random_cloud_speed_negator).max(1) as u16
     }
 

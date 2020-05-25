@@ -1,6 +1,6 @@
 use crate::components::Cloud;
 use crate::components::Drawable;
-use crate::data::{CloudData, WorldData, GroundData};
+use crate::data::{CloudData, GroundData, WorldData};
 use crate::entities;
 use crate::graphics::data;
 use crate::resources::GamePlay;
@@ -83,15 +83,11 @@ impl CloudSystem {
     }
 
     fn get_random_cloud_tile() -> data::CloudTile {
-        match rand::thread_rng().gen_range(1, 9) {
+        match rand::thread_rng().gen_range(1, 5) {
             1 => data::CloudTile::Cloud1,
             2 => data::CloudTile::Cloud2,
             3 => data::CloudTile::Cloud3,
-            4 => data::CloudTile::Cloud4,
-            5 => data::CloudTile::Cloud5,
-            6 => data::CloudTile::Cloud6,
-            7 => data::CloudTile::Cloud7,
-            _ => data::CloudTile::Cloud8,
+            _ => data::CloudTile::Cloud4,
         }
     }
 }
