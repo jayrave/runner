@@ -21,6 +21,7 @@ impl<'a, 'b> GameWorld<'a, 'b> {
 
         // Insert resources
         let ground_data = data::GroundData::new(1.0);
+        world.insert(data::CloudData::new(world_data, ground_data));
         world.insert(data::enemy_data::EnemyData::new(world_data, ground_data));
         world.insert(data::PlayerData::new());
         world.insert(ground_data);
@@ -29,6 +30,7 @@ impl<'a, 'b> GameWorld<'a, 'b> {
 
         // Register components
         world.register::<components::Animatable>();
+        world.register::<components::Cloud>();
         world.register::<components::Drawable>();
         world.register::<components::Enemy>();
         world.register::<components::Ground>();
@@ -54,6 +56,7 @@ impl<'a, 'b> GameWorld<'a, 'b> {
                 &[],
             )
             .with_barrier() // To let event system & game updaters to work before any other systems
+            .with(systems::CloudSystem::new(world_data), "cloud_system", &[])
             .with(systems::GroundSystem::new(world_data), "ground_system", &[])
             .with(systems::PlayerSystem::new(world_data), "player_system", &[])
             .with(systems::EnemySystem::new(world_data), "enemy_system", &[])

@@ -1,3 +1,4 @@
+mod cloud_system;
 mod collision_system;
 mod enemy_system;
 mod event_system;
@@ -6,6 +7,7 @@ mod game_speed_updater;
 mod ground_system;
 mod player_system;
 
+pub use cloud_system::CloudSystem;
 pub use collision_system::CollisionSystem;
 pub use enemy_system::EnemySystem;
 pub use event_system::EventSystem;

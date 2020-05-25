@@ -8,4 +8,5 @@ pub mod player;
 pub use animatable::Animatable;
 pub use drawable::Drawable;
 pub use enemy::Enemy;
+pub use marker_components::Cloud;
 pub use marker_components::Ground;
