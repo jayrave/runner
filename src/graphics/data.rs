@@ -4,6 +4,7 @@ const PLATFORM_TILE_DIMENSION: u8 = 64;
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum TileSheet {
+    Cloud,
     Character,
     Enemy,
     Platform,
@@ -11,9 +12,22 @@ pub enum TileSheet {
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Tile {
+    Cloud { tile: CloudTile },
     Character { tile: CharacterTile },
     Enemy { tile: EnemyTile },
     Platform { tile: PlatformTile },
+}
+
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
+pub enum CloudTile {
+    Cloud1,
+    Cloud2,
+    Cloud3,
+    Cloud4,
+    Cloud5,
+    Cloud6,
+    Cloud7,
+    Cloud8,
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -59,6 +73,20 @@ pub fn build_tile_data(tile: Tile) -> TileData {
     let bounds_in_tile_sheet: Rect;
 
     match tile {
+        Tile::Cloud { tile } => {
+            tile_sheet = TileSheet::Cloud;
+            bounds_in_tile_sheet = match tile {
+                CloudTile::Cloud1 => Rect::new(250, 365, 203, 121),
+                CloudTile::Cloud2 => Rect::new(281, 0, 196, 156),
+                CloudTile::Cloud3 => Rect::new(0, 865, 216, 139),
+                CloudTile::Cloud4 => Rect::new(0, 363, 250, 146),
+                CloudTile::Cloud5 => Rect::new(216, 950, 203, 121),
+                CloudTile::Cloud6 => Rect::new(445, 486, 196, 156),
+                CloudTile::Cloud7 => Rect::new(0, 726, 216, 139),
+                CloudTile::Cloud8 => Rect::new(0, 217, 250, 146),
+            }
+        }
+
         Tile::Character { tile } => {
             tile_sheet = TileSheet::Character;
             bounds_in_tile_sheet = match tile {
