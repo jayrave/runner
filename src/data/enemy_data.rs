@@ -2,6 +2,7 @@ use crate::data::{GroundData, WorldData};
 
 #[derive(Copy, Clone, Debug)]
 pub struct EnemyData {
+    pub min_ticks_between_enemies: u16,
     pub enemy_wave_ticks_count: u16,
     pub enemy_count_in_wave: u8,
     pub bat_animation: Animation,
@@ -18,11 +19,13 @@ impl EnemyData {
     pub fn new(world_data: WorldData, ground_data: GroundData) -> Self {
         // Let's say that one enemy wave is one world length & we want
         // a particular number of enemies in a wave
+        let enemy_count_in_wave = 4u8;
         let wave_length_in_wc = world_data.bounds().width();
         let wave_ticks_count = (wave_length_in_wc / ground_data.speed_in_wc_per_tick as u32) as u16;
         Self {
+            min_ticks_between_enemies: wave_ticks_count / (u16::from(enemy_count_in_wave) * 2),
             enemy_wave_ticks_count: wave_ticks_count,
-            enemy_count_in_wave: 4,
+            enemy_count_in_wave,
 
             // Bats fly fast but since they have sizable wings, needn't
             // animate that fast

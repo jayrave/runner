@@ -18,6 +18,7 @@ pub struct EnemySystem {
     world_data: WorldData,
     enemy_wave_started_at_tick: u64,
     enemies_spawned_in_current_wave: u8,
+    most_recent_enemy_spawned_at_tick: u64,
 }
 
 impl EnemySystem {
@@ -26,6 +27,7 @@ impl EnemySystem {
             world_data,
             enemy_wave_started_at_tick: 0,
             enemies_spawned_in_current_wave: 0,
+            most_recent_enemy_spawned_at_tick: 0,
         }
     }
 
@@ -93,7 +95,10 @@ impl EnemySystem {
                 .enemies_spawned_in_current_wave
                 .min(enemy_data.enemy_count_in_wave);
 
-        if enemies_remaining_in_wave <= 0 {
+        let ticks_since_last_enemy = current_tick - self.most_recent_enemy_spawned_at_tick;
+        if enemies_remaining_in_wave <= 0
+            || ticks_since_last_enemy < u64::from(enemy_data.min_ticks_between_enemies)
+        {
             false
         } else {
             let ticks_remaining_in_wave: u64 = (self.enemy_wave_started_at_tick
@@ -107,7 +112,8 @@ impl EnemySystem {
             ) == 0;
 
             if spawn_enemy {
-                self.enemies_spawned_in_current_wave += 1
+                self.enemies_spawned_in_current_wave += 1;
+                self.most_recent_enemy_spawned_at_tick = current_tick;
             }
 
             spawn_enemy
