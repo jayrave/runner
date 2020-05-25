@@ -128,6 +128,8 @@ impl EnemySystem {
                 _ => data::EnemyTile::SpiderRun1,
             };
 
+            // Look at the call site for reasons behind why we have these flags
+            // to control which enemy we spawn
             let can_create_such_enemy = match entities::Enemy::get_enemy_position(tile) {
                 Position::Low => can_create_low_enemy,
                 Position::Mid => can_create_mid_enemy,
@@ -191,6 +193,11 @@ impl<'a> System<'a> for EnemySystem {
 
         // Create new enemies if possible & required
         if self.should_spawn_enemy(data.game_play.ticks_animated(), &data.enemy_data) {
+            // Why do we use these flags? => To make sure that at any given
+            // time, enemies are present only in 2 height positions. Otherwise,
+            // there could be situation where the user can't slide or jump
+            // through them. I think that even just allowing 2 enemies isn't going
+            // to solve this problem but should reduce the possibility quite a bit
             let enemy_tile = EnemySystem::get_random_enemy_tile(
                 !has_mid_enemies || !has_high_enemies,
                 !has_low_enemies || !has_high_enemies,
