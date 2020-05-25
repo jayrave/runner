@@ -1,6 +1,7 @@
 use crate::components;
+use crate::components::enemy::data::Position;
 use crate::components::{Animatable, Drawable};
-use crate::data::enemy_data::{Animation, EnemyData};
+use crate::data::enemy_data::EnemyData;
 use crate::data::{PlayerData, WorldData};
 use crate::graphics::data;
 use crate::graphics::data::EnemyTile;
@@ -30,37 +31,32 @@ impl Enemy {
         drawables_storage: &mut WriteStorage<Drawable>,
         enemies_storage: &mut WriteStorage<components::Enemy>,
     ) {
-        let animation: Animation;
-        let tile_world_bottom: i32;
-        match tile {
-            EnemyTile::BatFly1 | EnemyTile::BatFly2 => {
-                animation = enemy_data.bat_animation;
-                tile_world_bottom = world_data.world_surface_at()
-                    - (player_data.max_jump_height_in_wc as f32 * HIGH_ENEMY_MULTIPLIER) as i32;
-            }
-            EnemyTile::BeeFly1 | EnemyTile::BeeFly2 => {
-                animation = enemy_data.bee_animation;
-                tile_world_bottom = world_data.world_surface_at()
-                    - (player_data.max_jump_height_in_wc as f32 * MID_ENEMY_MULTIPLIER) as i32;
-            }
-            EnemyTile::BugRun1 | EnemyTile::BugRun2 => {
-                animation = enemy_data.bug_animation;
-                tile_world_bottom = world_data.world_surface_at();
-            }
-            EnemyTile::MouseRun1 | EnemyTile::MouseRun2 => {
-                animation = enemy_data.mouse_animation;
-                tile_world_bottom = world_data.world_surface_at();
-            }
-            EnemyTile::SpiderRun1 | EnemyTile::SpiderRun2 => {
-                animation = enemy_data.spider_animation;
-                tile_world_bottom = world_data.world_surface_at();
-            }
+        let animation = match tile {
+            EnemyTile::BatFly1 | EnemyTile::BatFly2 => enemy_data.bat_animation,
+            EnemyTile::BeeFly1 | EnemyTile::BeeFly2 => enemy_data.bee_animation,
+            EnemyTile::BugRun1 | EnemyTile::BugRun2 => enemy_data.bug_animation,
+            EnemyTile::MouseRun1 | EnemyTile::MouseRun2 => enemy_data.mouse_animation,
+            EnemyTile::SpiderRun1 | EnemyTile::SpiderRun2 => enemy_data.spider_animation,
         };
+
+        let position = Enemy::get_enemy_position(tile);
+        let max_jump_height_multiplier = match position {
+            Position::Low => 0.0,
+            Position::Mid => MID_ENEMY_MULTIPLIER,
+            Position::High => HIGH_ENEMY_MULTIPLIER,
+        };
+
+        let tile_world_bottom = world_data.world_surface_at()
+            - (player_data.max_jump_height_in_wc as f32 * max_jump_height_multiplier) as i32;
 
         entities
             .build_entity()
             .with(
-                components::Enemy::new(animation.speed_in_wc_per_tick, animation.ticks_in_movement),
+                components::Enemy::new(
+                    animation.speed_in_wc_per_tick,
+                    animation.ticks_in_movement,
+                    position,
+                ),
                 enemies_storage,
             )
             .with(
@@ -78,6 +74,16 @@ impl Enemy {
                 drawables_storage,
             )
             .build();
+    }
+
+    pub fn get_enemy_position(tile: EnemyTile) -> Position {
+        match tile {
+            EnemyTile::BatFly1 | EnemyTile::BatFly2 => Position::High,
+            EnemyTile::BeeFly1 | EnemyTile::BeeFly2 => Position::Mid,
+            EnemyTile::BugRun1 | EnemyTile::BugRun2 => Position::Low,
+            EnemyTile::MouseRun1 | EnemyTile::MouseRun2 => Position::Low,
+            EnemyTile::SpiderRun1 | EnemyTile::SpiderRun2 => Position::Low,
+        }
     }
 
     /// Instead of (left, bottom) like we do for player, we are taking

@@ -1,3 +1,4 @@
+use crate::components::enemy::data::Position;
 use crate::components::Enemy;
 use crate::components::{Animatable, Drawable};
 use crate::data::enemy_data::EnemyData;
@@ -113,13 +114,29 @@ impl EnemySystem {
         }
     }
 
-    fn get_random_enemy_tile() -> data::EnemyTile {
-        match rand::thread_rng().gen_range(1, 6) {
-            1 => data::EnemyTile::BatFly1,
-            2 => data::EnemyTile::BeeFly1,
-            3 => data::EnemyTile::BugRun1,
-            4 => data::EnemyTile::MouseRun1,
-            _ => data::EnemyTile::SpiderRun1,
+    fn get_random_enemy_tile(
+        can_create_low_enemy: bool,
+        can_create_mid_enemy: bool,
+        can_create_high_enemy: bool,
+    ) -> data::EnemyTile {
+        loop {
+            let tile = match rand::thread_rng().gen_range(1, 6) {
+                1 => data::EnemyTile::BatFly1,
+                2 => data::EnemyTile::BeeFly1,
+                3 => data::EnemyTile::BugRun1,
+                4 => data::EnemyTile::MouseRun1,
+                _ => data::EnemyTile::SpiderRun1,
+            };
+
+            let can_create_such_enemy = match entities::Enemy::get_enemy_position(tile) {
+                Position::Low => can_create_low_enemy,
+                Position::Mid => can_create_mid_enemy,
+                Position::High => can_create_high_enemy,
+            };
+
+            if can_create_such_enemy {
+                return tile;
+            }
         }
     }
 }
@@ -139,6 +156,10 @@ impl<'a> System<'a> for EnemySystem {
     type SystemData = EnemySystemData<'a>;
 
     fn run(&mut self, mut data: Self::SystemData) {
+        let mut has_low_enemies = false;
+        let mut has_mid_enemies = false;
+        let mut has_high_enemies = false;
+
         // animate/remove existing enemies
         for (enemy, entity, mut animatable, mut drawable) in (
             &data.enemies_storage,
@@ -148,6 +169,12 @@ impl<'a> System<'a> for EnemySystem {
         )
             .join()
         {
+            match enemy.position {
+                Position::Low => has_low_enemies = true,
+                Position::Mid => has_mid_enemies = true,
+                Position::High => has_high_enemies = true,
+            };
+
             let start_tick = data.game_play.ticks_animated();
             let end_tick = start_tick + data.game_play.ticks_to_animate();
             for current_tick in start_tick..end_tick {
@@ -164,11 +191,17 @@ impl<'a> System<'a> for EnemySystem {
 
         // Create new enemies if possible & required
         if self.should_spawn_enemy(data.game_play.ticks_animated(), &data.enemy_data) {
+            let enemy_tile = EnemySystem::get_random_enemy_tile(
+                !has_mid_enemies || !has_high_enemies,
+                !has_low_enemies || !has_high_enemies,
+                !has_low_enemies || !has_mid_enemies,
+            );
+
             entities::Enemy::create(
                 &data.enemy_data,
                 &data.player_data,
                 &self.world_data,
-                EnemySystem::get_random_enemy_tile(),
+                enemy_tile,
                 &data.entities,
                 &mut data.animatables_storage,
                 &mut data.drawables_storage,
