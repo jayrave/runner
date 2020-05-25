@@ -4,7 +4,6 @@ use crate::data::WorldData;
 pub struct CloudData {
     pub cloud_wave_ticks_count: u16,
     pub cloud_count_in_wave: u8,
-    pub speed_in_wc_per_tick: u16,
 }
 
 impl CloudData {
@@ -15,8 +14,7 @@ impl CloudData {
         let wave_ticks_count = (wave_length_in_wc / ground_data.speed_in_wc_per_tick as u32) as u16;
         Self {
             cloud_wave_ticks_count: wave_ticks_count,
-            cloud_count_in_wave: 4,
-            speed_in_wc_per_tick: (i32::from(ground_data.speed_in_wc_per_tick) - 6).max(1) as u16,
+            cloud_count_in_wave: 1,
         }
     }
 }

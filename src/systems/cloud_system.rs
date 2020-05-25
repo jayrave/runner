@@ -1,6 +1,6 @@
 use crate::components::Cloud;
 use crate::components::Drawable;
-use crate::data::{CloudData, WorldData};
+use crate::data::{CloudData, WorldData, GroundData};
 use crate::entities;
 use crate::graphics::data;
 use crate::resources::GamePlay;
@@ -12,14 +12,16 @@ use specs::{Entities, Entity, SystemData};
 use specs::{ReadExpect, System, WriteStorage};
 
 pub struct CloudSystem {
+    ground_data: GroundData,
     world_data: WorldData,
     cloud_wave_started_at_tick: u64,
     clouds_spawned_in_current_wave: u8,
 }
 
 impl CloudSystem {
-    pub fn new(world_data: WorldData) -> CloudSystem {
+    pub fn new(ground_data: GroundData, world_data: WorldData) -> CloudSystem {
         CloudSystem {
+            ground_data,
             world_data,
             cloud_wave_started_at_tick: 0,
             clouds_spawned_in_current_wave: 0,
@@ -30,7 +32,7 @@ impl CloudSystem {
         &self,
         entities: &Entities,
         entity: Entity,
-        cloud_data: &CloudData,
+        cloud: &Cloud,
         drawable: &mut Drawable,
     ) {
         // As soon as an enemy moves out, let it go
@@ -42,7 +44,7 @@ impl CloudSystem {
             // For every tick, the cloud should move at least a bit
             drawable
                 .world_bounds
-                .offset(-i32::from(cloud_data.speed_in_wc_per_tick), 0);
+                .offset(-i32::from(cloud.speed_in_wc_per_tick), 0);
         }
     }
 
@@ -108,7 +110,7 @@ impl<'a> System<'a> for CloudSystem {
 
     fn run(&mut self, mut data: Self::SystemData) {
         // animate/remove existing cloud
-        for (_, entity, mut drawable) in (
+        for (cloud, entity, mut drawable) in (
             &data.clouds_storage,
             &data.entities,
             &mut data.drawables_storage,
@@ -118,7 +120,7 @@ impl<'a> System<'a> for CloudSystem {
             let start_tick = data.game_play.ticks_animated();
             let end_tick = start_tick + data.game_play.ticks_to_animate();
             for _ in start_tick..end_tick {
-                self.move_or_remove(&data.entities, entity, &data.cloud_data, &mut drawable)
+                self.move_or_remove(&data.entities, entity, cloud, &mut drawable)
             }
         }
 
@@ -126,6 +128,7 @@ impl<'a> System<'a> for CloudSystem {
         if self.should_spawn_cloud(data.game_play.ticks_animated(), &data.cloud_data) {
             let cloud_tile = CloudSystem::get_random_cloud_tile();
             entities::Cloud::create(
+                &self.ground_data,
                 &self.world_data,
                 cloud_tile,
                 &data.entities,
