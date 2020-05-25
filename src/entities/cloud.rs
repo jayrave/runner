@@ -1,10 +1,7 @@
 use crate::components;
-use crate::components::enemy::data::Position;
-use crate::components::{Animatable, Drawable};
-use crate::data::enemy_data::EnemyData;
-use crate::data::{PlayerData, WorldData};
+use crate::components::Drawable;
+use crate::data::WorldData;
 use crate::graphics::data;
-use crate::graphics::data::EnemyTile;
 use rand::Rng;
 use sdl2::rect::Rect;
 use specs::{Entities, WriteStorage};
@@ -24,7 +21,7 @@ impl Cloud {
         clouds_storage: &mut WriteStorage<components::Cloud>,
     ) {
         let world_surface = world_data.world_surface_at();
-        let sky_range = world_data.bounds().top() - world_surface;
+        let sky_range = (world_data.bounds().top() - world_surface).abs();
         let cloud_range = (sky_range as f32 * SKY_RANGE_MULTIPLIER_FOR_CLOUD) as u32;
 
         let tile_world_bottom =

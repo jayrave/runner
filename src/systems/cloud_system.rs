@@ -1,11 +1,8 @@
-use crate::components::enemy::data::Position;
 use crate::components::Cloud;
-use crate::components::{Animatable, Drawable};
-use crate::data::enemy_data::EnemyData;
+use crate::components::Drawable;
 use crate::data::{CloudData, WorldData};
 use crate::entities;
 use crate::graphics::data;
-use crate::graphics::data::EnemyTile;
 use crate::resources::GamePlay;
 use rand::Rng;
 use specs::join::Join;
