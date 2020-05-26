@@ -100,15 +100,26 @@ impl PlayerSystem {
         }
     }
 
-    fn input_to_vertical_action(input_ctrl: &InputControlled) -> Option<player_data::Action> {
+    fn input_to_vertical_action(
+        current_tick: u64,
+        player_data: &PlayerData,
+        player: &Player,
+        input_ctrl: &InputControlled,
+    ) -> Option<player_data::Action> {
         // Order of precedence of actions: jump over slide
         let mut input_action = None;
         if input_action.is_none() && input_ctrl.up_engaged() && !input_ctrl.down_engaged() {
-            input_action = Some(player_data::Action::Jump)
+            let ticks_since_last_jump = current_tick - player.most_recent_max_jump_end_at;
+            if ticks_since_last_jump >= u64::from(player_data.ticks_between_consecutive_jumps) {
+                input_action = Some(player_data::Action::Jump)
+            }
         }
 
         if input_action.is_none() && input_ctrl.down_engaged() && !input_ctrl.up_engaged() {
-            input_action = Some(player_data::Action::Slide)
+            let ticks_since_last_slide = current_tick - player.most_recent_max_slide_end_at;
+            if ticks_since_last_slide >= u64::from(player_data.ticks_between_consecutive_slides) {
+                input_action = Some(player_data::Action::Slide)
+            }
         }
 
         input_action
@@ -179,29 +190,50 @@ impl PlayerSystem {
             ),
 
             // No input based animation going on. Gotta check if we should start one now
-            player_data::Action::Run => match PlayerSystem::input_to_vertical_action(input_ctrl) {
-                // Some new input based action to start
-                Some(action) => match action {
-                    player_data::Action::Jump => self.start_jump(
-                        current_tick,
-                        player_data,
-                        animatable,
-                        drawable,
-                        input_ctrl,
-                        player,
-                    ),
+            player_data::Action::Run => {
+                let new_action = PlayerSystem::input_to_vertical_action(
+                    current_tick,
+                    player_data,
+                    player,
+                    input_ctrl,
+                );
 
-                    player_data::Action::Slide => self.start_slide(
-                        current_tick,
-                        current_tick,
-                        player_data,
-                        animatable,
-                        drawable,
-                        player,
-                        input_ctrl,
-                    ),
+                match new_action {
+                    // Some new input based action to start
+                    Some(action) => match action {
+                        player_data::Action::Jump => self.start_jump(
+                            current_tick,
+                            player_data,
+                            animatable,
+                            drawable,
+                            input_ctrl,
+                            player,
+                        ),
 
-                    player_data::Action::Run => self.continue_run(
+                        player_data::Action::Slide => self.start_slide(
+                            current_tick,
+                            current_tick,
+                            player_data,
+                            animatable,
+                            drawable,
+                            player,
+                            input_ctrl,
+                        ),
+
+                        player_data::Action::Run => self.continue_run(
+                            current_tick,
+                            current_step_started_at_tick,
+                            bounded_x_offset,
+                            player_data,
+                            animatable,
+                            drawable,
+                            player,
+                            tile,
+                        ),
+                    },
+
+                    // Nothing else to do! Just continue running
+                    None => self.continue_run(
                         current_tick,
                         current_step_started_at_tick,
                         bounded_x_offset,
@@ -211,20 +243,8 @@ impl PlayerSystem {
                         player,
                         tile,
                     ),
-                },
-
-                // Nothing else to do! Just continue running
-                None => self.continue_run(
-                    current_tick,
-                    current_step_started_at_tick,
-                    bounded_x_offset,
-                    player_data,
-                    animatable,
-                    drawable,
-                    player,
-                    tile,
-                ),
-            },
+                }
+            }
         }
     }
 
@@ -268,6 +288,7 @@ impl PlayerSystem {
         );
 
         if !continue_slide {
+            player.most_recent_max_slide_end_at = current_tick;
             self.start_run(current_tick, animatable, drawable, player)
         }
     }
@@ -300,6 +321,7 @@ impl PlayerSystem {
         let still_jumping =
             self.update_drawable_for_jump_tile(current_tick, player_data, drawable, input_ctrl);
         if !still_jumping {
+            player.most_recent_max_jump_end_at = current_tick;
             self.start_run(current_tick, animatable, drawable, player)
         }
     }
