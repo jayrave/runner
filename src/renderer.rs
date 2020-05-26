@@ -2,6 +2,7 @@ use crate::components::Drawable;
 use crate::data::WorldData;
 use crate::graphics::data::TileSheet;
 use crate::graphics::textures;
+use crate::graphics::textures::Textures;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use specs::join::Join;
@@ -20,15 +21,11 @@ const TILE_DRAW_ORDER: [TileSheet; 4] = [
 pub struct Renderer<'a> {
     world_data: WorldData,
     canvas: WindowCanvas,
-    textures: textures::Textures<'a>,
+    textures: Textures<'a>,
 }
 
 impl<'a> Renderer<'a> {
-    pub fn new(
-        world_data: WorldData,
-        canvas: WindowCanvas,
-        textures: textures::Textures<'a>,
-    ) -> Renderer {
+    pub fn new(world_data: WorldData, canvas: WindowCanvas, textures: Textures<'a>) -> Renderer {
         Renderer {
             world_data,
             canvas,

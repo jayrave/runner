@@ -1,8 +1,11 @@
 use crate::components;
-use crate::components::Drawable;
+use crate::components::{Animatable, Drawable};
 use crate::data::{PlayerData, WorldData};
 use crate::graphics::data;
 
+use crate::components::input::InputControlled;
+use crate::components::player::Player;
+use crate::graphics::data::CharacterTile;
 use sdl2::rect::Rect;
 use specs::{Builder, World, WorldExt};
 use std::convert::TryFrom;
@@ -15,13 +18,13 @@ impl PlayerEntity {
     pub fn create(world: &mut World, world_data: &WorldData) {
         world
             .create_entity()
-            .with(components::player::Player::new())
-            .with(components::input::InputControlled::new())
-            .with(components::Animatable {
+            .with(Player::new())
+            .with(InputControlled::new())
+            .with(Animatable {
                 current_step_started_at_tick: 0,
             })
             .with(PlayerEntity::build_drawable_with_left_bottom(
-                data::CharacterTile::Still,
+                CharacterTile::Still,
                 world_data.bounds().left() + (world_data.bounds().width() / 8) as i32,
                 world_data.world_surface_at(),
             ))
@@ -29,7 +32,7 @@ impl PlayerEntity {
     }
 
     pub fn build_drawable_with_left_bottom(
-        tile: data::CharacterTile,
+        tile: CharacterTile,
         world_left: i32,
         world_bottom: i32,
     ) -> Drawable {
@@ -37,7 +40,7 @@ impl PlayerEntity {
         let width_in_world = tile_data.bounds_in_tile_sheet.width() / TILE_TO_WORLD_DIVIDER;
         let height_in_world = tile_data.bounds_in_tile_sheet.height() / TILE_TO_WORLD_DIVIDER;
 
-        components::Drawable {
+        Drawable {
             tile_data,
             world_bounds: Rect::new(
                 world_left,
@@ -54,7 +57,7 @@ impl PlayerEntity {
 
     pub fn top_when_sliding(world_data: &WorldData) -> i32 {
         PlayerEntity::build_drawable_with_left_bottom(
-            data::CharacterTile::Slide,
+            CharacterTile::Slide,
             world_data.bounds().right(),
             world_data.world_surface_at(),
         )

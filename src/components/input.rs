@@ -16,7 +16,7 @@ impl InputControlled {
         InputControlled::default()
     }
 
-    pub fn update_key_down(&mut self, direction: data::Direction) {
+    pub fn update_key_down(&mut self, direction: Direction) {
         match direction {
             Direction::Up => self.up = true,
             Direction::Down => self.down = true,
@@ -25,7 +25,7 @@ impl InputControlled {
         }
     }
 
-    pub fn update_key_up(&mut self, direction: data::Direction) {
+    pub fn update_key_up(&mut self, direction: Direction) {
         match direction {
             Direction::Up => self.up = false,
             Direction::Down => self.down = false,

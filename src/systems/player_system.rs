@@ -7,8 +7,10 @@ use crate::entities;
 use crate::graphics::data as graphics_data;
 use crate::resources::GamePlay;
 
+use crate::components::player::data::Action;
 use crate::data::{PlayerData, WorldData};
-use crate::graphics::data::CharacterTile;
+use crate::entities::PlayerEntity;
+use crate::graphics::data::{CharacterTile, Tile};
 use crate::jump_physics::JumpPhysics;
 use specs::join::Join;
 use specs::shred::ResourceId;
@@ -37,14 +39,14 @@ impl PlayerSystem {
         if input_action.is_none() && input_ctrl.up_engaged() && !input_ctrl.down_engaged() {
             let ticks_since_last_jump = current_tick - player.most_recent_max_jump_end_at;
             if ticks_since_last_jump >= u64::from(player_data.ticks_between_consecutive_jumps) {
-                input_action = Some(player_data::Action::Jump)
+                input_action = Some(Action::Jump)
             }
         }
 
         if input_action.is_none() && input_ctrl.down_engaged() && !input_ctrl.up_engaged() {
             let ticks_since_last_slide = current_tick - player.most_recent_max_slide_end_at;
             if ticks_since_last_slide >= u64::from(player_data.ticks_between_consecutive_slides) {
-                input_action = Some(player_data::Action::Slide)
+                input_action = Some(Action::Slide)
             }
         }
 
@@ -95,7 +97,7 @@ impl PlayerSystem {
             // Already an uninterruptible input based animation is going on. Transfer
             // the control over to that to either carry on the animation or to finish
             // it. We don't worry about new inputs at this point
-            player_data::Action::Jump => self.continue_jump_or_start_running(
+            Action::Jump => self.continue_jump_or_start_running(
                 current_tick,
                 player_data,
                 animatable,
@@ -105,7 +107,7 @@ impl PlayerSystem {
             ),
 
             // Another uninterruptible animation
-            player_data::Action::Slide => self.continue_slide_or_start_running(
+            Action::Slide => self.continue_slide_or_start_running(
                 current_tick,
                 current_step_started_at_tick,
                 player_data,
@@ -116,7 +118,7 @@ impl PlayerSystem {
             ),
 
             // No input based animation going on. Gotta check if we should start one now
-            player_data::Action::Run => {
+            Action::Run => {
                 let new_action = PlayerSystem::input_to_vertical_action(
                     current_tick,
                     player_data,
@@ -127,7 +129,7 @@ impl PlayerSystem {
                 match new_action {
                     // Some new input based action to start
                     Some(action) => match action {
-                        player_data::Action::Jump => self.start_jump(
+                        Action::Jump => self.start_jump(
                             current_tick,
                             player_data,
                             animatable,
@@ -136,7 +138,7 @@ impl PlayerSystem {
                             player,
                         ),
 
-                        player_data::Action::Slide => self.start_slide(
+                        Action::Slide => self.start_slide(
                             current_tick,
                             current_tick,
                             player_data,
@@ -146,7 +148,7 @@ impl PlayerSystem {
                             input_ctrl,
                         ),
 
-                        player_data::Action::Run => self.continue_run(
+                        Action::Run => self.continue_run(
                             current_tick,
                             current_step_started_at_tick,
                             bounded_x_offset,
@@ -185,7 +187,7 @@ impl PlayerSystem {
         input_ctrl: &InputControlled,
     ) {
         animatable.current_step_started_at_tick = current_tick;
-        player.current_action = player_data::Action::Slide;
+        player.current_action = Action::Slide;
         self.update_drawable_for_slide_tile(
             current_tick,
             slide_started_at_tick,
@@ -229,7 +231,7 @@ impl PlayerSystem {
         player: &mut Player,
     ) {
         animatable.current_step_started_at_tick = current_tick;
-        player.current_action = player_data::Action::Jump;
+        player.current_action = Action::Jump;
         self.jump_physics = Some(JumpPhysics::from_ground(
             current_tick,
             player_data.ticks_in_max_jump,
@@ -264,8 +266,8 @@ impl PlayerSystem {
         player: &mut Player,
     ) {
         animatable.current_step_started_at_tick = current_tick;
-        player.current_action = player_data::Action::Run;
-        self.update_drawable_for_run_tile(drawable, graphics_data::CharacterTile::Run1);
+        player.current_action = Action::Run;
+        self.update_drawable_for_run_tile(drawable, CharacterTile::Run1);
     }
 
     fn continue_run(
@@ -277,7 +279,7 @@ impl PlayerSystem {
         animatable: &mut Animatable,
         drawable: &mut Drawable,
         player: &mut Player,
-        current_tile: graphics_data::Tile,
+        current_tile: Tile,
     ) {
         let ticks_in_run_step: u64 = if x_offset == 0 {
             u64::from(player_data.ticks_in_run_step)
@@ -295,26 +297,22 @@ impl PlayerSystem {
             self.update_drawable_for_run_tile(
                 drawable,
                 match current_tile {
-                    graphics_data::Tile::Character { tile } => match tile {
-                        graphics_data::CharacterTile::Run1 => graphics_data::CharacterTile::Run2,
-                        graphics_data::CharacterTile::Run2 => graphics_data::CharacterTile::Run3,
-                        graphics_data::CharacterTile::Run3 => graphics_data::CharacterTile::Run1,
-                        _ => graphics_data::CharacterTile::Run1, //  Fallback
+                    Tile::Character { tile } => match tile {
+                        CharacterTile::Run1 => CharacterTile::Run2,
+                        CharacterTile::Run2 => CharacterTile::Run3,
+                        CharacterTile::Run3 => CharacterTile::Run1,
+                        _ => CharacterTile::Run1, //  Fallback
                     },
-                    _ => graphics_data::CharacterTile::Run1, //  Fallback
+                    _ => CharacterTile::Run1, //  Fallback
                 },
             )
         }
 
-        player.current_action = player_data::Action::Run;
+        player.current_action = Action::Run;
     }
 
-    fn update_drawable_for_run_tile(
-        &self,
-        drawable: &mut Drawable,
-        tile: graphics_data::CharacterTile,
-    ) {
-        *drawable = entities::PlayerEntity::build_drawable_with_left_bottom(
+    fn update_drawable_for_run_tile(&self, drawable: &mut Drawable, tile: CharacterTile) {
+        *drawable = PlayerEntity::build_drawable_with_left_bottom(
             tile,
             drawable.world_bounds.left(),
             self.world_data.world_surface_at(),
@@ -330,8 +328,8 @@ impl PlayerSystem {
         drawable: &mut Drawable,
         input_ctrl: &InputControlled,
     ) -> bool {
-        *drawable = entities::PlayerEntity::build_drawable_with_left_bottom(
-            graphics_data::CharacterTile::Slide,
+        *drawable = PlayerEntity::build_drawable_with_left_bottom(
+            CharacterTile::Slide,
             drawable.world_bounds.left(),
             self.world_data.world_surface_at(),
         );
@@ -364,8 +362,8 @@ impl PlayerSystem {
         let world_surface = self.world_data.world_surface_at();
         let new_y = (world_surface - height).min(world_surface);
 
-        *drawable = entities::PlayerEntity::build_drawable_with_left_bottom(
-            graphics_data::CharacterTile::Jump,
+        *drawable = PlayerEntity::build_drawable_with_left_bottom(
+            CharacterTile::Jump,
             drawable.world_bounds.left(),
             new_y,
         );
@@ -406,7 +404,7 @@ impl<'a> System<'a> for PlayerSystem {
             let end_tick = start_tick + data.game_play.ticks_to_animate();
             for current_tick in start_tick..end_tick {
                 if player.is_hit {
-                    *drawable = entities::PlayerEntity::build_drawable_with_left_bottom(
+                    *drawable = PlayerEntity::build_drawable_with_left_bottom(
                         CharacterTile::Hit,
                         drawable.world_bounds.left(),
                         drawable.world_bounds.bottom(),

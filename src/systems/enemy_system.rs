@@ -4,6 +4,7 @@ use crate::components::{Animatable, Drawable};
 use crate::data::enemy_data::EnemyData;
 use crate::data::{PlayerData, WorldData};
 use crate::entities;
+use crate::entities::EnemyEntity;
 use crate::graphics::data;
 use crate::graphics::data::EnemyTile;
 use crate::resources::GamePlay;
@@ -72,7 +73,7 @@ impl EnemySystem {
                         EnemyTile::SpiderRun2 => EnemyTile::SpiderRun1,
                     };
 
-                    *drawable = entities::EnemyEntity::build_drawable_with_right_bottom(
+                    *drawable = EnemyEntity::build_drawable_with_right_bottom(
                         next_tile,
                         drawable.world_bounds.right(),
                         drawable.world_bounds.bottom(),
@@ -124,19 +125,19 @@ impl EnemySystem {
         can_create_low_enemy: bool,
         can_create_mid_enemy: bool,
         can_create_high_enemy: bool,
-    ) -> data::EnemyTile {
+    ) -> EnemyTile {
         loop {
             let tile = match rand::thread_rng().gen_range(1, 6) {
-                1 => data::EnemyTile::BatFly1,
-                2 => data::EnemyTile::BeeFly1,
-                3 => data::EnemyTile::BugRun1,
-                4 => data::EnemyTile::MouseRun1,
-                _ => data::EnemyTile::SpiderRun1,
+                1 => EnemyTile::BatFly1,
+                2 => EnemyTile::BeeFly1,
+                3 => EnemyTile::BugRun1,
+                4 => EnemyTile::MouseRun1,
+                _ => EnemyTile::SpiderRun1,
             };
 
             // Look at the call site for reasons behind why we have these flags
             // to control which enemy we spawn
-            let can_create_such_enemy = match entities::EnemyEntity::get_enemy_position(tile) {
+            let can_create_such_enemy = match EnemyEntity::get_enemy_position(tile) {
                 Position::Low => can_create_low_enemy,
                 Position::Mid => can_create_mid_enemy,
                 Position::High => can_create_high_enemy,
@@ -210,7 +211,7 @@ impl<'a> System<'a> for EnemySystem {
                 !has_low_enemies || !has_mid_enemies,
             );
 
-            entities::EnemyEntity::create(
+            EnemyEntity::create(
                 &data.enemy_data,
                 &data.player_data,
                 &self.world_data,

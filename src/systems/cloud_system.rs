@@ -2,7 +2,9 @@ use crate::components::Cloud;
 use crate::components::Drawable;
 use crate::data::{CloudData, GroundData, WorldData};
 use crate::entities;
+use crate::entities::CloudEntity;
 use crate::graphics::data;
+use crate::graphics::data::CloudTile;
 use crate::resources::GamePlay;
 use rand::Rng;
 use specs::join::Join;
@@ -82,12 +84,12 @@ impl CloudSystem {
         }
     }
 
-    fn get_random_cloud_tile() -> data::CloudTile {
+    fn get_random_cloud_tile() -> CloudTile {
         match rand::thread_rng().gen_range(1, 5) {
-            1 => data::CloudTile::Cloud1,
-            2 => data::CloudTile::Cloud2,
-            3 => data::CloudTile::Cloud3,
-            _ => data::CloudTile::Cloud4,
+            1 => CloudTile::Cloud1,
+            2 => CloudTile::Cloud2,
+            3 => CloudTile::Cloud3,
+            _ => CloudTile::Cloud4,
         }
     }
 }
@@ -123,7 +125,7 @@ impl<'a> System<'a> for CloudSystem {
         // Create new clouds if possible & required
         if self.should_spawn_cloud(data.game_play.ticks_animated(), &data.cloud_data) {
             let cloud_tile = CloudSystem::get_random_cloud_tile();
-            entities::CloudEntity::create(
+            CloudEntity::create(
                 &self.ground_data,
                 &self.world_data,
                 cloud_tile,

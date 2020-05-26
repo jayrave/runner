@@ -1,6 +1,6 @@
 use crate::components;
 use crate::components::enemy::data::Position;
-use crate::components::{Animatable, Drawable};
+use crate::components::{Animatable, Drawable, Enemy};
 use crate::data::enemy_data::EnemyData;
 use crate::data::{PlayerData, WorldData};
 use crate::entities::PlayerEntity;
@@ -23,7 +23,7 @@ impl EnemyEntity {
         enemy_data: &EnemyData,
         player_data: &PlayerData,
         world_data: &WorldData,
-        tile: data::EnemyTile,
+        tile: EnemyTile,
         entities: &Entities,
         animatables_storage: &mut WriteStorage<Animatable>,
         drawables_storage: &mut WriteStorage<Drawable>,
@@ -62,7 +62,7 @@ impl EnemyEntity {
         entities
             .build_entity()
             .with(
-                components::Enemy::new(
+                Enemy::new(
                     animation.speed_in_wc_per_tick,
                     animation.ticks_in_movement,
                     position,
@@ -70,7 +70,7 @@ impl EnemyEntity {
                 enemies_storage,
             )
             .with(
-                components::Animatable {
+                Animatable {
                     current_step_started_at_tick: 0,
                 },
                 animatables_storage,
@@ -92,7 +92,7 @@ impl EnemyEntity {
     /// Instead of (left, bottom) like we do for player, we are taking
     /// in (right, bottom) because enemies travel right to left
     pub fn build_drawable_with_right_bottom(
-        tile: data::EnemyTile,
+        tile: EnemyTile,
         world_right: i32,
         world_bottom: i32,
     ) -> Drawable {
@@ -100,7 +100,7 @@ impl EnemyEntity {
         let (width_in_world, height_in_world) =
             EnemyEntity::build_world_bounds(tile, &tile_data.bounds_in_tile_sheet);
 
-        components::Drawable {
+        Drawable {
             tile_data,
             world_bounds: Rect::new(
                 world_right - i32::try_from(width_in_world).expect("u32 too big for i32"),
@@ -112,19 +112,20 @@ impl EnemyEntity {
     }
 
     fn build_drawable_with_left_bottom(
-        tile: data::EnemyTile,
+        tile: EnemyTile,
         world_left: i32,
         world_bottom: i32,
     ) -> Drawable {
         // To prevent logic repetition, we will create a drawable with right & offset as required
-        let mut drawable = EnemyEntity::build_drawable_with_right_bottom(tile, world_left, world_bottom);
+        let mut drawable =
+            EnemyEntity::build_drawable_with_right_bottom(tile, world_left, world_bottom);
         drawable
             .world_bounds
             .offset(drawable.world_bounds.width() as i32, 0);
         drawable
     }
 
-    fn build_world_bounds(tile: data::EnemyTile, tile_bounds: &Rect) -> (u32, u32) {
+    fn build_world_bounds(tile: EnemyTile, tile_bounds: &Rect) -> (u32, u32) {
         let divider = match tile {
             EnemyTile::BatFly1 | EnemyTile::BatFly2 => TILE_TO_WORLD_DIVIDER_BAT,
             EnemyTile::BeeFly1 | EnemyTile::BeeFly2 => TILE_TO_WORLD_DIVIDER_BEE,

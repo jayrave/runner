@@ -1,7 +1,8 @@
 use crate::components;
-use crate::components::Drawable;
+use crate::components::{Cloud, Drawable};
 use crate::data::{GroundData, WorldData};
 use crate::graphics::data;
+use crate::graphics::data::CloudTile;
 use rand::Rng;
 use sdl2::rect::Rect;
 use specs::{Entities, WriteStorage};
@@ -19,10 +20,10 @@ impl CloudEntity {
     pub fn create(
         ground_data: &GroundData,
         world_data: &WorldData,
-        tile: data::CloudTile,
+        tile: CloudTile,
         entities: &Entities,
         drawables_storage: &mut WriteStorage<Drawable>,
-        clouds_storage: &mut WriteStorage<components::Cloud>,
+        clouds_storage: &mut WriteStorage<Cloud>,
     ) {
         let world_surface = world_data.world_surface_at();
         let sky_range = (world_data.bounds().top() - world_surface).abs();
@@ -34,7 +35,7 @@ impl CloudEntity {
         entities
             .build_entity()
             .with(
-                components::Cloud::new(CloudEntity::random_cloud_speed_in_wc_per_tick(ground_data)),
+                Cloud::new(CloudEntity::random_cloud_speed_in_wc_per_tick(ground_data)),
                 clouds_storage,
             )
             .with(
@@ -56,7 +57,7 @@ impl CloudEntity {
     }
 
     fn build_drawable_with_left_bottom(
-        tile: data::CloudTile,
+        tile: CloudTile,
         world_left: i32,
         world_bottom: i32,
     ) -> Drawable {
@@ -67,7 +68,7 @@ impl CloudEntity {
         let width_in_world = (tile_data.bounds_in_tile_sheet.width() as f32 / divider) as u32;
         let height_in_world = (tile_data.bounds_in_tile_sheet.height() as f32 / divider) as u32;
 
-        components::Drawable {
+        Drawable {
             tile_data,
             world_bounds: Rect::new(
                 world_left,

@@ -1,7 +1,15 @@
 use crate::components;
 use crate::data;
+use crate::data::enemy_data::EnemyData;
+use crate::data::{CloudData, GroundData, PlayerData};
 use crate::entities;
+use crate::entities::{GroundEntity, PlayerEntity};
 use crate::resources;
+use crate::resources::{EventQueue, GamePlay};
+use crate::systems::{
+    CloudSystem, CollisionSystem, EnemySystem, EventSystem, GamePlayTickUpdater, GameSpeedUpdater,
+    GroundSystem, PlayerSystem,
+};
 use crate::{systems, WorldData};
 use specs::{Dispatcher, DispatcherBuilder, World, WorldExt};
 
@@ -20,13 +28,13 @@ impl<'a, 'b> GameWorld<'a, 'b> {
         let mut world = World::new();
 
         // Insert resources
-        let ground_data = data::GroundData::new(1.0);
-        world.insert(data::CloudData::new(world_data, ground_data));
-        world.insert(data::enemy_data::EnemyData::new(world_data, ground_data));
-        world.insert(data::PlayerData::new());
+        let ground_data = GroundData::new(1.0);
+        world.insert(CloudData::new(world_data, ground_data));
+        world.insert(EnemyData::new(world_data, ground_data));
+        world.insert(PlayerData::new());
         world.insert(ground_data);
-        world.insert(resources::EventQueue::new());
-        world.insert(resources::GamePlay::new());
+        world.insert(EventQueue::new());
+        world.insert(GamePlay::new());
 
         // Register components
         world.register::<components::Animatable>();
@@ -38,34 +46,26 @@ impl<'a, 'b> GameWorld<'a, 'b> {
         world.register::<components::input::InputControlled>();
 
         // Create entities
-        entities::GroundEntity::create_all_tiles(&mut world, &world_data);
-        entities::PlayerEntity::create(&mut world, &world_data);
+        GroundEntity::create_all_tiles(&mut world, &world_data);
+        PlayerEntity::create(&mut world, &world_data);
 
         // Orchestrate systems
         let game_play_tick_updater = "game_play_tick_updater";
         let dispatcher = DispatcherBuilder::new()
-            .with(systems::GamePlayTickUpdater, game_play_tick_updater, &[])
-            .with(
-                systems::EventSystem,
-                "event_system",
-                &[game_play_tick_updater],
-            )
-            .with(
-                systems::GameSpeedUpdater::new(world_data),
-                "game_speed_updater",
-                &[],
-            )
+            .with(GamePlayTickUpdater, game_play_tick_updater, &[])
+            .with(EventSystem, "event_system", &[game_play_tick_updater])
+            .with(GameSpeedUpdater::new(world_data), "game_speed_updater", &[])
             .with_barrier() // To let event system & game updaters to work before any other systems
             .with(
-                systems::CloudSystem::new(ground_data, world_data),
+                CloudSystem::new(ground_data, world_data),
                 "cloud_system",
                 &[],
             )
-            .with(systems::GroundSystem::new(world_data), "ground_system", &[])
-            .with(systems::PlayerSystem::new(world_data), "player_system", &[])
-            .with(systems::EnemySystem::new(world_data), "enemy_system", &[])
+            .with(GroundSystem::new(world_data), "ground_system", &[])
+            .with(PlayerSystem::new(world_data), "player_system", &[])
+            .with(EnemySystem::new(world_data), "enemy_system", &[])
             .with_barrier()
-            .with(systems::CollisionSystem, "collision_system", &[])
+            .with(CollisionSystem, "collision_system", &[])
             .build();
 
         GameWorld { world, dispatcher }

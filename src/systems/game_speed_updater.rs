@@ -1,6 +1,6 @@
 use crate::data::enemy_data::EnemyData;
 use crate::data::{GroundData, PlayerData, WorldData};
-use crate::resources::GamePlay;
+use crate::resources::{game_play, GamePlay};
 use specs::shred::ResourceId;
 use specs::SystemData;
 use specs::World;
@@ -10,8 +10,8 @@ use specs::{ReadExpect, System};
 // Speed up once every 10 seconds
 const SPEED_UP_MULTIPLIER: f32 = 1.1;
 const SPEED_UP_INTERVAL_IN_SECONDS: u8 = 10;
-const SPEED_UP_TICK_INTERVAL: u16 = (SPEED_UP_INTERVAL_IN_SECONDS as u16 * 1000)
-    / (crate::resources::game_play::MILLISECONDS_IN_A_TICK as u16);
+const SPEED_UP_TICK_INTERVAL: u16 =
+    (SPEED_UP_INTERVAL_IN_SECONDS as u16 * 1000) / (game_play::MILLISECONDS_IN_A_TICK as u16);
 
 pub struct GameSpeedUpdater {
     last_speed_up_at_tick: u64,

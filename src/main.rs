@@ -9,6 +9,9 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::EventPump;
 
+use crate::frame_limiter::FrameLimiter;
+use crate::graphics::textures::Textures;
+use crate::renderer::Renderer;
 use specs::WorldExt;
 
 mod components;
@@ -41,14 +44,14 @@ pub fn main() {
     let mut event_pump = sdl_context.event_pump().unwrap();
 
     let texture_creator = canvas.texture_creator();
-    let textures = graphics::textures::Textures::load_from_files(&texture_creator);
+    let textures = Textures::load_from_files(&texture_creator);
 
     setup_splash_screen(&world_data, &mut canvas);
     run_game_loop(
         world_data,
         &mut event_pump,
-        renderer::Renderer::new(world_data, canvas, textures),
-        frame_limiter::FrameLimiter::new(60),
+        Renderer::new(world_data, canvas, textures),
+        FrameLimiter::new(60),
     );
 }
 
@@ -63,15 +66,15 @@ fn setup_splash_screen(world_data: &WorldData, canvas: &mut WindowCanvas) {
 fn run_game_loop(
     world_data: WorldData,
     event_pump: &mut EventPump,
-    mut renderer: renderer::Renderer,
-    mut frame_limiter: frame_limiter::FrameLimiter,
+    mut renderer: Renderer,
+    mut frame_limiter: FrameLimiter,
 ) {
     let mut game_world = GameWorld::setup(world_data);
     'running: loop {
         // Drain event pump to event queue
         game_world
             .world
-            .fetch_mut::<resources::EventQueue>()
+            .fetch_mut::<EventQueue>()
             .reset_and_populate(event_pump);
 
         // Check & finish the game or start a new game if required
@@ -83,7 +86,7 @@ fn run_game_loop(
         }
 
         // Work the systems
-        if game_world.world.fetch::<resources::GamePlay>().is_allowed() {
+        if game_world.world.fetch::<GamePlay>().is_allowed() {
             game_world.dispatch()
         }
 

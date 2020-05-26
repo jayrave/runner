@@ -1,6 +1,7 @@
 use crate::components::Drawable;
 use crate::components::Ground;
 use crate::data::{GroundData, WorldData};
+use crate::entities::GroundEntity;
 use crate::resources::GamePlay;
 use specs::join::Join;
 use specs::shred::ResourceId;
@@ -84,7 +85,7 @@ impl<'a> System<'a> for GroundSystem {
         // more ground tiles if required
         if let Some(max_right) = max_right {
             if max_right < self.world_data.bounds().right() {
-                crate::entities::GroundEntity::create_all_world_tiles_start_at_world_x(
+                GroundEntity::create_all_world_tiles_start_at_world_x(
                     max_right,
                     &self.world_data,
                     &data.entities,
