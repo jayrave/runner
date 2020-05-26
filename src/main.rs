@@ -17,6 +17,7 @@ mod entities;
 mod frame_limiter;
 mod game_world;
 mod graphics;
+mod jump_physics;
 mod renderer;
 mod resources;
 mod systems;

@@ -9,6 +9,7 @@ use crate::resources::GamePlay;
 
 use crate::data::{PlayerData, WorldData};
 use crate::graphics::data::CharacterTile;
+use crate::jump_physics::JumpPhysics;
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::{ReadExpect, System, WriteStorage};
@@ -18,86 +19,11 @@ use std::convert::TryFrom;
 
 pub struct PlayerSystem {
     world_data: WorldData,
-    jump_physics: Option<JumpPhysics>,
-}
-
-struct JumpPhysics {
-    start_at_tick: u64,
-    initial_height: i32,
-    initial_jump_velocity: f32,
-    gravity: f32,
-    is_lower_gravity: bool,
-}
-
-impl JumpPhysics {
-    fn from_ground(current_tick: u64, player_data: &PlayerData) -> JumpPhysics {
-        let gravity = JumpPhysics::compute_gravity(player_data);
-        let initial_velocity = JumpPhysics::compute_initial_velocity(player_data, gravity);
-        JumpPhysics {
-            start_at_tick: current_tick,
-            initial_height: 0,
-            initial_jump_velocity: initial_velocity,
-            gravity,
-            is_lower_gravity: true,
-        }
-    }
-
-    fn compute_gravity(player_data: &PlayerData) -> f32 {
-        // Derived using math from a GDC talk (for smooth parabolic jump):
-        //      GDC link: https://www.gdcvault.com/play/1023559/Math-for-Game-Programmers-Building
-        //      Video: https://www.youtube.com/watch?v=hG9SzQxaCm8
-        //      Slides: http://www.mathforgameprogrammers.com/gdc2016/GDC2016_Pittman_Kyle_BuildingABetterJump.pdf
-
-        let ticks_to_hit_apex: f32 = player_data.ticks_in_max_jump as f32 / 2.0;
-        (-2.0 * player_data.max_jump_height_in_wc as f32) / (ticks_to_hit_apex.powf(2.0))
-    }
-
-    fn compute_initial_velocity(player_data: &PlayerData, gravity: f32) -> f32 {
-        // Same method as described for gravity
-        let ticks_to_hit_apex: f32 = player_data.ticks_in_max_jump as f32 / 2.0;
-        -gravity * ticks_to_hit_apex
-    }
-
-    fn compute_height(&self, current_tick: u64) -> i32 {
-        let ticks_since_jump_started = (current_tick - self.start_at_tick) as f32;
-        (((self.gravity * ticks_since_jump_started.powf(2.0)) / 2.0)
-            + (self.initial_jump_velocity * ticks_since_jump_started)) as i32
-            + self.initial_height
-    }
-
-    fn update_gravity_if_required(
-        self,
-        current_tick: u64,
-        current_height: i32,
-        input_ctrl: &InputControlled,
-    ) -> JumpPhysics {
-        if !self.is_lower_gravity {
-            self
-        } else {
-            let ticks_since_jump_started = (current_tick - self.start_at_tick) as f32;
-            let current_velocity =
-                self.initial_jump_velocity + (self.gravity * ticks_since_jump_started);
-            if input_ctrl.up_engaged() && current_velocity > 0.0 {
-                self
-            } else {
-                JumpPhysics {
-                    start_at_tick: current_tick,
-                    initial_height: current_height,
-                    initial_jump_velocity: 0.0,
-                    gravity: self.gravity * 2.0,
-                    is_lower_gravity: false,
-                }
-            }
-        }
-    }
 }
 
 impl PlayerSystem {
     pub fn new(world_data: WorldData) -> PlayerSystem {
-        PlayerSystem {
-            world_data,
-            jump_physics: None,
-        }
+        PlayerSystem { world_data }
     }
 
     fn input_to_vertical_action(
@@ -304,7 +230,11 @@ impl PlayerSystem {
     ) {
         animatable.current_step_started_at_tick = current_tick;
         player.current_action = player_data::Action::Jump;
-        self.jump_physics = Some(JumpPhysics::from_ground(current_tick, player_data));
+        self.jump_physics = Some(JumpPhysics::from_ground(
+            current_tick,
+            player_data.ticks_in_max_jump,
+            player_data.max_jump_height_in_wc,
+        ));
 
         self.update_drawable_for_jump_tile(current_tick, player_data, drawable, input_ctrl);
     }
@@ -423,7 +353,11 @@ impl PlayerSystem {
     ) -> bool {
         let jump_physics = match self.jump_physics.take() {
             Some(physics) => physics,
-            None => JumpPhysics::from_ground(current_tick, player_data),
+            None => JumpPhysics::from_ground(
+                current_tick,
+                player_data.ticks_in_max_jump,
+                player_data.max_jump_height_in_wc,
+            ),
         };
 
         let height = jump_physics.compute_height(current_tick);
