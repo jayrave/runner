@@ -72,7 +72,7 @@ impl EnemySystem {
                         EnemyTile::SpiderRun2 => EnemyTile::SpiderRun1,
                     };
 
-                    *drawable = entities::Enemy::build_drawable_with_right_bottom(
+                    *drawable = entities::EnemyEntity::build_drawable_with_right_bottom(
                         next_tile,
                         drawable.world_bounds.right(),
                         drawable.world_bounds.bottom(),
@@ -136,7 +136,7 @@ impl EnemySystem {
 
             // Look at the call site for reasons behind why we have these flags
             // to control which enemy we spawn
-            let can_create_such_enemy = match entities::Enemy::get_enemy_position(tile) {
+            let can_create_such_enemy = match entities::EnemyEntity::get_enemy_position(tile) {
                 Position::Low => can_create_low_enemy,
                 Position::Mid => can_create_mid_enemy,
                 Position::High => can_create_high_enemy,
@@ -210,7 +210,7 @@ impl<'a> System<'a> for EnemySystem {
                 !has_low_enemies || !has_mid_enemies,
             );
 
-            entities::Enemy::create(
+            entities::EnemyEntity::create(
                 &data.enemy_data,
                 &data.player_data,
                 &self.world_data,

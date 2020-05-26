@@ -9,9 +9,9 @@ use std::convert::TryFrom;
 
 const TILE_TO_WORLD_DIVIDER: u32 = 2;
 
-pub struct Player;
+pub struct PlayerEntity;
 
-impl Player {
+impl PlayerEntity {
     pub fn create(world: &mut World, world_data: &WorldData) {
         world
             .create_entity()
@@ -20,7 +20,7 @@ impl Player {
             .with(components::Animatable {
                 current_step_started_at_tick: 0,
             })
-            .with(Player::build_drawable_with_left_bottom(
+            .with(PlayerEntity::build_drawable_with_left_bottom(
                 data::CharacterTile::Still,
                 world_data.bounds().left() + (world_data.bounds().width() / 8) as i32,
                 world_data.world_surface_at(),
@@ -53,7 +53,7 @@ impl Player {
     }
 
     pub fn top_when_sliding(world_data: &WorldData) -> i32 {
-        Player::build_drawable_with_left_bottom(
+        PlayerEntity::build_drawable_with_left_bottom(
             data::CharacterTile::Slide,
             world_data.bounds().right(),
             world_data.world_surface_at(),

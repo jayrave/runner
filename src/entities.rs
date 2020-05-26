@@ -1,9 +1,9 @@
-mod cloud;
-mod enemy;
-mod ground;
-mod player;
+mod cloud_entity;
+mod enemy_entity;
+mod ground_entity;
+mod player_entity;
 
-pub use cloud::Cloud;
-pub use enemy::Enemy;
-pub use ground::Ground;
-pub use player::Player;
+pub use cloud_entity::CloudEntity;
+pub use enemy_entity::EnemyEntity;
+pub use ground_entity::GroundEntity;
+pub use player_entity::PlayerEntity;

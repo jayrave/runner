@@ -123,7 +123,7 @@ impl<'a> System<'a> for CloudSystem {
         // Create new clouds if possible & required
         if self.should_spawn_cloud(data.game_play.ticks_animated(), &data.cloud_data) {
             let cloud_tile = CloudSystem::get_random_cloud_tile();
-            entities::Cloud::create(
+            entities::CloudEntity::create(
                 &self.ground_data,
                 &self.world_data,
                 cloud_tile,

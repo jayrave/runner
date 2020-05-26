@@ -38,8 +38,8 @@ impl<'a, 'b> GameWorld<'a, 'b> {
         world.register::<components::input::InputControlled>();
 
         // Create entities
-        entities::Ground::create_all_tiles(&mut world, &world_data);
-        entities::Player::create(&mut world, &world_data);
+        entities::GroundEntity::create_all_tiles(&mut world, &world_data);
+        entities::PlayerEntity::create(&mut world, &world_data);
 
         // Orchestrate systems
         let game_play_tick_updater = "game_play_tick_updater";

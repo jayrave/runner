@@ -3,7 +3,7 @@ use crate::components::enemy::data::Position;
 use crate::components::{Animatable, Drawable};
 use crate::data::enemy_data::EnemyData;
 use crate::data::{PlayerData, WorldData};
-use crate::entities::Player;
+use crate::entities::PlayerEntity;
 use crate::graphics::data;
 use crate::graphics::data::EnemyTile;
 use sdl2::rect::Rect;
@@ -16,9 +16,9 @@ const TILE_TO_WORLD_DIVIDER_BUG: f32 = 3.5;
 const TILE_TO_WORLD_DIVIDER_MOUSE: f32 = 2.5;
 const TILE_TO_WORLD_DIVIDER_SPIDER: f32 = 3.0;
 
-pub struct Enemy;
+pub struct EnemyEntity;
 
-impl Enemy {
+impl EnemyEntity {
     pub fn create(
         enemy_data: &EnemyData,
         player_data: &PlayerData,
@@ -37,16 +37,16 @@ impl Enemy {
             EnemyTile::SpiderRun1 | EnemyTile::SpiderRun2 => enemy_data.spider_animation,
         };
 
-        let position = Enemy::get_enemy_position(tile);
+        let position = EnemyEntity::get_enemy_position(tile);
         let tile_world_bottom = match position {
             Position::Low => world_data.world_surface_at(),
             // To force player to slide
-            Position::Mid => Player::top_when_sliding(world_data),
+            Position::Mid => PlayerEntity::top_when_sliding(world_data),
             // Offset later to make computations uniform
-            Position::High => Player::bottom_when_max_jumping(world_data, player_data),
+            Position::High => PlayerEntity::bottom_when_max_jumping(world_data, player_data),
         };
 
-        let mut drawable = Enemy::build_drawable_with_left_bottom(
+        let mut drawable = EnemyEntity::build_drawable_with_left_bottom(
             tile,
             world_data.bounds().right(),
             tile_world_bottom,
@@ -98,7 +98,7 @@ impl Enemy {
     ) -> Drawable {
         let tile_data = data::build_tile_data(data::Tile::Enemy { tile });
         let (width_in_world, height_in_world) =
-            Enemy::build_world_bounds(tile, &tile_data.bounds_in_tile_sheet);
+            EnemyEntity::build_world_bounds(tile, &tile_data.bounds_in_tile_sheet);
 
         components::Drawable {
             tile_data,
@@ -117,7 +117,7 @@ impl Enemy {
         world_bottom: i32,
     ) -> Drawable {
         // To prevent logic repetition, we will create a drawable with right & offset as required
-        let mut drawable = Enemy::build_drawable_with_right_bottom(tile, world_left, world_bottom);
+        let mut drawable = EnemyEntity::build_drawable_with_right_bottom(tile, world_left, world_bottom);
         drawable
             .world_bounds
             .offset(drawable.world_bounds.width() as i32, 0);

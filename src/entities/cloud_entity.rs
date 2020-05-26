@@ -13,9 +13,9 @@ const MIN_TILE_TO_WORLD_DIVIDER: f32 = 3.0;
 const MAX_TILE_TO_WORLD_DIVIDER: f32 = 8.0;
 const SKY_RANGE_MULTIPLIER_FOR_CLOUD: f32 = 0.75;
 
-pub struct Cloud;
+pub struct CloudEntity;
 
-impl Cloud {
+impl CloudEntity {
     pub fn create(
         ground_data: &GroundData,
         world_data: &WorldData,
@@ -34,11 +34,11 @@ impl Cloud {
         entities
             .build_entity()
             .with(
-                components::Cloud::new(Cloud::random_cloud_speed_in_wc_per_tick(ground_data)),
+                components::Cloud::new(CloudEntity::random_cloud_speed_in_wc_per_tick(ground_data)),
                 clouds_storage,
             )
             .with(
-                Cloud::build_drawable_with_left_bottom(
+                CloudEntity::build_drawable_with_left_bottom(
                     tile,
                     world_data.bounds().right(),
                     tile_world_bottom,

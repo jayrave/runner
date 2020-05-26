@@ -84,7 +84,7 @@ impl<'a> System<'a> for GroundSystem {
         // more ground tiles if required
         if let Some(max_right) = max_right {
             if max_right < self.world_data.bounds().right() {
-                crate::entities::Ground::create_all_world_tiles_start_at_world_x(
+                crate::entities::GroundEntity::create_all_world_tiles_start_at_world_x(
                     max_right,
                     &self.world_data,
                     &data.entities,

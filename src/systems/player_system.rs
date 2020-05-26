@@ -314,7 +314,7 @@ impl PlayerSystem {
         drawable: &mut Drawable,
         tile: graphics_data::CharacterTile,
     ) {
-        *drawable = entities::Player::build_drawable_with_left_bottom(
+        *drawable = entities::PlayerEntity::build_drawable_with_left_bottom(
             tile,
             drawable.world_bounds.left(),
             self.world_data.world_surface_at(),
@@ -330,7 +330,7 @@ impl PlayerSystem {
         drawable: &mut Drawable,
         input_ctrl: &InputControlled,
     ) -> bool {
-        *drawable = entities::Player::build_drawable_with_left_bottom(
+        *drawable = entities::PlayerEntity::build_drawable_with_left_bottom(
             graphics_data::CharacterTile::Slide,
             drawable.world_bounds.left(),
             self.world_data.world_surface_at(),
@@ -364,7 +364,7 @@ impl PlayerSystem {
         let world_surface = self.world_data.world_surface_at();
         let new_y = (world_surface - height).min(world_surface);
 
-        *drawable = entities::Player::build_drawable_with_left_bottom(
+        *drawable = entities::PlayerEntity::build_drawable_with_left_bottom(
             graphics_data::CharacterTile::Jump,
             drawable.world_bounds.left(),
             new_y,
@@ -406,7 +406,7 @@ impl<'a> System<'a> for PlayerSystem {
             let end_tick = start_tick + data.game_play.ticks_to_animate();
             for current_tick in start_tick..end_tick {
                 if player.is_hit {
-                    *drawable = entities::Player::build_drawable_with_left_bottom(
+                    *drawable = entities::PlayerEntity::build_drawable_with_left_bottom(
                         CharacterTile::Hit,
                         drawable.world_bounds.left(),
                         drawable.world_bounds.bottom(),

@@ -8,11 +8,11 @@ use std::iter::Iterator;
 
 const GROUND_TILE_WORLD_DIMENSION: u8 = 50;
 
-pub struct Ground;
+pub struct GroundEntity;
 
-impl Ground {
+impl GroundEntity {
     pub fn create_all_tiles(world: &mut World, world_data: &WorldData) {
-        Ground::create_all_world_tiles_start_at_world_x(
+        GroundEntity::create_all_world_tiles_start_at_world_x(
             world_data.bounds().left(),
             world_data,
             &world.entities(),
@@ -42,7 +42,7 @@ impl Ground {
                 data::PlatformTile::Ground
             };
 
-            Ground::create_ground_row_starting_at_world_x(
+            GroundEntity::create_ground_row_starting_at_world_x(
                 starting_at_world_x,
                 world_data.world_surface_at() + i32::from(GROUND_TILE_WORLD_DIMENSION * row_number),
                 tile,
