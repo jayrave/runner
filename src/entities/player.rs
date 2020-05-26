@@ -1,6 +1,6 @@
 use crate::components;
 use crate::components::Drawable;
-use crate::data::WorldData;
+use crate::data::{PlayerData, WorldData};
 use crate::graphics::data;
 
 use sdl2::rect::Rect;
@@ -46,6 +46,10 @@ impl Player {
                 height_in_world,
             ),
         }
+    }
+
+    pub fn bottom_when_max_jumping(world_data: &WorldData, player_data: &PlayerData) -> i32 {
+        world_data.world_surface_at() - i32::from(player_data.max_jump_height_in_wc)
     }
 
     pub fn top_when_sliding(world_data: &WorldData) -> i32 {

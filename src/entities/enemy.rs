@@ -10,8 +10,6 @@ use sdl2::rect::Rect;
 use specs::{Entities, WriteStorage};
 use std::convert::TryFrom;
 
-const HIGH_ENEMY_MULTIPLIER: f32 = 0.9;
-
 const TILE_TO_WORLD_DIVIDER_BAT: f32 = 2.0;
 const TILE_TO_WORLD_DIVIDER_BEE: f32 = 2.5;
 const TILE_TO_WORLD_DIVIDER_BUG: f32 = 3.5;
@@ -42,12 +40,24 @@ impl Enemy {
         let position = Enemy::get_enemy_position(tile);
         let tile_world_bottom = match position {
             Position::Low => world_data.world_surface_at(),
+            // To force player to slide
             Position::Mid => Player::top_when_sliding(world_data),
-            Position::High => {
-                world_data.world_surface_at()
-                    - (player_data.max_jump_height_in_wc as f32 * HIGH_ENEMY_MULTIPLIER) as i32
-            }
+            // Offset later to make computations uniform
+            Position::High => Player::bottom_when_max_jumping(world_data, player_data),
         };
+
+        let mut drawable = Enemy::build_drawable_with_left_bottom(
+            tile,
+            world_data.bounds().right(),
+            tile_world_bottom,
+        );
+
+        // For high enemy, we want to force enemy to not jump over it
+        if position == Position::High {
+            drawable
+                .world_bounds
+                .offset(0, (drawable.world_bounds.height() / 2) as i32)
+        }
 
         entities
             .build_entity()
@@ -65,14 +75,7 @@ impl Enemy {
                 },
                 animatables_storage,
             )
-            .with(
-                Enemy::build_drawable_with_left_bottom(
-                    tile,
-                    world_data.bounds().right(),
-                    tile_world_bottom,
-                ),
-                drawables_storage,
-            )
+            .with(drawable, drawables_storage)
             .build();
     }
 
