@@ -3,6 +3,7 @@ use crate::components::enemy::data::Position;
 use crate::components::{Animatable, Drawable};
 use crate::data::enemy_data::EnemyData;
 use crate::data::{PlayerData, WorldData};
+use crate::entities::Player;
 use crate::graphics::data;
 use crate::graphics::data::EnemyTile;
 use sdl2::rect::Rect;
@@ -10,7 +11,6 @@ use specs::{Entities, WriteStorage};
 use std::convert::TryFrom;
 
 const HIGH_ENEMY_MULTIPLIER: f32 = 0.9;
-const MID_ENEMY_MULTIPLIER: f32 = 0.45;
 
 const TILE_TO_WORLD_DIVIDER_BAT: f32 = 2.0;
 const TILE_TO_WORLD_DIVIDER_BEE: f32 = 2.5;
@@ -40,14 +40,14 @@ impl Enemy {
         };
 
         let position = Enemy::get_enemy_position(tile);
-        let max_jump_height_multiplier = match position {
-            Position::Low => 0.0,
-            Position::Mid => MID_ENEMY_MULTIPLIER,
-            Position::High => HIGH_ENEMY_MULTIPLIER,
+        let tile_world_bottom = match position {
+            Position::Low => world_data.world_surface_at(),
+            Position::Mid => Player::top_when_sliding(world_data),
+            Position::High => {
+                world_data.world_surface_at()
+                    - (player_data.max_jump_height_in_wc as f32 * HIGH_ENEMY_MULTIPLIER) as i32
+            }
         };
-
-        let tile_world_bottom = world_data.world_surface_at()
-            - (player_data.max_jump_height_in_wc as f32 * max_jump_height_multiplier) as i32;
 
         entities
             .build_entity()

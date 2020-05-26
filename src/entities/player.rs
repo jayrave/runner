@@ -47,4 +47,14 @@ impl Player {
             ),
         }
     }
+
+    pub fn top_when_sliding(world_data: &WorldData) -> i32 {
+        Player::build_drawable_with_left_bottom(
+            data::CharacterTile::Slide,
+            world_data.bounds().right(),
+            world_data.world_surface_at(),
+        )
+        .world_bounds
+        .top()
+    }
 }
