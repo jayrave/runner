@@ -1,10 +1,8 @@
-use crate::components;
+use crate::components::input::InputControlled;
+use crate::components::player::Player;
 use crate::components::{Animatable, Drawable};
 use crate::data::{PlayerData, WorldData};
 use crate::graphics::data;
-
-use crate::components::input::InputControlled;
-use crate::components::player::Player;
 use crate::graphics::data::CharacterTile;
 use sdl2::rect::Rect;
 use specs::{Builder, World, WorldExt};

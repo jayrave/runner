@@ -1,4 +1,3 @@
-use crate::components;
 use crate::components::{Drawable, Ground};
 use crate::data::WorldData;
 use crate::graphics::data;

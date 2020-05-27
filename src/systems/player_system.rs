@@ -1,17 +1,13 @@
 use crate::components::input::InputControlled;
 use crate::components::player::data as player_data;
+use crate::components::player::data::Action;
 use crate::components::player::Player;
 use crate::components::{Animatable, Drawable};
-use crate::entities;
-
-use crate::graphics::data as graphics_data;
-use crate::resources::GamePlay;
-
-use crate::components::player::data::Action;
 use crate::data::{PlayerData, WorldData};
 use crate::entities::PlayerEntity;
 use crate::graphics::data::{CharacterTile, Tile};
 use crate::jump_physics::JumpPhysics;
+use crate::resources::GamePlay;
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::{ReadExpect, System, WriteStorage};

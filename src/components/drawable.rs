@@ -1,4 +1,3 @@
-use crate::graphics;
 use crate::graphics::data::TileData;
 use sdl2::rect::Rect;
 use specs::Component;

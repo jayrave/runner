@@ -1,9 +1,7 @@
 use crate::components::Cloud;
 use crate::components::Drawable;
 use crate::data::{CloudData, GroundData, WorldData};
-use crate::entities;
 use crate::entities::CloudEntity;
-use crate::graphics::data;
 use crate::graphics::data::CloudTile;
 use crate::resources::GamePlay;
 use rand::Rng;

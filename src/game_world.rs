@@ -1,16 +1,13 @@
 use crate::components;
-use crate::data;
 use crate::data::enemy_data::EnemyData;
 use crate::data::{CloudData, GroundData, PlayerData};
-use crate::entities;
 use crate::entities::{GroundEntity, PlayerEntity};
-use crate::resources;
 use crate::resources::{EventQueue, GamePlay};
 use crate::systems::{
     CloudSystem, CollisionSystem, EnemySystem, EventSystem, GamePlayTickUpdater, GameSpeedUpdater,
     GroundSystem, PlayerSystem,
 };
-use crate::{systems, WorldData};
+use crate::WorldData;
 use specs::{Dispatcher, DispatcherBuilder, World, WorldExt};
 
 pub struct GameWorld<'a, 'b> {

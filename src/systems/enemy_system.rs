@@ -3,7 +3,6 @@ use crate::components::Enemy;
 use crate::components::{Animatable, Drawable};
 use crate::data::enemy_data::EnemyData;
 use crate::data::{PlayerData, WorldData};
-use crate::entities;
 use crate::entities::EnemyEntity;
 use crate::graphics::data;
 use crate::graphics::data::EnemyTile;
