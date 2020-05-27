@@ -1,4 +1,4 @@
-use crate::data::WorldData;
+use crate::data::{GroundData, WorldData};
 
 #[derive(Copy, Clone, Debug)]
 pub struct CloudData {

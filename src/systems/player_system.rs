@@ -232,13 +232,13 @@ impl PlayerSystem {
     ) {
         animatable.current_step_started_at_tick = current_tick;
         player.current_action = Action::Jump;
-        self.jump_physics = Some(JumpPhysics::from_ground(
+        player.jump_physics = Some(JumpPhysics::from_ground(
             current_tick,
             player_data.ticks_in_max_jump,
             player_data.max_jump_height_in_wc,
         ));
 
-        self.update_drawable_for_jump_tile(current_tick, player_data, drawable, input_ctrl);
+        self.update_drawable_for_jump_tile(current_tick, player_data, drawable, input_ctrl, player);
     }
 
     fn continue_jump_or_start_running(
@@ -250,8 +250,13 @@ impl PlayerSystem {
         input_ctrl: &InputControlled,
         player: &mut Player,
     ) {
-        let still_jumping =
-            self.update_drawable_for_jump_tile(current_tick, player_data, drawable, input_ctrl);
+        let still_jumping = self.update_drawable_for_jump_tile(
+            current_tick,
+            player_data,
+            drawable,
+            input_ctrl,
+            player,
+        );
         if !still_jumping {
             player.most_recent_max_jump_end_at = current_tick;
             self.start_run(current_tick, animatable, drawable, player)
@@ -348,8 +353,9 @@ impl PlayerSystem {
         player_data: &PlayerData,
         drawable: &mut Drawable,
         input_ctrl: &InputControlled,
+        player: &mut Player,
     ) -> bool {
-        let jump_physics = match self.jump_physics.take() {
+        let jump_physics = match player.jump_physics.take() {
             Some(physics) => physics,
             None => JumpPhysics::from_ground(
                 current_tick,
@@ -368,9 +374,8 @@ impl PlayerSystem {
             new_y,
         );
 
-        let jump_physics =
-            jump_physics.update_gravity_if_required(current_tick, height, input_ctrl);
-        self.jump_physics = Some(jump_physics);
+        player.jump_physics =
+            Some(jump_physics.update_gravity_if_required(current_tick, height, input_ctrl));
 
         // If the player is at the same height as the ground, jump animation
         // has come to an end
