@@ -14,6 +14,7 @@ use crate::graphics::textures::Textures;
 use crate::renderer::Renderer;
 use specs::WorldExt;
 
+mod color;
 mod components;
 mod data;
 mod entities;

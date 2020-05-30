@@ -1,8 +1,10 @@
+use crate::color::Color;
 use crate::components::Drawable;
 use crate::data::WorldData;
 use crate::graphics::data::TileSheet;
 use crate::graphics::textures::Textures;
 use crate::rect::Rect;
+use sdl2::pixels::Color as SdlColor;
 use sdl2::rect::Rect as SdlRect;
 use sdl2::render::WindowCanvas;
 use specs::join::Join;
@@ -24,6 +26,12 @@ pub struct Renderer<'a> {
     textures: Textures<'a>,
 }
 
+impl Into<SdlColor> for Color {
+    fn into(self) -> SdlColor {
+        SdlColor::RGB(self.red(), self.green(), self.blue())
+    }
+}
+
 impl Into<SdlRect> for Rect {
     fn into(self) -> SdlRect {
         SdlRect::new(self.x(), self.y(), self.width(), self.height())
@@ -40,7 +48,8 @@ impl<'a> Renderer<'a> {
     }
 
     pub fn draw(&mut self, drawables_storage: ReadStorage<Drawable>) {
-        self.canvas.set_draw_color(self.world_data.sky_color());
+        let sdl_color: SdlColor = self.world_data.sky_color().into();
+        self.canvas.set_draw_color(sdl_color);
         self.canvas.clear();
 
         let viewport = self.canvas.viewport();
