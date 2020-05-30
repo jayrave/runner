@@ -1,4 +1,4 @@
-use sdl2::rect::Rect;
+use crate::rect::Rect;
 
 const PLATFORM_TILE_DIMENSION: u8 = 64;
 

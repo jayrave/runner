@@ -1,5 +1,5 @@
 use crate::graphics::data::TileData;
-use sdl2::rect::Rect;
+use crate::rect::Rect;
 use specs::Component;
 use specs::VecStorage;
 

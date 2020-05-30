@@ -2,8 +2,8 @@ use crate::components::{Cloud, Drawable};
 use crate::data::{GroundData, WorldData};
 use crate::graphics::data;
 use crate::graphics::data::CloudTile;
+use crate::rect::Rect;
 use rand::Rng;
-use sdl2::rect::Rect;
 use specs::{Entities, WriteStorage};
 use std::convert::TryFrom;
 

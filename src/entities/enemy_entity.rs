@@ -6,7 +6,7 @@ use crate::data::{PlayerData, WorldData};
 use crate::entities::PlayerEntity;
 use crate::graphics::data;
 use crate::graphics::data::EnemyTile;
-use sdl2::rect::Rect;
+use crate::rect::Rect;
 use specs::{Entities, WriteStorage};
 use std::convert::TryFrom;
 

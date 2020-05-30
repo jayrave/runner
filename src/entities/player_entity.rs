@@ -4,7 +4,7 @@ use crate::components::{Animatable, Drawable};
 use crate::data::{PlayerData, WorldData};
 use crate::graphics::data;
 use crate::graphics::data::CharacterTile;
-use sdl2::rect::Rect;
+use crate::rect::Rect;
 use specs::{Builder, World, WorldExt};
 use std::convert::TryFrom;
 

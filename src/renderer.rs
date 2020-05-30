@@ -2,7 +2,8 @@ use crate::components::Drawable;
 use crate::data::WorldData;
 use crate::graphics::data::TileSheet;
 use crate::graphics::textures::Textures;
-use sdl2::rect::Rect;
+use crate::rect::Rect;
+use sdl2::rect::Rect as SdlRect;
 use sdl2::render::WindowCanvas;
 use specs::join::Join;
 use specs::ReadStorage;
@@ -21,6 +22,12 @@ pub struct Renderer<'a> {
     world_data: WorldData,
     canvas: WindowCanvas,
     textures: Textures<'a>,
+}
+
+impl Into<SdlRect> for Rect {
+    fn into(self) -> SdlRect {
+        SdlRect::new(self.x(), self.y(), self.width(), self.height())
+    }
 }
 
 impl<'a> Renderer<'a> {
@@ -47,10 +54,11 @@ impl<'a> Renderer<'a> {
                         TileSheet::Platform => &self.textures.platform_texture,
                     };
 
+                    let source_rect: SdlRect = drawable.tile_data.bounds_in_tile_sheet.into();
                     self.canvas
                         .copy(
                             texture,
-                            drawable.tile_data.bounds_in_tile_sheet,
+                            source_rect,
                             Renderer::world_to_screen_coordinates(
                                 &drawable.world_bounds,
                                 &viewport,
@@ -64,13 +72,13 @@ impl<'a> Renderer<'a> {
         self.canvas.present();
     }
 
-    fn world_to_screen_coordinates(tile_world_bounds: &Rect, viewport: &Rect) -> Rect {
+    fn world_to_screen_coordinates(tile_world_bounds: &Rect, viewport: &SdlRect) -> SdlRect {
         let mut screen_coordinates = *tile_world_bounds;
         screen_coordinates.offset(
             i32::try_from(viewport.width() / 2).expect("u32/2 is not i32!"),
             i32::try_from(viewport.height() / 2).expect("u32/2 is not i32!"),
         );
 
-        screen_coordinates
+        screen_coordinates.into()
     }
 }

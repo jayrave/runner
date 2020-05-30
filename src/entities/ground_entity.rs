@@ -2,7 +2,7 @@ use crate::components::{Drawable, Ground};
 use crate::data::WorldData;
 use crate::graphics::data;
 use crate::graphics::data::PlatformTile;
-use sdl2::rect::Rect;
+use crate::rect::Rect;
 use specs::{Entities, World, WorldExt, WriteStorage};
 use std::iter::Iterator;
 

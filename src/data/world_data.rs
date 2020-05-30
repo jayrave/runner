@@ -1,5 +1,5 @@
+use crate::rect::Rect;
 use sdl2::pixels::Color;
-use sdl2::rect::{Point, Rect};
 
 #[derive(Copy, Clone, Debug)]
 pub struct WorldData {
@@ -9,9 +9,11 @@ pub struct WorldData {
 
 impl Default for WorldData {
     fn default() -> Self {
+        let width: u32 = 800;
+        let height: u32 = 400;
         WorldData {
             sky_color: Color::RGB(58, 154, 216),
-            world_bounds: Rect::from_center(Point::new(0, 0), 800, 400),
+            world_bounds: Rect::new(-((width / 2) as i32), -((height / 2) as i32), width, height),
         }
     }
 }

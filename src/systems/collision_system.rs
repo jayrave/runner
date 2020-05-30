@@ -1,6 +1,7 @@
 use crate::components::player::Player;
 use crate::components::{Drawable, Enemy};
 
+use crate::rect::Rect;
 use crate::resources::GamePlay;
 use specs::join::Join;
 use specs::shred::ResourceId;
@@ -27,9 +28,7 @@ impl<'a> System<'a> for CollisionSystem {
                 (&data.drawables_storage, &mut data.players_storage).join()
             {
                 for (enemy_drawable, _) in (&data.drawables_storage, &data.enemies_storage).join() {
-                    if player_drawable
-                        .world_bounds
-                        .has_intersection(enemy_drawable.world_bounds)
+                    if Rect::intersects(&player_drawable.world_bounds, &enemy_drawable.world_bounds)
                     {
                         player.is_hit = true;
                         return;
