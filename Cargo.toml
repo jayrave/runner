@@ -1,17 +1,2 @@
-[package]
-name = "runner"
-version = "0.1.0"
-authors = ["Jayanthan Raveendiran <jayanthan.raveendiran@gmail.com>"]
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-# sdl2 is for windowing, input, rendering etc.
-sdl2 = { version = "0.33.0", features = ["image"] }
-
-# specs is the ecs for our game
-specs = { version = "0.16.1", features = ["shred-derive", "specs-derive"] }
-
-# Used for deciding where to put things on screen with randomness
-rand = "0.7.3"
+[workspace]
+members = ['./core']
