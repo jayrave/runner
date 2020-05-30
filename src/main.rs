@@ -5,13 +5,13 @@ use sdl2::render::WindowCanvas;
 use crate::data::WorldData;
 use crate::game_world::GameWorld;
 use crate::resources::{EventQueue, GamePlay};
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
 use sdl2::EventPump;
 
 use crate::frame_limiter::FrameLimiter;
 use crate::graphics::textures::Textures;
 use crate::renderer::Renderer;
+use crate::input::Event;
+use crate::input::Keycode;
 use specs::WorldExt;
 
 mod color;
@@ -21,6 +21,7 @@ mod entities;
 mod frame_limiter;
 mod game_world;
 mod graphics;
+mod input;
 mod jump_physics;
 mod rect;
 mod renderer;
@@ -109,13 +110,10 @@ enum HandleInputResult {
 fn handle_input(event_queue: &EventQueue, game_play: &mut GamePlay) -> HandleInputResult {
     for event in event_queue.iter() {
         match event {
-            Event::Quit { .. } => return HandleInputResult::Quit,
-            Event::KeyDown {
-                keycode: Some(keycode),
-                ..
-            } => match keycode {
+            Event::Quit => return HandleInputResult::Quit,
+            Event::KeyDown(keycode) => match keycode {
                 Keycode::Escape => return HandleInputResult::Quit,
-                Keycode::Space => {
+                _ => {
                     if !game_play.is_started() {
                         game_play.mark_started();
                         return HandleInputResult::Continue;
@@ -123,7 +121,6 @@ fn handle_input(event_queue: &EventQueue, game_play: &mut GamePlay) -> HandleInp
                         return HandleInputResult::StartNewGame;
                     }
                 }
-                _ => {}
             },
             _ => {}
         }

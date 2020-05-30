@@ -1,8 +1,7 @@
 use crate::components::input::data::Direction;
 use crate::components::input::InputControlled;
+use crate::input::{Event, Keycode};
 use crate::resources::EventQueue;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
 use specs::join::Join;
 use specs::shred::ResourceId;
 use specs::SystemData;
@@ -28,21 +27,15 @@ impl<'a> System<'a> for EventSystem {
         for input_cntl in (&mut data.input_controlled_storage).join() {
             for event in data.event_queue.iter() {
                 match event {
-                    Event::KeyDown {
-                        keycode: Some(keycode),
-                        ..
-                    } => match keycode {
-                        Keycode::Space | Keycode::Up => input_cntl.update_key_down(Direction::Up),
+                    Event::KeyDown(keycode) => match keycode {
+                        Keycode::Up => input_cntl.update_key_down(Direction::Up),
                         Keycode::Down => input_cntl.update_key_down(Direction::Down),
                         Keycode::Left => input_cntl.update_key_down(Direction::Left),
                         Keycode::Right => input_cntl.update_key_down(Direction::Right),
                         _ => {}
                     },
-                    Event::KeyUp {
-                        keycode: Some(keycode),
-                        ..
-                    } => match keycode {
-                        Keycode::Space | Keycode::Up => input_cntl.update_key_up(Direction::Up),
+                    Event::KeyUp(keycode) => match keycode {
+                        Keycode::Up => input_cntl.update_key_up(Direction::Up),
                         Keycode::Down => input_cntl.update_key_up(Direction::Down),
                         Keycode::Left => input_cntl.update_key_up(Direction::Left),
                         Keycode::Right => input_cntl.update_key_up(Direction::Right),
