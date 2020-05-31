@@ -1,32 +1,20 @@
 extern crate sdl2;
 
-use sdl2::render::WindowCanvas;
-
-use crate::data::WorldData;
-use crate::game_world::GameWorld;
-use crate::resources::{EventQueue, GamePlay};
-use sdl2::EventPump;
-
-use crate::frame_limiter::FrameLimiter;
-use crate::graphics::textures::Textures;
+use crate::input_manager::InputManager;
 use crate::renderer::Renderer;
-use crate::input::Event;
-use crate::input::Keycode;
+use crate::textures::Textures;
+use runner_core::data::WorldData;
+use runner_core::ecs::Ecs;
+use runner_core::frame_limiter::FrameLimiter;
+use runner_core::input::{Event, Keycode};
+use runner_core::resources::{EventQueue, GamePlay};
+use sdl2::render::WindowCanvas;
 use specs::WorldExt;
 
 mod color;
-mod components;
-mod data;
-mod entities;
-mod frame_limiter;
-mod game_world;
-mod graphics;
-mod input;
-mod jump_physics;
-mod rect;
+mod input_manager;
 mod renderer;
-mod resources;
-mod systems;
+mod textures;
 
 pub fn main() {
     let world_data = WorldData::new();
@@ -44,7 +32,6 @@ pub fn main() {
         .unwrap();
 
     let mut canvas = window.into_canvas().build().unwrap();
-    let mut event_pump = sdl_context.event_pump().unwrap();
 
     let texture_creator = canvas.texture_creator();
     let textures = Textures::load_from_files(&texture_creator);
@@ -52,7 +39,7 @@ pub fn main() {
     setup_splash_screen(&world_data, &mut canvas);
     run_game_loop(
         world_data,
-        &mut event_pump,
+        InputManager::new(sdl_context.event_pump().unwrap()),
         Renderer::new(world_data, canvas, textures),
         FrameLimiter::new(60),
     );
@@ -61,40 +48,37 @@ pub fn main() {
 fn setup_splash_screen(world_data: &WorldData, canvas: &mut WindowCanvas) {
     // Setup start-up color to prevent showing empty window until
     // the rendering loop starts
-    canvas.set_draw_color(world_data.sky_color());
+    canvas.set_draw_color(color::sdl_color_from(world_data.sky_color()));
     canvas.clear();
     canvas.present();
 }
 
 fn run_game_loop(
     world_data: WorldData,
-    event_pump: &mut EventPump,
+    mut input_manager: InputManager,
     mut renderer: Renderer,
     mut frame_limiter: FrameLimiter,
 ) {
-    let mut game_world = GameWorld::setup(world_data);
+    let mut ecs = Ecs::setup(world_data);
     'running: loop {
         // Drain event pump to event queue
-        game_world
-            .world
-            .fetch_mut::<EventQueue>()
-            .reset_and_populate(event_pump);
+        input_manager.reset_and_populate(&mut ecs.world.fetch_mut::<EventQueue>());
 
         // Check & finish the game or start a new game if required
-        let result = handle_input(&game_world.world.fetch(), &mut game_world.world.fetch_mut());
+        let result = handle_input(&ecs.world.fetch(), &mut ecs.world.fetch_mut());
         match result {
             HandleInputResult::Quit => break 'running,
             HandleInputResult::Continue => {}
-            HandleInputResult::StartNewGame => game_world = GameWorld::setup(world_data),
+            HandleInputResult::StartNewGame => ecs = Ecs::setup(world_data),
         }
 
         // Work the systems
-        if game_world.world.fetch::<GamePlay>().is_allowed() {
-            game_world.dispatch()
+        if ecs.world.fetch::<GamePlay>().is_allowed() {
+            ecs.dispatch()
         }
 
         // Display whatever we have
-        renderer.draw(game_world.world.read_storage());
+        renderer.draw(ecs.world.read_storage());
 
         // We don't want to drink up too much power
         frame_limiter.limit_as_required();

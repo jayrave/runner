@@ -1,27 +1,26 @@
 use crate::components;
 use crate::data::enemy_data::EnemyData;
-use crate::data::{CloudData, GroundData, PlayerData};
+use crate::data::{CloudData, GroundData, PlayerData, WorldData};
 use crate::entities::{GroundEntity, PlayerEntity};
 use crate::resources::{EventQueue, GamePlay};
 use crate::systems::{
     CloudSystem, CollisionSystem, EnemySystem, EventSystem, GamePlayTickUpdater, GameSpeedUpdater,
     GroundSystem, PlayerSystem,
 };
-use crate::WorldData;
 use specs::{Dispatcher, DispatcherBuilder, World, WorldExt};
 
-pub struct GameWorld<'a, 'b> {
+pub struct Ecs<'a, 'b> {
     pub world: World,
     pub dispatcher: Dispatcher<'a, 'b>,
 }
 
-impl<'a, 'b> GameWorld<'a, 'b> {
+impl<'a, 'b> Ecs<'a, 'b> {
     pub fn dispatch(&mut self) {
         self.dispatcher.dispatch(&self.world);
         self.world.maintain();
     }
 
-    pub fn setup(world_data: WorldData) -> GameWorld<'a, 'b> {
+    pub fn setup(world_data: WorldData) -> Ecs<'a, 'b> {
         let mut world = World::new();
 
         // Insert resources
@@ -65,6 +64,6 @@ impl<'a, 'b> GameWorld<'a, 'b> {
             .with(CollisionSystem, "collision_system", &[])
             .build();
 
-        GameWorld { world, dispatcher }
+        Ecs { world, dispatcher }
     }
 }

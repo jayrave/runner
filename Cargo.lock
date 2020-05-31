@@ -316,10 +316,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "runner"
+name = "runner_core"
 version = "0.1.0"
 dependencies = [
  "rand",
+ "specs",
+]
+
+[[package]]
+name = "runner_sdl2_frontend"
+version = "0.1.0"
+dependencies = [
+ "runner_core",
  "sdl2",
  "specs",
 ]

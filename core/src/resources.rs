@@ -1,4 +1,4 @@
-mod event_queue;
+pub mod event_queue;
 pub mod game_play;
 
 pub use event_queue::EventQueue;

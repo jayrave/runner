@@ -33,7 +33,7 @@ impl<'a> Textures<'a> {
         texture_creator: &'a TextureCreator<WindowContext>,
     ) -> Texture<'a> {
         texture_creator
-            .load_texture(format!("assets/{}", filename))
+            .load_texture(format!("../game_assets/{}", filename))
             .unwrap_or_else(|_| panic!("Couldn't load texture: {}", filename))
     }
 }

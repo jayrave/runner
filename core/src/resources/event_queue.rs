@@ -1,7 +1,4 @@
-use crate::input::{Event, Keycode};
-use sdl2::event::Event as SdlEvent;
-use sdl2::keyboard::Keycode as SdlKeycode;
-use sdl2::EventPump;
+use crate::input::Event;
 use std::collections::VecDeque;
 use std::iter::Iterator;
 
@@ -18,36 +15,12 @@ impl EventQueue {
         }
     }
 
-    pub fn reset_and_populate(&mut self, event_pump: &mut EventPump) {
-        self.queue.clear();
-        for event in event_pump.poll_iter() {
-            match event {
-                SdlEvent::Quit { .. } => self.queue.push_back(Event::Quit),
-                SdlEvent::KeyDown {
-                    keycode: Some(keycode),
-                    ..
-                } => match keycode {
-                    SdlKeycode::Up => self.queue.push_back(Event::KeyDown(Keycode::Up)),
-                    SdlKeycode::Down => self.queue.push_back(Event::KeyDown(Keycode::Down)),
-                    SdlKeycode::Left => self.queue.push_back(Event::KeyDown(Keycode::Left)),
-                    SdlKeycode::Right => self.queue.push_back(Event::KeyDown(Keycode::Right)),
-                    SdlKeycode::Escape => self.queue.push_back(Event::KeyDown(Keycode::Escape)),
-                    _ => {}
-                },
-                SdlEvent::KeyUp {
-                    keycode: Some(keycode),
-                    ..
-                } => match keycode {
-                    SdlKeycode::Up => self.queue.push_back(Event::KeyUp(Keycode::Up)),
-                    SdlKeycode::Down => self.queue.push_back(Event::KeyUp(Keycode::Down)),
-                    SdlKeycode::Left => self.queue.push_back(Event::KeyUp(Keycode::Left)),
-                    SdlKeycode::Right => self.queue.push_back(Event::KeyUp(Keycode::Right)),
-                    SdlKeycode::Escape => self.queue.push_back(Event::KeyUp(Keycode::Escape)),
-                    _ => {}
-                },
-                _ => {}
-            }
-        }
+    pub fn reset(&mut self) {
+        self.queue.clear()
+    }
+
+    pub fn add_event(&mut self, event: Event) {
+        self.queue.push_back(event)
     }
 
     pub fn iter<'a>(&'a self) -> impl Iterator<Item = &'a Event> + 'a {

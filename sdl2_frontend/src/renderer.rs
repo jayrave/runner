@@ -1,10 +1,9 @@
-use crate::color::Color;
-use crate::components::Drawable;
-use crate::data::WorldData;
-use crate::graphics::data::TileSheet;
-use crate::graphics::textures::Textures;
-use crate::rect::Rect;
-use sdl2::pixels::Color as SdlColor;
+use crate::color;
+use crate::textures::Textures;
+use runner_core::components::Drawable;
+use runner_core::data::WorldData;
+use runner_core::graphics::data::TileSheet;
+use runner_core::rect::Rect;
 use sdl2::rect::Rect as SdlRect;
 use sdl2::render::WindowCanvas;
 use specs::join::Join;
@@ -26,18 +25,6 @@ pub struct Renderer<'a> {
     textures: Textures<'a>,
 }
 
-impl Into<SdlColor> for Color {
-    fn into(self) -> SdlColor {
-        SdlColor::RGB(self.red(), self.green(), self.blue())
-    }
-}
-
-impl Into<SdlRect> for Rect {
-    fn into(self) -> SdlRect {
-        SdlRect::new(self.x(), self.y(), self.width(), self.height())
-    }
-}
-
 impl<'a> Renderer<'a> {
     pub fn new(world_data: WorldData, canvas: WindowCanvas, textures: Textures<'a>) -> Renderer {
         Renderer {
@@ -48,8 +35,8 @@ impl<'a> Renderer<'a> {
     }
 
     pub fn draw(&mut self, drawables_storage: ReadStorage<Drawable>) {
-        let sdl_color: SdlColor = self.world_data.sky_color().into();
-        self.canvas.set_draw_color(sdl_color);
+        self.canvas
+            .set_draw_color(color::sdl_color_from(self.world_data.sky_color()));
         self.canvas.clear();
 
         let viewport = self.canvas.viewport();
@@ -63,11 +50,10 @@ impl<'a> Renderer<'a> {
                         TileSheet::Platform => &self.textures.platform_texture,
                     };
 
-                    let source_rect: SdlRect = drawable.tile_data.bounds_in_tile_sheet.into();
                     self.canvas
                         .copy(
                             texture,
-                            source_rect,
+                            Renderer::sdl_rect_from(drawable.tile_data.bounds_in_tile_sheet),
                             Renderer::world_to_screen_coordinates(
                                 &drawable.world_bounds,
                                 &viewport,
@@ -88,6 +74,13 @@ impl<'a> Renderer<'a> {
             i32::try_from(viewport.height() / 2).expect("u32/2 is not i32!"),
         );
 
-        screen_coordinates.into()
+        Renderer::sdl_rect_from(screen_coordinates)
+    }
+
+    /// Instead of `Into` doing it this way since both the trait
+    /// & the struct are from outside this crate & so Rust wouldn't
+    /// allow this
+    fn sdl_rect_from(rect: Rect) -> SdlRect {
+        SdlRect::new(rect.x(), rect.y(), rect.width(), rect.height())
     }
 }
