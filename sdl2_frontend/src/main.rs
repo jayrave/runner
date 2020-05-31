@@ -3,13 +3,14 @@ extern crate sdl2;
 use crate::input_manager::InputManager;
 use crate::renderer::Renderer;
 use crate::textures::Textures;
+use runner_core::components::Drawable;
 use runner_core::data::WorldData;
-use runner_core::ecs::Ecs;
-use runner_core::frame_limiter::FrameLimiter;
-use runner_core::input::{Event, Keycode};
-use runner_core::resources::{EventQueue, GamePlay};
+use runner_core::game_loop;
+use runner_core::game_loop::LoopActions as CoreLoopActions;
+use runner_core::resources::EventQueue;
 use sdl2::render::WindowCanvas;
-use specs::WorldExt;
+use sdl2::Sdl;
+use specs::ReadStorage;
 
 mod color;
 mod input_manager;
@@ -18,8 +19,15 @@ mod textures;
 
 pub fn main() {
     let world_data = WorldData::new();
-    let sdl_context = sdl2::init().unwrap();
-    let video_subsystem = sdl_context.video().unwrap();
+    let (sdl, mut canvas) = build_canvas(world_data);
+
+    setup_splash_screen(world_data, &mut canvas);
+    run_game_loop(world_data, sdl, canvas);
+}
+
+fn build_canvas(world_data: WorldData) -> (Sdl, WindowCanvas) {
+    let sdl = sdl2::init().unwrap();
+    let video_subsystem = sdl.video().unwrap();
 
     let window = video_subsystem
         .window(
@@ -31,21 +39,10 @@ pub fn main() {
         .build()
         .unwrap();
 
-    let mut canvas = window.into_canvas().build().unwrap();
-
-    let texture_creator = canvas.texture_creator();
-    let textures = Textures::load_from_files(&texture_creator);
-
-    setup_splash_screen(&world_data, &mut canvas);
-    run_game_loop(
-        world_data,
-        InputManager::new(sdl_context.event_pump().unwrap()),
-        Renderer::new(world_data, canvas, textures),
-        FrameLimiter::new(60),
-    );
+    (sdl, window.into_canvas().build().unwrap())
 }
 
-fn setup_splash_screen(world_data: &WorldData, canvas: &mut WindowCanvas) {
+fn setup_splash_screen(world_data: WorldData, canvas: &mut WindowCanvas) {
     // Setup start-up color to prevent showing empty window until
     // the rendering loop starts
     canvas.set_draw_color(color::sdl_color_from(world_data.sky_color()));
@@ -53,62 +50,29 @@ fn setup_splash_screen(world_data: &WorldData, canvas: &mut WindowCanvas) {
     canvas.present();
 }
 
-fn run_game_loop(
-    world_data: WorldData,
-    mut input_manager: InputManager,
-    mut renderer: Renderer,
-    mut frame_limiter: FrameLimiter,
-) {
-    let mut ecs = Ecs::setup(world_data);
-    'running: loop {
-        // Drain event pump to event queue
-        input_manager.reset_and_populate(&mut ecs.world.fetch_mut::<EventQueue>());
+fn run_game_loop(world_data: WorldData, sdl: Sdl, canvas: WindowCanvas) {
+    let texture_creator = canvas.texture_creator();
+    let textures = Textures::load_from_files(&texture_creator);
 
-        // Check & finish the game or start a new game if required
-        let result = handle_input(&ecs.world.fetch(), &mut ecs.world.fetch_mut());
-        match result {
-            HandleInputResult::Quit => break 'running,
-            HandleInputResult::Continue => {}
-            HandleInputResult::StartNewGame => ecs = Ecs::setup(world_data),
-        }
+    let mut loop_actions = LoopActions {
+        input_manager: InputManager::new(sdl.event_pump().unwrap()),
+        renderer: Renderer::new(world_data, canvas, textures),
+    };
 
-        // Work the systems
-        if ecs.world.fetch::<GamePlay>().is_allowed() {
-            ecs.dispatch()
-        }
-
-        // Display whatever we have
-        renderer.draw(ecs.world.read_storage());
-
-        // We don't want to drink up too much power
-        frame_limiter.limit_as_required();
-    }
+    game_loop::run_game_loop(world_data, &mut loop_actions);
 }
 
-enum HandleInputResult {
-    Continue,
-    StartNewGame,
-    Quit,
+struct LoopActions<'a> {
+    input_manager: InputManager,
+    renderer: Renderer<'a>,
 }
 
-fn handle_input(event_queue: &EventQueue, game_play: &mut GamePlay) -> HandleInputResult {
-    for event in event_queue.iter() {
-        match event {
-            Event::Quit => return HandleInputResult::Quit,
-            Event::KeyDown(keycode) => match keycode {
-                Keycode::Escape => return HandleInputResult::Quit,
-                _ => {
-                    if !game_play.is_started() {
-                        game_play.mark_started();
-                        return HandleInputResult::Continue;
-                    } else if game_play.is_over() {
-                        return HandleInputResult::StartNewGame;
-                    }
-                }
-            },
-            _ => {}
-        }
+impl<'a> CoreLoopActions for LoopActions<'a> {
+    fn pump_events(&mut self, event_queue: &mut EventQueue) {
+        self.input_manager.reset_and_populate(event_queue);
     }
 
-    HandleInputResult::Continue
+    fn render(&mut self, drawables_storage: ReadStorage<'_, Drawable>) {
+        self.renderer.draw(drawables_storage);
+    }
 }
