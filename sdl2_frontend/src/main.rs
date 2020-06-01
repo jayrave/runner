@@ -6,7 +6,7 @@ use crate::textures::Textures;
 use runner_core::components::Drawable;
 use runner_core::data::WorldData;
 use runner_core::game_loop;
-use runner_core::game_loop::LoopActions as CoreLoopActions;
+use runner_core::game_loop::{GameLoop, GameLoopResult};
 use runner_core::resources::EventQueue;
 use sdl2::render::WindowCanvas;
 use sdl2::Sdl;
@@ -54,25 +54,26 @@ fn run_game_loop(world_data: WorldData, sdl: Sdl, canvas: WindowCanvas) {
     let texture_creator = canvas.texture_creator();
     let textures = Textures::load_from_files(&texture_creator);
 
-    let mut loop_actions = LoopActions {
-        input_manager: InputManager::new(sdl.event_pump().unwrap()),
-        renderer: Renderer::new(world_data, canvas, textures),
-    };
+    let mut game_loop = GameLoop::new(world_data);
+    let mut renderer = Renderer::new(world_data, canvas, textures);
+    let mut input_manager = InputManager::new(sdl.event_pump().unwrap());
 
-    game_loop::run_game_loop(world_data, &mut loop_actions);
-}
+    'running: loop {
+        {
+            // Drain event pump to event queue. Separate scope as
+            // to drop `event_queue` which will let us borrow
+            // GameLoop again
+            let mut event_queue = game_loop.event_queue();
+            input_manager.reset_and_populate(&mut event_queue);
+        }
 
-struct LoopActions<'a> {
-    input_manager: InputManager,
-    renderer: Renderer<'a>,
-}
+        // Execute loop once
+        match game_loop.execute() {
+            GameLoopResult::Continue => {}
+            GameLoopResult::Quit => break 'running,
+        }
 
-impl<'a> CoreLoopActions for LoopActions<'a> {
-    fn pump_events(&mut self, event_queue: &mut EventQueue) {
-        self.input_manager.reset_and_populate(event_queue);
-    }
-
-    fn render(&mut self, drawables_storage: ReadStorage<'_, Drawable>) {
-        self.renderer.draw(drawables_storage);
+        // Display whatever we have
+        renderer.draw(game_loop.drawables_storage());
     }
 }

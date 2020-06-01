@@ -9,5 +9,5 @@ pub enum Keycode {
     Down,
     Left,
     Right,
-    Escape
+    Escape,
 }
