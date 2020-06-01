@@ -1,2 +1,2 @@
 [workspace]
-members = ['./core', './sdl2_frontend']
+members = ['./core', './quicksilver_frontend', './sdl2_frontend']

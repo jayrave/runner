@@ -1,0 +1,17 @@
+[package]
+name = "runner_quicksilver_frontend"
+version = "0.1.0"
+authors = ["Jayanthan Raveendiran <jayanthan.raveendiran@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# Provides the core game mechanics
+runner_core = { path = '../core' }
+
+# quicksilver is for windowing, input, rendering etc.
+quicksilver = "0.4.0-alpha0.3"
+
+# specs is the ecs for our game
+specs = { version = "0.16.1", features = ["shred-derive", "specs-derive"] }
