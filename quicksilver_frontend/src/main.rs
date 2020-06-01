@@ -23,10 +23,15 @@ fn main() {
     );
 }
 
-async fn app(window: Window, graphics: Graphics, input: Input) -> Result<()> {
+async fn app(window: Window, mut graphics: Graphics, input: Input) -> Result<()> {
+    // Setup splash screen & give time to load the resources
     let world_data = WorldData::new();
+    setup_splash_screen(world_data, &mut graphics, &window);
+
+    // Time to load some resources
     let images = Images::load_from_files(&graphics).await;
 
+    // Build everything required for the loop
     let mut game_loop = GameLoop::new(world_data);
     let mut renderer = Renderer::new(world_data, window, graphics, images);
     let mut input_manager = InputManager::new(input);
@@ -51,4 +56,13 @@ async fn app(window: Window, graphics: Graphics, input: Input) -> Result<()> {
     }
 
     Ok(())
+}
+
+fn setup_splash_screen(world_data: WorldData, graphics: &mut Graphics, window: &Window) {
+    // Setup start-up color to prevent showing empty window until
+    // the rendering loop starts
+    graphics.clear(color::qs_color_from(world_data.sky_color()));
+    graphics
+        .present(&window)
+        .expect("Not able to present the window");
 }
