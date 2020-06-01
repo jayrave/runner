@@ -1,7 +1,5 @@
-use quicksilver::{
-    graphics::{Color, Image},
-    Graphics,
-};
+use quicksilver::graphics::Image;
+use quicksilver::Graphics;
 
 pub struct Images {
     pub cloud_texture: Image,
@@ -23,6 +21,6 @@ impl Images {
     async fn load_from_file(filename: &str, graphics: &Graphics) -> Image {
         Image::load(&graphics, filename)
             .await
-            .expect(&format!("Couldn't load file: {}", filename))
+            .unwrap_or_else(|_| panic!("Couldn't load file: {}", filename))
     }
 }

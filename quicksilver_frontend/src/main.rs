@@ -2,14 +2,9 @@ use crate::images::Images;
 use crate::input_manager::InputManager;
 use crate::renderer::Renderer;
 use quicksilver::geom::Vector;
-use quicksilver::graphics::{Color, Image};
 use quicksilver::{Graphics, Input, Result, Settings, Window};
-use runner_core::components::Drawable;
 use runner_core::data::WorldData;
-use runner_core::game_loop;
 use runner_core::game_loop::{GameLoop, GameLoopResult};
-use runner_core::resources::EventQueue;
-use specs::ReadStorage;
 
 mod color;
 mod images;
@@ -28,7 +23,7 @@ fn main() {
     );
 }
 
-async fn app(window: Window, mut graphics: Graphics, mut input: Input) -> Result<()> {
+async fn app(window: Window, graphics: Graphics, input: Input) -> Result<()> {
     let world_data = WorldData::new();
     let images = Images::load_from_files(&graphics).await;
 

@@ -58,7 +58,7 @@ impl Renderer {
                     self.graphics.draw_subimage(
                         &image,
                         Renderer::qs_rect_from(drawable.tile_data.bounds_in_tile_sheet),
-                        Renderer::world_to_screen_coordinates(&drawable.world_bounds, &viewport),
+                        Renderer::world_to_screen_coordinates(&drawable.world_bounds, viewport),
                     );
                 }
             }
@@ -69,7 +69,7 @@ impl Renderer {
             .expect("Not able to present the window");
     }
 
-    fn world_to_screen_coordinates(tile_world_bounds: &Rect, viewport: &Vector) -> Rectangle {
+    fn world_to_screen_coordinates(tile_world_bounds: &Rect, viewport: Vector) -> Rectangle {
         let mut screen_coordinates = *tile_world_bounds;
         screen_coordinates.offset((viewport.x / 2.0) as i32, (viewport.y / 2.0) as i32);
 
