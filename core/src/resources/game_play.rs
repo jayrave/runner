@@ -1,5 +1,5 @@
 use std::time::Duration;
-use std::time::SystemTime;
+use instant::Instant;
 
 /// Changing this number could affect how the simulation is run. For
 /// eg., we could be moving a character 5 world coordinates per tick.
@@ -28,7 +28,7 @@ pub struct GamePlay {
     /// Note: we don't enforce this in any way. This is a contract
     /// that has to held
     ticks_to_animate: u64,
-    last_ticks_to_animate_update_at: SystemTime,
+    last_ticks_to_animate_update_at: Instant,
 }
 
 impl GamePlay {
@@ -40,7 +40,7 @@ impl GamePlay {
             ticks_to_animate: 0,
 
             // This will be overwritten when the play actually starts
-            last_ticks_to_animate_update_at: SystemTime::now(),
+            last_ticks_to_animate_update_at: Instant::now(),
         }
     }
 
@@ -74,7 +74,7 @@ impl GamePlay {
         // The play is only marked now as started. Start computing
         // the ticks relative to this time. Tried making this prop
         // an `Option` but that didn't make the code any easier!
-        self.last_ticks_to_animate_update_at = SystemTime::now();
+        self.last_ticks_to_animate_update_at = Instant::now();
     }
 
     pub fn mark_over(&mut self) {
@@ -95,7 +95,6 @@ impl GamePlay {
             let mut ms_elapsed = self
                 .last_ticks_to_animate_update_at
                 .elapsed()
-                .unwrap()
                 .as_millis();
 
             let mut ticks_to_animate = 0u64;

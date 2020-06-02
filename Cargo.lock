@@ -1453,6 +1453,7 @@ dependencies = [
 name = "runner_core"
 version = "0.1.0"
 dependencies = [
+ "instant",
  "rand",
  "specs",
 ]

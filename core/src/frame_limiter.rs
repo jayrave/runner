@@ -1,5 +1,6 @@
 use std::thread::sleep;
-use std::time::{Duration, Instant};
+use std::time::Duration;
+use instant::Instant;
 
 /// Same as the `sleep` strategy from Amethyst
 pub struct FrameLimiter {
