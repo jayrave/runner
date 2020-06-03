@@ -1,7 +1,6 @@
 use crate::components::Drawable;
 use crate::data::WorldData;
 use crate::ecs::Ecs;
-use crate::frame_limiter::FrameLimiter;
 use crate::input::{Event, Keycode};
 use crate::resources::{EventQueue, GamePlay};
 use specs::shred::FetchMut;
@@ -20,7 +19,6 @@ pub enum GameLoopResult {
 
 pub struct GameLoop<'a, 'b> {
     world_data: WorldData,
-    frame_limiter: FrameLimiter,
     ecs: Ecs<'a, 'b>,
 }
 
@@ -28,7 +26,6 @@ impl<'a, 'b> GameLoop<'a, 'b> {
     pub fn new(world_data: WorldData) -> GameLoop<'a, 'b> {
         GameLoop {
             world_data,
-            frame_limiter: FrameLimiter::new(60),
             ecs: Ecs::setup(world_data),
         }
     }
@@ -42,9 +39,6 @@ impl<'a, 'b> GameLoop<'a, 'b> {
     }
 
     pub fn execute(&mut self) -> GameLoopResult {
-        // We don't want to drink up too much power
-        self.frame_limiter.limit_as_required();
-
         // Check & finish the game or start a new game if required
         let mut game_loop_result = GameLoopResult::Continue;
         let handle_input_result =

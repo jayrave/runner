@@ -3,7 +3,6 @@ pub mod components;
 pub mod data;
 pub mod ecs;
 pub mod entities;
-pub mod frame_limiter;
 pub mod game_loop;
 pub mod graphics;
 pub mod input;

@@ -1,18 +1,16 @@
 extern crate sdl2;
 
+use crate::frame_limiter::FrameLimiter;
 use crate::input_manager::InputManager;
 use crate::renderer::Renderer;
 use crate::textures::Textures;
-use runner_core::components::Drawable;
 use runner_core::data::WorldData;
-use runner_core::game_loop;
 use runner_core::game_loop::{GameLoop, GameLoopResult};
-use runner_core::resources::EventQueue;
 use sdl2::render::WindowCanvas;
 use sdl2::Sdl;
-use specs::ReadStorage;
 
 mod color;
+mod frame_limiter;
 mod input_manager;
 mod renderer;
 mod textures;
@@ -51,6 +49,8 @@ fn setup_splash_screen(world_data: WorldData, canvas: &mut WindowCanvas) {
 }
 
 fn run_game_loop(world_data: WorldData, sdl: Sdl, canvas: WindowCanvas) {
+    let mut frame_limiter = FrameLimiter::new(60);
+
     let texture_creator = canvas.texture_creator();
     let textures = Textures::load_from_files(&texture_creator);
 
@@ -75,5 +75,8 @@ fn run_game_loop(world_data: WorldData, sdl: Sdl, canvas: WindowCanvas) {
 
         // Display whatever we have
         renderer.draw(game_loop.drawables_storage());
+
+        // We don't want to drink up too much power
+        frame_limiter.limit_as_required();
     }
 }

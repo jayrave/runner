@@ -10,6 +10,9 @@ edition = "2018"
 # Provides the core game mechanics
 runner_core = { path = '../core', features = ["desktop"] }
 
+# Instant that works on wasm too
+instant = "0.1"
+
 # sdl2 is for windowing, input, rendering etc.
 sdl2 = { version = "0.33.0", features = ["image"] }
 
