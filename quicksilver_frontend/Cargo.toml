@@ -14,4 +14,9 @@ runner_core = { path = '../core' }
 quicksilver = "0.4.0-alpha0.3"
 
 # specs is the ecs for our game
-specs = { version = "0.16.1", features = ["shred-derive", "specs-derive"] }
+specs = { version = "0.16.1", default-features = false }
+
+
+[features]
+desktop = ["runner_core/desktop"]
+web = ["runner_core/web", "quicksilver/stdweb"]

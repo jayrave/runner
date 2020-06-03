@@ -10,8 +10,19 @@ edition = "2018"
 # Instant that works on wasm too
 instant = "0.1"
 
-# specs is the ecs for our game
-specs = { version = "0.16.1", features = ["shred-derive", "specs-derive"] }
-
 # Used for deciding where to put things on screen with randomness
 rand = "0.7.3"
+
+# specs is the ecs for our game
+[dependencies.specs]
+version = "0.16.1"
+default-features = false
+features = ["shred-derive", "specs-derive"]
+
+
+[features]
+# Desktop OSes can spawn threads but wasm target can't
+desktop = ["specs/parallel"]
+
+# To make rand work without issues on wasm target
+web = ["rand/stdweb"]
