@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 # Provides the core game mechanics
 runner_core = { path = '../core' }
+runner_frontend_utils = { path = '../frontend_utils' }
 
 # quicksilver is for windowing, input, rendering etc.
 quicksilver = "0.4.0-alpha0.3"

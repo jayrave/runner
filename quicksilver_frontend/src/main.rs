@@ -5,6 +5,7 @@ use quicksilver::geom::Vector;
 use quicksilver::{Graphics, Input, Result, Settings, Window};
 use runner_core::data::WorldData;
 use runner_core::game_loop::{GameLoop, GameLoopResult};
+use runner_frontend_utils::Fps;
 
 mod color;
 mod images;
@@ -35,6 +36,7 @@ async fn app(window: Window, mut graphics: Graphics, input: Input) -> Result<()>
     let mut game_loop = GameLoop::new(world_data);
     let mut renderer = Renderer::new(world_data, window, graphics, images);
     let mut input_manager = InputManager::new(input);
+    let mut fps = Fps::new();
 
     'running: loop {
         {
@@ -53,6 +55,7 @@ async fn app(window: Window, mut graphics: Graphics, input: Input) -> Result<()>
 
         // Display whatever we have
         renderer.draw(game_loop.drawables_storage());
+        fps.track();
     }
 
     Ok(())
