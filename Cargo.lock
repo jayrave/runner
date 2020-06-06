@@ -2065,11 +2065,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "runner_frontend_utils"
+version = "0.1.0"
+dependencies = [
+ "instant",
+]
+
+[[package]]
 name = "runner_quicksilver_frontend"
 version = "0.1.0"
 dependencies = [
  "quicksilver",
  "runner_core",
+ "runner_frontend_utils",
  "specs",
 ]
 
