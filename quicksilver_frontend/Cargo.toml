@@ -7,17 +7,21 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# Provides the core game mechanics
+# for core game mechanics
 runner_core = { path = '../core' }
 runner_frontend_utils = { path = '../frontend_utils' }
 
 # quicksilver is for windowing, input, rendering etc.
-quicksilver = "0.4.0-alpha0.3"
+quicksilver = { version = "0.4.0-alpha0.3", default-features = false }
 
 # specs is the ecs for our game
 specs = { version = "0.16.1", default-features = false }
 
+# for logging
+log = "0.4.8"
+console_log = { version = "0.2.0", optional = true }
+simplelog = { version = "0.8.0", optional = true }
 
 [features]
-desktop = ["runner_core/desktop"]
-web = ["runner_core/web", "quicksilver/stdweb"]
+desktop = ["runner_core/desktop", "simplelog"]
+web = ["runner_core/web", "quicksilver/stdweb", "console_log"]

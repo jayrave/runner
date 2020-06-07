@@ -9,3 +9,6 @@ edition = "2018"
 [dependencies]
 # Instant that works on wasm too
 instant = "0.1"
+
+# Logging facade
+log = "0.4.8"

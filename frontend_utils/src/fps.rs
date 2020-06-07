@@ -1,4 +1,5 @@
 use instant::Instant;
+use log::info;
 
 pub struct Fps {
     frame_count_in_window: u32,
@@ -20,7 +21,7 @@ impl Fps {
 
         if window_elapsed_in_seconds > 1.0 {
             let fps_in_window = self.frame_count_in_window as f32 / window_elapsed_in_seconds;
-            println!("FPS: {}", fps_in_window);
+            info!("FPS: {}", fps_in_window);
 
             self.frame_count_in_window = 0;
             self.window_start = now;

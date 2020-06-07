@@ -13,6 +13,10 @@ mod input_manager;
 mod renderer;
 
 fn main() {
+    // Initiate log before anything else
+    init_logger();
+
+    // Start game
     let world_data = WorldData::new();
     quicksilver::run(
         Settings {
@@ -68,4 +72,16 @@ fn setup_splash_screen(world_data: WorldData, graphics: &mut Graphics, window: &
     graphics
         .present(&window)
         .expect("Not able to present the window");
+}
+
+#[cfg(feature = "desktop")]
+fn init_logger() {
+    use simplelog::{Config, LevelFilter, SimpleLogger};
+    SimpleLogger::init(LevelFilter::Info, Config::default()).expect("log couldn't be initiated")
+}
+
+#[cfg(feature = "web")]
+fn init_logger() {
+    use log::Level;
+    console_log::init_with_level(Level::Debug).expect("log couldn't be initiated")
 }
