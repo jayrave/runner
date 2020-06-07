@@ -4,10 +4,11 @@ use crate::data::WorldData;
 use crate::graphics::data;
 use crate::graphics::data::NumberTile;
 use crate::rect::Rect;
-use specs::{Builder, Entities, World, WorldExt};
+use specs::{Builder, World, WorldExt};
 
-const TILE_TO_WORLD_DIVIDER: u32 = 4;
-const DISTANCE_FROM_WORLD_EDGE: i32 = 50;
+const TILE_TO_WORLD_DIVIDER: u32 = 8;
+const DISTANCE_FROM_WORLD_EDGE: i32 = 16;
+const NUMBER_SPACING: u32 = 2;
 
 pub struct ScoreEntity;
 
@@ -36,7 +37,7 @@ impl ScoreEntity {
                 Position::Thousand => 4,
                 Position::TenThousand => 5,
                 Position::HundredThousand => 6,
-            } * width_in_world as i32;
+            } * (width_in_world + NUMBER_SPACING) as i32;
 
         let drawable = Drawable {
             tile_data,

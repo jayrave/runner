@@ -2,7 +2,6 @@ use crate::resources::GamePlay;
 use specs::shred::ResourceId;
 use specs::{SystemData, WriteStorage, ReadStorage};
 use specs::World;
-use specs::WriteExpect;
 use crate::graphics::data;
 use specs::{ReadExpect, System};
 use specs::join::Join;
@@ -13,19 +12,27 @@ use crate::graphics::data::NumberTile;
 pub struct ScoreSystem;
 
 #[derive(SystemData)]
-pub struct ScoreUpdaterSystemData<'a> {
+pub struct ScoreSystemData<'a> {
     game_play: ReadExpect<'a, GamePlay>,
     scores_storage: ReadStorage<'a, Score>,
     drawables_storage: WriteStorage<'a, Drawable>,
 }
 
 impl<'a> System<'a> for ScoreSystem {
-    type SystemData = ScoreUpdaterSystemData<'a>;
+    type SystemData = ScoreSystemData<'a>;
 
     fn run(&mut self, mut data: Self::SystemData) {
-        let current_score = data.game_play.ticks_animated();
+        let current_score = data.game_play.ticks_animated() / 12;
         for (score, mut drawable) in (&data.scores_storage, &mut data.drawables_storage).join() {
-            let number_to_find_remainder = match score.position {
+            // Math here is to first find the remainder by diving with the
+            // next immediate order of magnitude & then divide again by the
+            // current order of magnitude to get a single positional digit.
+            //
+            // Eg., to get the hundredth position for 1234, find the remainder
+            // with 1000 & then the quotient with 100
+            //      1234 % 1000 = 234
+            //      234 / 100 = 2
+            let remainder_finding_divisor = match score.position {
                 Position::One => 10,
                 Position::Ten => 100,
                 Position::Hundred => 1000,
@@ -34,9 +41,10 @@ impl<'a> System<'a> for ScoreSystem {
                 Position::HundredThousand => 1000000,
             };
 
-            let remainder = current_score % number_to_find_remainder;
-            let single_digit = remainder / (number_to_find_remainder / 10);
+            let remainder = current_score % remainder_finding_divisor;
+            let quotient_finding_divisor = remainder_finding_divisor / 10;
 
+            let single_digit = remainder / quotient_finding_divisor;
             drawable.tile_data = data::build_tile_data(data::Tile::Number {
                 tile: match single_digit {
                     0 => NumberTile::ZERO,
