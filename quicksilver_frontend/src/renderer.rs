@@ -44,7 +44,16 @@ impl Renderer {
         self.graphics
             .clear(color::qs_color_from(self.world_data.sky_color()));
 
-        let viewport = self.window.size();
+        // Instead of `self.window.size();`, we are hard setting this to values
+        // from world-data since quicksilver is giving different widths for
+        // desktop & web targets even though the scale stays the same. Also
+        // the canvas element has the expected dimension. So, I am not sure what's
+        // really happening here!
+        let viewport = Vector::new(
+            self.world_data.bounds().width(),
+            self.world_data.bounds().height(),
+        );
+
         for tile_sheet in TILE_DRAW_ORDER.iter() {
             for drawable in drawables_storage.join() {
                 if drawable.tile_data.tile_sheet == *tile_sheet {

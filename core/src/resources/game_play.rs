@@ -1,5 +1,5 @@
-use std::time::Duration;
 use instant::Instant;
+use std::time::Duration;
 
 /// Changing this number could affect how the simulation is run. For
 /// eg., we could be moving a character 5 world coordinates per tick.
@@ -92,10 +92,7 @@ impl GamePlay {
 
             // We want to make sure we advance our physics in deterministic steps
             // all the time to be hardware independent
-            let mut ms_elapsed = self
-                .last_ticks_to_animate_update_at
-                .elapsed()
-                .as_millis();
+            let mut ms_elapsed = self.last_ticks_to_animate_update_at.elapsed().as_millis();
 
             let mut ticks_to_animate = 0u64;
             while ms_elapsed > MILLISECONDS_IN_A_TICK.into() {
