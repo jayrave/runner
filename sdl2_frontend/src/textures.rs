@@ -35,8 +35,10 @@ impl<'a> Textures<'a> {
         filename: &str,
         texture_creator: &'a TextureCreator<WindowContext>,
     ) -> Texture<'a> {
+        // Instead of a common top-level dir, we store our assets in quicksilver's static
+        // library because the current way of building a WASM module mandates that
         texture_creator
-            .load_texture(format!("../game_assets/{}", filename))
+            .load_texture(format!("../quicksilver_frontend/static/{}", filename))
             .unwrap_or_else(|_| panic!("Couldn't load texture: {}", filename))
     }
 }
