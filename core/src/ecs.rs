@@ -3,7 +3,10 @@ use crate::data::enemy_data::EnemyData;
 use crate::data::{CloudData, GroundData, PlayerData, WorldData};
 use crate::entities::{GroundEntity, PlayerEntity};
 use crate::resources::{EventQueue, GamePlay, Score};
-use crate::systems::{CloudSystem, CollisionSystem, EnemySystem, EventSystem, GamePlayTickUpdater, GameSpeedUpdater, GroundSystem, PlayerSystem, ScoreUpdater};
+use crate::systems::{
+    CloudSystem, CollisionSystem, EnemySystem, EventSystem, GamePlayTickUpdater, GameSpeedUpdater,
+    GroundSystem, PlayerSystem, ScoreUpdater,
+};
 use specs::{Dispatcher, DispatcherBuilder, World, WorldExt};
 
 pub struct Ecs<'a, 'b> {

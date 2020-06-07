@@ -1,9 +1,9 @@
-use crate::resources::{Score, GamePlay};
+use crate::resources::{GamePlay, Score};
 use specs::shred::ResourceId;
-use specs::{System, ReadExpect};
 use specs::SystemData;
 use specs::World;
 use specs::WriteExpect;
+use specs::{ReadExpect, System};
 
 pub struct ScoreUpdater;
 

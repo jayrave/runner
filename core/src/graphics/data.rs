@@ -66,7 +66,7 @@ pub enum NumberTile {
     SIX,
     SEVEN,
     EIGHT,
-    NINE
+    NINE,
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
