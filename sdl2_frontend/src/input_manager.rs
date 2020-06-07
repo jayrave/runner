@@ -27,6 +27,7 @@ impl InputManager {
                     SdlKeycode::Left => event_queue.add_event(Event::KeyDown(Keycode::Left)),
                     SdlKeycode::Right => event_queue.add_event(Event::KeyDown(Keycode::Right)),
                     SdlKeycode::Escape => event_queue.add_event(Event::KeyDown(Keycode::Escape)),
+                    SdlKeycode::Space => event_queue.add_event(Event::KeyDown(Keycode::Space)),
                     _ => {}
                 },
                 SdlEvent::KeyUp {
@@ -38,6 +39,7 @@ impl InputManager {
                     SdlKeycode::Left => event_queue.add_event(Event::KeyUp(Keycode::Left)),
                     SdlKeycode::Right => event_queue.add_event(Event::KeyUp(Keycode::Right)),
                     SdlKeycode::Escape => event_queue.add_event(Event::KeyUp(Keycode::Escape)),
+                    SdlKeycode::Space => event_queue.add_event(Event::KeyUp(Keycode::Space)),
                     _ => {}
                 },
                 _ => {}

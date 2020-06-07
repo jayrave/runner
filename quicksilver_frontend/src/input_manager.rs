@@ -20,6 +20,7 @@ impl InputManager {
                 if keyboard_event.is_down() {
                     match keyboard_event.key() {
                         Key::Escape => event_queue.add_event(Event::KeyDown(Keycode::Escape)),
+                        Key::Space => event_queue.add_event(Event::KeyDown(Keycode::Space)),
                         Key::Up => event_queue.add_event(Event::KeyDown(Keycode::Up)),
                         Key::Down => event_queue.add_event(Event::KeyDown(Keycode::Down)),
                         Key::Left => event_queue.add_event(Event::KeyDown(Keycode::Left)),
@@ -29,6 +30,7 @@ impl InputManager {
                 } else {
                     match keyboard_event.key() {
                         Key::Escape => event_queue.add_event(Event::KeyUp(Keycode::Escape)),
+                        Key::Space => event_queue.add_event(Event::KeyUp(Keycode::Space)),
                         Key::Up => event_queue.add_event(Event::KeyUp(Keycode::Up)),
                         Key::Down => event_queue.add_event(Event::KeyUp(Keycode::Down)),
                         Key::Left => event_queue.add_event(Event::KeyUp(Keycode::Left)),

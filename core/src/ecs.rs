@@ -11,20 +11,23 @@ use specs::{Dispatcher, DispatcherBuilder, World, WorldExt};
 
 pub struct Ecs<'a, 'b> {
     pub world: World,
-    pub dispatcher: Dispatcher<'a, 'b>,
+    world_data: WorldData,
+    dispatcher: Option<Dispatcher<'a, 'b>>,
 }
 
 impl<'a, 'b> Ecs<'a, 'b> {
     pub fn dispatch(&mut self) {
-        self.dispatcher.dispatch(&self.world);
-        self.world.maintain();
+        if let Some(ref mut dispatcher) = &mut self.dispatcher {
+            dispatcher.dispatch(&self.world);
+            self.world.maintain();
+        }
     }
 
     pub fn setup(world_data: WorldData) -> Ecs<'a, 'b> {
         let mut world = World::new();
 
         // Insert resources
-        let ground_data = GroundData::new(1.0);
+        let ground_data = Ecs::build_default_ground_data();
         world.insert(CloudData::new(world_data, ground_data));
         world.insert(EnemyData::new(world_data, ground_data));
         world.insert(PlayerData::new());
@@ -47,26 +50,45 @@ impl<'a, 'b> Ecs<'a, 'b> {
         PlayerEntity::create(&mut world, &world_data);
         ScoreEntity::create_all_tiles(&mut world, &world_data);
 
-        // Orchestrate systems
+        Ecs {
+            world,
+            world_data,
+            dispatcher: None
+        }
+    }
+
+    pub fn show_instructions(&mut self) {
+        self.dispatcher = Some(DispatcherBuilder::new().build())
+    }
+
+    pub fn show_game_end(&mut self) {
+        self.dispatcher = Some(DispatcherBuilder::new().build())
+    }
+
+    pub fn start_game_play(&mut self) {
         let game_play_tick_updater = "game_play_tick_updater";
         let dispatcher = DispatcherBuilder::new()
             .with(GamePlayTickUpdater, game_play_tick_updater, &[])
             .with(EventSystem, "event_system", &[game_play_tick_updater])
-            .with(GameSpeedUpdater::new(world_data), "game_speed_updater", &[])
+            .with(GameSpeedUpdater::new(self.world_data), "game_speed_updater", &[])
             .with_barrier() // To let event system & game updaters to work before any other systems
             .with(
-                CloudSystem::new(ground_data, world_data),
+                CloudSystem::new(Ecs::build_default_ground_data(), self.world_data),
                 "cloud_system",
                 &[],
             )
-            .with(GroundSystem::new(world_data), "ground_system", &[])
-            .with(PlayerSystem::new(world_data), "player_system", &[])
-            .with(EnemySystem::new(world_data), "enemy_system", &[])
+            .with(GroundSystem::new(self.world_data), "ground_system", &[])
+            .with(PlayerSystem::new(self.world_data), "player_system", &[])
+            .with(EnemySystem::new(self.world_data), "enemy_system", &[])
             .with(ScoreSystem, "score_system", &[])
             .with_barrier()
             .with(CollisionSystem, "collision_system", &[])
             .build();
 
-        Ecs { world, dispatcher }
+        self.dispatcher = Some(dispatcher)
+    }
+
+    fn build_default_ground_data() -> GroundData {
+        GroundData::new(1.0)
     }
 }
