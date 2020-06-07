@@ -1,5 +1,7 @@
 use crate::rect::Rect;
 
+const NUMBER_TILE_WIDTH: u32 = 82;
+const NUMBER_TILE_HEIGHT: u32 = 114;
 const PLATFORM_TILE_DIMENSION: u8 = 64;
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -7,6 +9,7 @@ pub enum TileSheet {
     Cloud,
     Character,
     Enemy,
+    Number,
     Platform,
 }
 
@@ -15,6 +18,7 @@ pub enum Tile {
     Cloud { tile: CloudTile },
     Character { tile: CharacterTile },
     Enemy { tile: EnemyTile },
+    Number { tile: NumberTile },
     Platform { tile: PlatformTile },
 }
 
@@ -49,6 +53,20 @@ pub enum EnemyTile {
     MouseRun2,
     SpiderRun1,
     SpiderRun2,
+}
+
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
+pub enum NumberTile {
+    ZERO,
+    ONE,
+    TWO,
+    THREE,
+    FOUR,
+    FIVE,
+    SIX,
+    SEVEN,
+    EIGHT,
+    NINE
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -108,11 +126,27 @@ pub fn build_tile_data(tile: Tile) -> TileData {
             }
         }
 
+        Tile::Number { tile } => {
+            tile_sheet = TileSheet::Number;
+            bounds_in_tile_sheet = match tile {
+                NumberTile::ZERO => build_number_bounds(84, 116),
+                NumberTile::ONE => build_number_bounds(252, 116),
+                NumberTile::TWO => build_number_bounds(0, 116),
+                NumberTile::THREE => build_number_bounds(420, 0),
+                NumberTile::FOUR => build_number_bounds(168, 116),
+                NumberTile::FIVE => build_number_bounds(252, 0),
+                NumberTile::SIX => build_number_bounds(168, 0),
+                NumberTile::SEVEN => build_number_bounds(0, 0),
+                NumberTile::EIGHT => build_number_bounds(226, 0),
+                NumberTile::NINE => build_number_bounds(84, 0),
+            }
+        }
+
         Tile::Platform { tile } => {
             tile_sheet = TileSheet::Platform;
             bounds_in_tile_sheet = match tile {
-                PlatformTile::GrassyGround => build_env_bounds(TilePos { row: 0, col: 0 }),
-                PlatformTile::Ground => build_env_bounds(TilePos { row: 0, col: 3 }),
+                PlatformTile::GrassyGround => build_platform_bounds(0, 0),
+                PlatformTile::Ground => build_platform_bounds(0, 3),
             }
         }
     };
@@ -124,21 +158,15 @@ pub fn build_tile_data(tile: Tile) -> TileData {
     }
 }
 
-struct TilePos {
-    row: u8,
-    col: u8,
+fn build_number_bounds(x: i32, y: i32) -> Rect {
+    Rect::new(x, y, NUMBER_TILE_WIDTH, NUMBER_TILE_HEIGHT)
 }
 
-fn build_env_bounds(tile_pos: TilePos) -> Rect {
-    build_bounds(tile_pos, PLATFORM_TILE_DIMENSION, PLATFORM_TILE_DIMENSION)
-}
-
-fn build_bounds(tile_pos: TilePos, tile_width: u8, tile_height: u8) -> Rect {
-    // `from` here is for preventing overflowing on multiplying
+fn build_platform_bounds(row: u8, col: u8) -> Rect {
     Rect::new(
-        i32::from(tile_pos.col) * i32::from(tile_width),
-        i32::from(tile_pos.row) * i32::from(tile_height),
-        tile_width.into(),
-        tile_height.into(),
+        i32::from(col) * PLATFORM_TILE_DIMENSION as i32,
+        i32::from(row) * PLATFORM_TILE_DIMENSION as i32,
+        PLATFORM_TILE_DIMENSION.into(),
+        PLATFORM_TILE_DIMENSION.into(),
     )
 }

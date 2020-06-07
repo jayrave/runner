@@ -11,11 +11,12 @@ use specs::ReadStorage;
 
 // Tiles should be drawn in a particular order to get the correct Z-index cheaply.
 // This should be changed if the tiles drawn are going to change
-const TILE_DRAW_ORDER: [TileSheet; 4] = [
+const TILE_DRAW_ORDER: [TileSheet; 5] = [
     TileSheet::Cloud,
     TileSheet::Platform,
     TileSheet::Enemy,
     TileSheet::Character,
+    TileSheet::Number,
 ];
 
 pub struct Renderer {
@@ -61,6 +62,7 @@ impl Renderer {
                         TileSheet::Cloud => &self.images.cloud_texture,
                         TileSheet::Character => &self.images.character_texture,
                         TileSheet::Enemy => &self.images.enemy_texture,
+                        TileSheet::Number => &self.images.number_texture,
                         TileSheet::Platform => &self.images.platform_texture,
                     };
 
