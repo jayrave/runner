@@ -6,7 +6,7 @@ mod game_play_tick_updater;
 mod game_speed_updater;
 mod ground_system;
 mod player_system;
-mod score_updater;
+mod score_system;
 
 pub use cloud_system::CloudSystem;
 pub use collision_system::CollisionSystem;
@@ -16,4 +16,4 @@ pub use game_play_tick_updater::GamePlayTickUpdater;
 pub use game_speed_updater::GameSpeedUpdater;
 pub use ground_system::GroundSystem;
 pub use player_system::PlayerSystem;
-pub use score_updater::ScoreUpdater;
+pub use score_system::ScoreSystem;

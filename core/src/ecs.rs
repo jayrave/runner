@@ -1,11 +1,11 @@
 use crate::components;
 use crate::data::enemy_data::EnemyData;
 use crate::data::{CloudData, GroundData, PlayerData, WorldData};
-use crate::entities::{GroundEntity, PlayerEntity};
-use crate::resources::{EventQueue, GamePlay, Score};
+use crate::entities::{GroundEntity, PlayerEntity, ScoreEntity};
+use crate::resources::{EventQueue, GamePlay};
 use crate::systems::{
     CloudSystem, CollisionSystem, EnemySystem, EventSystem, GamePlayTickUpdater, GameSpeedUpdater,
-    GroundSystem, PlayerSystem, ScoreUpdater,
+    GroundSystem, PlayerSystem, ScoreSystem,
 };
 use specs::{Dispatcher, DispatcherBuilder, World, WorldExt};
 
@@ -31,7 +31,6 @@ impl<'a, 'b> Ecs<'a, 'b> {
         world.insert(ground_data);
         world.insert(EventQueue::new());
         world.insert(GamePlay::new());
-        world.insert(Score::new());
 
         // Register components
         world.register::<components::Animatable>();
@@ -39,12 +38,14 @@ impl<'a, 'b> Ecs<'a, 'b> {
         world.register::<components::Drawable>();
         world.register::<components::Enemy>();
         world.register::<components::Ground>();
-        world.register::<components::player::Player>();
         world.register::<components::input::InputControlled>();
+        world.register::<components::player::Player>();
+        world.register::<components::score::Score>();
 
         // Create entities
         GroundEntity::create_all_tiles(&mut world, &world_data);
         PlayerEntity::create(&mut world, &world_data);
+        ScoreEntity::create_all_tiles(&mut world, &world_data);
 
         // Orchestrate systems
         let game_play_tick_updater = "game_play_tick_updater";
@@ -61,7 +62,7 @@ impl<'a, 'b> Ecs<'a, 'b> {
             .with(GroundSystem::new(world_data), "ground_system", &[])
             .with(PlayerSystem::new(world_data), "player_system", &[])
             .with(EnemySystem::new(world_data), "enemy_system", &[])
-            .with(ScoreUpdater, "score_updater", &[])
+            .with(ScoreSystem, "score_system", &[])
             .with_barrier()
             .with(CollisionSystem, "collision_system", &[])
             .build();

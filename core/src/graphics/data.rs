@@ -137,7 +137,7 @@ pub fn build_tile_data(tile: Tile) -> TileData {
                 NumberTile::FIVE => build_number_bounds(252, 0),
                 NumberTile::SIX => build_number_bounds(168, 0),
                 NumberTile::SEVEN => build_number_bounds(0, 0),
-                NumberTile::EIGHT => build_number_bounds(226, 0),
+                NumberTile::EIGHT => build_number_bounds(336, 0),
                 NumberTile::NINE => build_number_bounds(84, 0),
             }
         }

@@ -5,6 +5,7 @@ pub mod enemy;
 mod ground;
 pub mod input;
 pub mod player;
+pub mod score;
 
 pub use animatable::Animatable;
 pub use cloud::Cloud;
