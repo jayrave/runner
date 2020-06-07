@@ -2,11 +2,8 @@ use crate::components;
 use crate::data::enemy_data::EnemyData;
 use crate::data::{CloudData, GroundData, PlayerData, WorldData};
 use crate::entities::{GroundEntity, PlayerEntity};
-use crate::resources::{EventQueue, GamePlay};
-use crate::systems::{
-    CloudSystem, CollisionSystem, EnemySystem, EventSystem, GamePlayTickUpdater, GameSpeedUpdater,
-    GroundSystem, PlayerSystem,
-};
+use crate::resources::{EventQueue, GamePlay, Score};
+use crate::systems::{CloudSystem, CollisionSystem, EnemySystem, EventSystem, GamePlayTickUpdater, GameSpeedUpdater, GroundSystem, PlayerSystem, ScoreUpdater};
 use specs::{Dispatcher, DispatcherBuilder, World, WorldExt};
 
 pub struct Ecs<'a, 'b> {
@@ -31,6 +28,7 @@ impl<'a, 'b> Ecs<'a, 'b> {
         world.insert(ground_data);
         world.insert(EventQueue::new());
         world.insert(GamePlay::new());
+        world.insert(Score::new());
 
         // Register components
         world.register::<components::Animatable>();
@@ -60,6 +58,7 @@ impl<'a, 'b> Ecs<'a, 'b> {
             .with(GroundSystem::new(world_data), "ground_system", &[])
             .with(PlayerSystem::new(world_data), "player_system", &[])
             .with(EnemySystem::new(world_data), "enemy_system", &[])
+            .with(ScoreUpdater, "score_updater", &[])
             .with_barrier()
             .with(CollisionSystem, "collision_system", &[])
             .build();
