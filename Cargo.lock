@@ -328,16 +328,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "console_log"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "501a375961cef1a0d44767200e66e4a559283097e91d0730b1d75dfb2f8a1494"
-dependencies = [
- "log",
- "web-sys",
-]
-
-[[package]]
 name = "const-random"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1055,15 +1045,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b47b4c4e017b01abdc5bcc126d2d1002e5a75bbe3ce73f9f4f311a916363704"
 dependencies = [
  "byteorder",
-]
-
-[[package]]
-name = "js-sys"
-version = "0.3.39"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa5a448de267e7358beaf4a5d849518fe9a0c13fce7afd44b06e68550e5562a7"
-dependencies = [
- "wasm-bindgen",
 ]
 
 [[package]]
@@ -1942,13 +1923,13 @@ dependencies = [
 name = "runner_quicksilver_frontend"
 version = "0.1.0"
 dependencies = [
- "console_log",
  "log",
  "quicksilver",
  "runner_core",
  "runner_frontend_utils",
  "simplelog",
  "specs",
+ "stdweb-logger",
 ]
 
 [[package]]
@@ -2305,6 +2286,16 @@ name = "stdweb-internal-runtime"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "213701ba3370744dcd1a12960caa4843b3d68b4d1c0a5d575e0d65b2ee9d16c0"
+
+[[package]]
+name = "stdweb-logger"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c00e8795899ea8ef2fb1a5e2e7349c1b974f4c281a1b4859790e8ab47d999adc"
+dependencies = [
+ "log",
+ "stdweb",
+]
 
 [[package]]
 name = "string_cache"
@@ -2691,16 +2682,6 @@ checksum = "d94e89a86e6d6d7c7c9b19ebf48a03afaac4af6bc22ae570e9a24124b75358f4"
 dependencies = [
  "dlib",
  "lazy_static 1.4.0",
-]
-
-[[package]]
-name = "web-sys"
-version = "0.3.39"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8bc359e5dd3b46cb9687a051d50a2fdd228e4ba7cf6fcf861a5365c3d671a642"
-dependencies = [
- "js-sys",
- "wasm-bindgen",
 ]
 
 [[package]]

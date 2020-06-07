@@ -42,6 +42,9 @@ async fn app(window: Window, mut graphics: Graphics, input: Input) -> Result<()>
     let mut input_manager = InputManager::new(input);
     let mut fps = Fps::new();
 
+    // Note: unlike other front-ends, we are not using any `FrameLimiter`s
+    // for quicksilver. Looks like awaiting on the event queue automatically
+    // sets the FPS to 60. This can be seen from the logs from our Fps struct
     'running: loop {
         {
             // Drain event pump to event queue. Separate scope as
@@ -77,11 +80,11 @@ fn setup_splash_screen(world_data: WorldData, graphics: &mut Graphics, window: &
 #[cfg(feature = "desktop")]
 fn init_logger() {
     use simplelog::{Config, LevelFilter, SimpleLogger};
-    SimpleLogger::init(LevelFilter::Info, Config::default()).expect("log couldn't be initiated")
+    SimpleLogger::init(LevelFilter::Debug, Config::default()).expect("log couldn't be initiated")
 }
 
 #[cfg(feature = "web")]
 fn init_logger() {
     use log::Level;
-    console_log::init_with_level(Level::Debug).expect("log couldn't be initiated")
+    stdweb_logger::init_with_level(Level::Debug);
 }
