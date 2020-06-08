@@ -88,3 +88,9 @@ fn init_logger() {
     use log::Level;
     stdweb_logger::init_with_level(Level::Debug);
 }
+
+#[cfg(not(feature = "desktop"))]
+#[cfg(not(feature = "web"))]
+fn init_logger() {
+    panic!("You should either select the desktop or the web feature")
+}

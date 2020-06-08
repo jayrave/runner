@@ -21,7 +21,9 @@ impl Images {
             Images::load_from_file("letter_tile_sheet.png", graphics),
             Images::load_from_file("platform_tile_sheet.png", graphics),
             Images::load_from_file("number_tile_sheet.png", graphics),
-        ]).await.into_iter();
+        ])
+        .await
+        .into_iter();
 
         Images {
             cloud_texture: images.next().unwrap(),

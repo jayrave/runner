@@ -1,9 +1,6 @@
-use crate::components::{Drawable, Icon};
-use crate::graphics::data;
+use crate::components::Icon;
 use crate::graphics::data::{IconTile, Tile};
-use crate::rect::Rect;
-use specs::join::Join;
-use specs::{Builder, World, WorldExt};
+use specs::World;
 
 const TILE_TO_WORLD_DIVIDER: u32 = 1;
 const ICON_SPACING: u32 = 8;

@@ -27,9 +27,8 @@ impl CloudEntity {
         let world_surface = world_data.world_surface_at();
         let sky_range = (world_data.bounds().top() - world_surface).abs();
         let cloud_min_distance_from_ground = (sky_range as f32 * CLOUD_MIN_DIST_MULTIPLIER) as i32;
-        let cloud_range = sky_range
-            - cloud_min_distance_from_ground
-            - world_data.world_surface_at() / 2; // To not have clouds too much outside the window
+        let cloud_range =
+            sky_range - cloud_min_distance_from_ground - world_data.world_surface_at() / 2; // To not have clouds too much outside the window
 
         let tile_world_bottom = world_data.world_surface_at()
             - cloud_min_distance_from_ground

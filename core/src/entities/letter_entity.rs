@@ -1,9 +1,6 @@
-use crate::components::{Drawable, Letter};
-use crate::graphics::data;
+use crate::components::Letter;
 use crate::graphics::data::{LetterTile, Tile};
-use crate::rect::Rect;
-use specs::join::Join;
-use specs::{Builder, World, WorldExt};
+use specs::World;
 
 const TILE_TO_WORLD_DIVIDER: u32 = 8;
 const LETTER_SPACING: u32 = 2;

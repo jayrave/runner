@@ -114,12 +114,7 @@ impl PlayerSystem {
             ),
 
             // Probably the game just started. Start running
-            Action::Still => self.start_run(
-                current_tick,
-                animatable,
-                drawable,
-                player,
-            ),
+            Action::Still => self.start_run(current_tick, animatable, drawable, player),
 
             // No input based animation going on. Gotta check if we should start one now
             Action::Run => {
