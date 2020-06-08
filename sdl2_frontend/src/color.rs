@@ -5,5 +5,5 @@ use sdl2::pixels::Color as SdlColor;
 /// & the struct are from outside this crate & so Rust wouldn't
 /// allow this
 pub fn sdl_color_from(color: Color) -> SdlColor {
-    SdlColor::RGB(color.red(), color.green(), color.blue())
+    SdlColor::RGBA(color.red(), color.green(), color.blue(), color.alpha())
 }

@@ -5,7 +5,7 @@ use runner_core::data::WorldData;
 use runner_core::graphics::data::TileSheet;
 use runner_core::rect::Rect;
 use sdl2::rect::Rect as SdlRect;
-use sdl2::render::WindowCanvas;
+use sdl2::render::{WindowCanvas, BlendMode};
 use specs::join::Join;
 use specs::ReadStorage;
 use std::convert::TryFrom;
@@ -27,8 +27,8 @@ impl<'a> Renderer<'a> {
     }
 
     pub fn draw(&mut self, drawables_storage: ReadStorage<Drawable>) {
-        self.canvas
-            .set_draw_color(color::sdl_color_from(self.world_data.sky_color()));
+        self.canvas.set_blend_mode(BlendMode::None);
+        self.canvas.set_draw_color(color::sdl_color_from(self.world_data.sky_color()));
         self.canvas.clear();
 
         let viewport = self.canvas.viewport();
@@ -59,6 +59,46 @@ impl<'a> Renderer<'a> {
                 }
             }
         }
+
+        // For the next part to show instructions, we are going to put up a different
+        // color rect for being really obvious
+        let mut blend_mode_setup = false;
+        for tile_sheet in render::INSTRUCTIONS_DRAW_ORDER.iter() {
+            for drawable in drawables_storage.join() {
+                if drawable.tile_data.tile_sheet == *tile_sheet {
+                    let texture = match drawable.tile_data.tile_sheet {
+                        TileSheet::Icon => Some(&self.textures.icon_texture),
+                        TileSheet::Letter => Some(&self.textures.letter_texture),
+                        _ => None,
+                    };
+
+                    if let Some(ref texture) = texture {
+                        if !blend_mode_setup {
+                            self.canvas.set_blend_mode(BlendMode::Blend);
+                            self.canvas.set_draw_color(color::sdl_color_from(self.world_data.instructions_bg_color()));
+                            self.canvas.fill_rect(Renderer::world_to_screen_coordinates(
+                                &self.world_data.bounds(),
+                                &viewport,
+                            ));
+                            blend_mode_setup = true;
+                        }
+
+                        self.canvas
+                            .copy(
+                                texture,
+                                Renderer::sdl_rect_from(drawable.tile_data.bounds_in_tile_sheet),
+                                Renderer::world_to_screen_coordinates(
+                                    &drawable.world_bounds,
+                                    &viewport,
+                                ),
+                            )
+                            .expect("Couldn't draw texture");
+                    }
+                }
+            }
+        }
+
+
 
         self.canvas.present();
     }
