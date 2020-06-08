@@ -9,6 +9,8 @@ pub enum TileSheet {
     Cloud,
     Character,
     Enemy,
+    Icon,
+    Letter,
     Number,
     Platform,
 }
@@ -53,6 +55,45 @@ pub enum EnemyTile {
     MouseRun2,
     SpiderRun1,
     SpiderRun2,
+}
+
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
+pub enum IconTile {
+    Up,
+    Down,
+    Left,
+    Right,
+    Retry,
+}
+
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
+pub enum LetterTile {
+    A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+    I,
+    J,
+    K,
+    L,
+    M,
+    N,
+    O,
+    P,
+    Q,
+    R,
+    S,
+    T,
+    U,
+    V,
+    W,
+    X,
+    Y,
+    Z,
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
