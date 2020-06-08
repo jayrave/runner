@@ -11,7 +11,7 @@ const MIN_SPEED_NEGATOR: i32 = 2;
 const MAX_SPEED_NEGATOR: i32 = 12;
 const MIN_TILE_TO_WORLD_DIVIDER: f32 = 3.0;
 const MAX_TILE_TO_WORLD_DIVIDER: f32 = 8.0;
-const SKY_RANGE_MULTIPLIER_FOR_CLOUD: f32 = 0.75;
+const CLOUD_MIN_DIST_MULTIPLIER: f32 = 0.25;
 
 pub struct CloudEntity;
 
@@ -26,10 +26,14 @@ impl CloudEntity {
     ) {
         let world_surface = world_data.world_surface_at();
         let sky_range = (world_data.bounds().top() - world_surface).abs();
-        let cloud_range = (sky_range as f32 * SKY_RANGE_MULTIPLIER_FOR_CLOUD) as u32;
+        let cloud_min_distance_from_ground = (sky_range as f32 * CLOUD_MIN_DIST_MULTIPLIER) as i32;
+        let cloud_range = sky_range
+            - cloud_min_distance_from_ground
+            - world_data.world_surface_at() / 2; // To not have clouds too much outside the window
 
-        let tile_world_bottom =
-            world_data.world_surface_at() - rand::thread_rng().gen_range(0, cloud_range) as i32;
+        let tile_world_bottom = world_data.world_surface_at()
+            - cloud_min_distance_from_ground
+            - rand::thread_rng().gen_range(0, cloud_range) as i32;
 
         entities
             .build_entity()
