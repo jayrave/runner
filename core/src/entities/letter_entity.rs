@@ -11,113 +11,171 @@ const LETTER_SPACING: u32 = 2;
 pub struct LetterEntity;
 
 impl LetterEntity {
-    pub fn create_game_instructions_tiles_at_world_center(world: &mut World) -> u32 {
+    pub fn create_game_instructions_tiles_at_world_center(world: &mut World, extra_y_offset: i32) {
         LetterEntity::create_tiles_at_world_center(
             world,
+            extra_y_offset,
             &[
-                LetterTile::P,
-                LetterTile::R,
-                LetterTile::E,
-                LetterTile::S,
-                LetterTile::S,
-                LetterTile::SPACE,
-                LetterTile::S,
-                LetterTile::P,
-                LetterTile::A,
-                LetterTile::C,
-                LetterTile::E,
-                LetterTile::SPACE,
-                LetterTile::T,
-                LetterTile::O,
-                LetterTile::SPACE,
-                LetterTile::S,
-                LetterTile::T,
-                LetterTile::A,
-                LetterTile::R,
-                LetterTile::T,
+                Tile::Letter {
+                    tile: LetterTile::P,
+                },
+                Tile::Letter {
+                    tile: LetterTile::R,
+                },
+                Tile::Letter {
+                    tile: LetterTile::E,
+                },
+                Tile::Letter {
+                    tile: LetterTile::S,
+                },
+                Tile::Letter {
+                    tile: LetterTile::S,
+                },
+                Tile::Letter {
+                    tile: LetterTile::SPACE,
+                },
+                Tile::Letter {
+                    tile: LetterTile::S,
+                },
+                Tile::Letter {
+                    tile: LetterTile::P,
+                },
+                Tile::Letter {
+                    tile: LetterTile::A,
+                },
+                Tile::Letter {
+                    tile: LetterTile::C,
+                },
+                Tile::Letter {
+                    tile: LetterTile::E,
+                },
+                Tile::Letter {
+                    tile: LetterTile::SPACE,
+                },
+                Tile::Letter {
+                    tile: LetterTile::T,
+                },
+                Tile::Letter {
+                    tile: LetterTile::O,
+                },
+                Tile::Letter {
+                    tile: LetterTile::SPACE,
+                },
+                Tile::Letter {
+                    tile: LetterTile::S,
+                },
+                Tile::Letter {
+                    tile: LetterTile::T,
+                },
+                Tile::Letter {
+                    tile: LetterTile::A,
+                },
+                Tile::Letter {
+                    tile: LetterTile::R,
+                },
+                Tile::Letter {
+                    tile: LetterTile::T,
+                },
             ],
         )
     }
 
-    pub fn create_retry_tiles_at_world_center(world: &mut World) -> u32 {
+    pub fn create_retry_tiles_at_world_center(world: &mut World, extra_y_offset: i32) {
         LetterEntity::create_tiles_at_world_center(
             world,
+            extra_y_offset,
             &[
-                LetterTile::P,
-                LetterTile::R,
-                LetterTile::E,
-                LetterTile::S,
-                LetterTile::S,
-                LetterTile::SPACE,
-                LetterTile::S,
-                LetterTile::P,
-                LetterTile::A,
-                LetterTile::C,
-                LetterTile::E,
-                LetterTile::SPACE,
-                LetterTile::T,
-                LetterTile::O,
-                LetterTile::SPACE,
-                LetterTile::P,
-                LetterTile::L,
-                LetterTile::A,
-                LetterTile::Y,
-                LetterTile::SPACE,
-                LetterTile::A,
-                LetterTile::G,
-                LetterTile::A,
-                LetterTile::I,
-                LetterTile::N,
-            ]
+                Tile::Letter {
+                    tile: LetterTile::P,
+                },
+                Tile::Letter {
+                    tile: LetterTile::R,
+                },
+                Tile::Letter {
+                    tile: LetterTile::E,
+                },
+                Tile::Letter {
+                    tile: LetterTile::S,
+                },
+                Tile::Letter {
+                    tile: LetterTile::S,
+                },
+                Tile::Letter {
+                    tile: LetterTile::SPACE,
+                },
+                Tile::Letter {
+                    tile: LetterTile::S,
+                },
+                Tile::Letter {
+                    tile: LetterTile::P,
+                },
+                Tile::Letter {
+                    tile: LetterTile::A,
+                },
+                Tile::Letter {
+                    tile: LetterTile::C,
+                },
+                Tile::Letter {
+                    tile: LetterTile::E,
+                },
+                Tile::Letter {
+                    tile: LetterTile::SPACE,
+                },
+                Tile::Letter {
+                    tile: LetterTile::T,
+                },
+                Tile::Letter {
+                    tile: LetterTile::O,
+                },
+                Tile::Letter {
+                    tile: LetterTile::SPACE,
+                },
+                Tile::Letter {
+                    tile: LetterTile::P,
+                },
+                Tile::Letter {
+                    tile: LetterTile::L,
+                },
+                Tile::Letter {
+                    tile: LetterTile::A,
+                },
+                Tile::Letter {
+                    tile: LetterTile::Y,
+                },
+                Tile::Letter {
+                    tile: LetterTile::SPACE,
+                },
+                Tile::Letter {
+                    tile: LetterTile::A,
+                },
+                Tile::Letter {
+                    tile: LetterTile::G,
+                },
+                Tile::Letter {
+                    tile: LetterTile::A,
+                },
+                Tile::Letter {
+                    tile: LetterTile::I,
+                },
+                Tile::Letter {
+                    tile: LetterTile::N,
+                },
+            ],
         )
     }
 
     pub fn remove_all_tiles(world: &mut World) {
-        super::entity_remover::remove_all_entities_matching_type::<Letter>(world);
+        super::instruction_entitities_helper::remove_all_entities_matching_type::<Letter>(world);
     }
 
-    fn create_tiles_at_world_center(world: &mut World, tiles: &[LetterTile]) -> u32 {
-        // Initially create drawables at 0, 0
-        let mut last_icon_x_end_at = 0;
-        let mut max_drawable_height = 0;
-        let drawables: Vec<Drawable> = tiles
-            .iter()
-            .map(|tile| {
-                let tile_data = data::build_tile_data(Tile::Letter { tile: *tile });
-                let width_in_world = tile_data.bounds_in_tile_sheet.width() / TILE_TO_WORLD_DIVIDER;
-                let height_in_world =
-                    tile_data.bounds_in_tile_sheet.height() / TILE_TO_WORLD_DIVIDER;
-
-                let bounds_in_world = Rect::new(
-                    last_icon_x_end_at + LETTER_SPACING as i32,
-                    0,
-                    width_in_world,
-                    height_in_world,
-                );
-
-                // Update tracked measures
-                last_icon_x_end_at = bounds_in_world.right();
-                if max_drawable_height < height_in_world {
-                    max_drawable_height = height_in_world;
-                }
-
-                Drawable {
-                    tile_data,
-                    world_bounds: bounds_in_world,
-                }
-            })
-            .collect();
-
-        // Compute offsets to move drawables to world center
-        let height_offset: i32 = -((max_drawable_height / 2) as i32);
-        let width_offset = -last_icon_x_end_at / 2;
-
-        // Offset drawables & create entities
-        for mut drawable in drawables.into_iter() {
-            drawable.world_bounds.offset(width_offset, height_offset);
-            world.create_entity().with(Letter).with(drawable).build();
-        }
-
-        height_offset.abs() as u32
+    fn create_tiles_at_world_center(world: &mut World, extra_y_offset: i32, tiles: &[Tile]) {
+        super::instruction_entitities_helper::create_tiles_at_world_center(
+            world,
+            Letter,
+            TILE_TO_WORLD_DIVIDER,
+            LETTER_SPACING as i32,
+            extra_y_offset,
+            tiles,
+        );
     }
 }

@@ -1,6 +1,6 @@
 use specs::Component;
 use specs::NullStorage;
 
-#[derive(Component, Default)]
+#[derive(Component, Clone, Copy, Default)]
 #[storage(NullStorage)]
 pub struct Icon;

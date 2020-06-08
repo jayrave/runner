@@ -9,6 +9,8 @@ use crate::systems::{
 };
 use specs::{Dispatcher, DispatcherBuilder, World, WorldExt};
 
+const ICON_BOTTOM_MULTIPLIER: i32 = 3;
+
 pub struct Ecs<'a, 'b> {
     pub world: World,
     world_data: WorldData,
@@ -60,13 +62,19 @@ impl<'a, 'b> Ecs<'a, 'b> {
     }
 
     pub fn show_instructions(&mut self) {
-        // IconEntity::create_direction_tiles_at_world_center(&mut self.world);
-        LetterEntity::create_game_instructions_tiles_at_world_center(&mut self.world);
+        let bottom = IconEntity::create_direction_tiles_at_world_center(&mut self.world);
+        LetterEntity::create_game_instructions_tiles_at_world_center(
+            &mut self.world,
+            bottom * ICON_BOTTOM_MULTIPLIER,
+        );
     }
 
     pub fn show_game_end(&mut self) {
-        // IconEntity::create_retry_tile_at_world_center(&mut self.world);
-        LetterEntity::create_retry_tiles_at_world_center(&mut self.world);
+        let bottom = IconEntity::create_retry_tile_at_world_center(&mut self.world);
+        LetterEntity::create_retry_tiles_at_world_center(
+            &mut self.world,
+            bottom * ICON_BOTTOM_MULTIPLIER,
+        );
     }
 
     pub fn start_game_play(&mut self) {

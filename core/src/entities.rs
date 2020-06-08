@@ -1,8 +1,8 @@
 mod cloud_entity;
 mod enemy_entity;
-mod entity_remover;
 mod ground_entity;
 mod icon_entity;
+mod instruction_entitities_helper;
 mod letter_entity;
 mod player_entity;
 mod score_entity;
