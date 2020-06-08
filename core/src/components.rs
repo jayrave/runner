@@ -5,6 +5,7 @@ pub mod enemy;
 mod ground;
 mod icon;
 pub mod input;
+mod letter;
 pub mod player;
 pub mod score;
 
@@ -14,3 +15,4 @@ pub use drawable::Drawable;
 pub use enemy::Enemy;
 pub use ground::Ground;
 pub use icon::Icon;
+pub use letter::Letter;

@@ -96,6 +96,7 @@ pub enum LetterTile {
     X,
     Y,
     Z,
+    SPACE,
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -209,6 +210,7 @@ pub fn build_tile_data(tile: Tile) -> TileData {
                 LetterTile::X => Rect::new(740, 2, 80, 112),
                 LetterTile::Y => Rect::new(412, 2, 80, 112),
                 LetterTile::Z => Rect::new(330, 2, 80, 112),
+                LetterTile::SPACE => Rect::new(166, 246, 80, 112),
             }
         }
 

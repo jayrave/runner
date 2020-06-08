@@ -1,7 +1,7 @@
 use crate::components;
 use crate::data::enemy_data::EnemyData;
 use crate::data::{CloudData, GroundData, PlayerData, WorldData};
-use crate::entities::{GroundEntity, IconEntity, PlayerEntity, ScoreEntity};
+use crate::entities::{GroundEntity, IconEntity, LetterEntity, PlayerEntity, ScoreEntity};
 use crate::resources::{EventQueue, GamePlay};
 use crate::systems::{
     CloudSystem, CollisionSystem, EnemySystem, EventSystem, GamePlayTickUpdater, GameSpeedUpdater,
@@ -43,6 +43,7 @@ impl<'a, 'b> Ecs<'a, 'b> {
         world.register::<components::Ground>();
         world.register::<components::Icon>();
         world.register::<components::input::InputControlled>();
+        world.register::<components::Letter>();
         world.register::<components::player::Player>();
         world.register::<components::score::Score>();
 
@@ -59,16 +60,19 @@ impl<'a, 'b> Ecs<'a, 'b> {
     }
 
     pub fn show_instructions(&mut self) {
-        IconEntity::create_direction_tiles_at_world_center(&mut self.world);
+        // IconEntity::create_direction_tiles_at_world_center(&mut self.world);
+        LetterEntity::create_game_instructions_tiles_at_world_center(&mut self.world);
     }
 
     pub fn show_game_end(&mut self) {
-        IconEntity::create_retry_tile_at_world_center(&mut self.world);
+        // IconEntity::create_retry_tile_at_world_center(&mut self.world);
+        LetterEntity::create_retry_tiles_at_world_center(&mut self.world);
     }
 
     pub fn start_game_play(&mut self) {
         // Remove everything that was added for instructional purposes
         IconEntity::remove_all_tiles(&mut self.world);
+        LetterEntity::remove_all_tiles(&mut self.world);
 
         // Orchestrate systems for game play
         let game_play_tick_updater = "game_play_tick_updater";
