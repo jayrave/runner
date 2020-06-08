@@ -20,6 +20,8 @@ pub enum Tile {
     Cloud { tile: CloudTile },
     Character { tile: CharacterTile },
     Enemy { tile: EnemyTile },
+    Icon { tile: IconTile },
+    Letter { tile: LetterTile },
     Number { tile: NumberTile },
     Platform { tile: PlatformTile },
 }
@@ -164,6 +166,49 @@ pub fn build_tile_data(tile: Tile) -> TileData {
                 EnemyTile::MouseRun2 => Rect::new(256, 475, 58, 35),
                 EnemyTile::SpiderRun1 => Rect::new(0, 90, 72, 51),
                 EnemyTile::SpiderRun2 => Rect::new(0, 37, 77, 53),
+            }
+        }
+
+        Tile::Icon { tile } => {
+            tile_sheet = TileSheet::Icon;
+            bounds_in_tile_sheet = match tile {
+                IconTile::Up => Rect::new(10, 408, 30, 34),
+                IconTile::Down => Rect::new(60, 58, 30, 34),
+                IconTile::Left => Rect::new(58, 11, 34, 28),
+                IconTile::Right => Rect::new(8, 461, 34, 28),
+                IconTile::Retry => Rect::new(211, 63, 31, 28),
+            }
+        },
+
+        Tile::Letter { tile } => {
+            tile_sheet = TileSheet::Letter;
+            bounds_in_tile_sheet = match tile {
+                LetterTile::A => Rect::new(444, 132, 80, 112),
+                LetterTile::B => Rect::new(362, 132, 80, 112),
+                LetterTile::C => Rect::new(526, 132, 80, 112),
+                LetterTile::D => Rect::new(854, 132, 80, 112),
+                LetterTile::E => Rect::new(84, 132, 80, 112),
+                LetterTile::F => Rect::new(280, 132, 80, 112),
+                LetterTile::G => Rect::new(608, 132, 80, 112),
+                LetterTile::H => Rect::new(2, 246, 80, 112),
+                LetterTile::I => Rect::new(84, 246, 80, 112),
+                LetterTile::J => Rect::new(936, 132, 80, 112),
+                LetterTile::K => Rect::new(772, 132, 80, 112),
+                LetterTile::L => Rect::new(690, 132, 80, 112),
+                LetterTile::M => Rect::new(166, 132, 80, 112),
+                LetterTile::N => Rect::new(822, 2, 80, 112),
+                LetterTile::O => Rect::new(166, 2, 80, 112),
+                LetterTile::P => Rect::new(248, 2, 80, 112),
+                LetterTile::Q => Rect::new(2, 2, 80, 128),
+                LetterTile::R => Rect::new(84, 2, 80, 112),
+                LetterTile::S => Rect::new(2, 132, 80, 112),
+                LetterTile::T => Rect::new(576, 2, 80, 112),
+                LetterTile::U => Rect::new(494, 2, 80, 112),
+                LetterTile::V => Rect::new(658, 2, 80, 112),
+                LetterTile::W => Rect::new(904, 2, 112, 112),
+                LetterTile::X => Rect::new(740, 2, 80, 112),
+                LetterTile::Y => Rect::new(412, 2, 80, 112),
+                LetterTile::Z => Rect::new(330, 2, 80, 112),
             }
         }
 
