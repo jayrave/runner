@@ -5,5 +5,10 @@ use runner_core::color::Color;
 /// & the struct are from outside this crate & so Rust wouldn't
 /// allow this
 pub fn qs_color_from(color: Color) -> QsColor {
-    QsColor::from_rgba(color.red(), color.green(), color.blue(), 1.0)
+    QsColor::from_rgba(
+        color.red(),
+        color.green(),
+        color.blue(),
+        color.alpha() as f32 / u8::max_value() as f32,
+    )
 }
