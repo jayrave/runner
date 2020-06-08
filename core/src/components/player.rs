@@ -19,7 +19,7 @@ impl Player {
             jump_physics: None,
             most_recent_max_jump_end_at: 0,
             most_recent_max_slide_end_at: 0,
-            current_action: Action::Run,
+            current_action: Action::Still,
             is_hit: false,
         }
     }
@@ -31,5 +31,6 @@ pub mod data {
         Jump,
         Run,
         Slide,
+        Still,
     }
 }

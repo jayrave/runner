@@ -113,6 +113,14 @@ impl PlayerSystem {
                 input_ctrl,
             ),
 
+            // Probably the game just started. Start running
+            Action::Still => self.start_run(
+                current_tick,
+                animatable,
+                drawable,
+                player,
+            ),
+
             // No input based animation going on. Gotta check if we should start one now
             Action::Run => {
                 let new_action = PlayerSystem::input_to_vertical_action(
@@ -144,7 +152,7 @@ impl PlayerSystem {
                             input_ctrl,
                         ),
 
-                        Action::Run => self.continue_run(
+                        Action::Still | Action::Run => self.continue_run(
                             current_tick,
                             current_step_started_at_tick,
                             bounded_x_offset,
