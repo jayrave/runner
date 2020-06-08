@@ -3,6 +3,7 @@ pub struct Color {
     red: u8,
     green: u8,
     blue: u8,
+    alpha: u8,
 }
 
 impl Color {
@@ -18,7 +19,11 @@ impl Color {
         self.blue
     }
 
-    pub fn from_rgb(red: u8, green: u8, blue: u8) -> Color {
-        Color { red, green, blue }
+    pub fn alpha(&self) -> u8 {
+        self.alpha
+    }
+
+    pub fn from_rgba(red: u8, green: u8, blue: u8, alpha: u8) -> Color {
+        Color { red, green, blue, alpha }
     }
 }
