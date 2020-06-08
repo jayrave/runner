@@ -16,7 +16,4 @@ pub const GAME_PLAY_DRAW_ORDER: [TileSheet; 5] = [
     TileSheet::Number,
 ];
 
-pub const INSTRUCTIONS_DRAW_ORDER: [TileSheet; 2] = [
-    TileSheet::Letter,
-    TileSheet::Icon,
-];
+pub const INSTRUCTIONS_DRAW_ORDER: [TileSheet; 2] = [TileSheet::Letter, TileSheet::Icon];

@@ -1,13 +1,13 @@
-use crate::resources::GamePlay;
-use specs::shred::ResourceId;
-use specs::{SystemData, WriteStorage, ReadStorage};
-use specs::World;
-use crate::graphics::data;
-use specs::{ReadExpect, System};
-use specs::join::Join;
+use crate::components::score::{Position, Score};
 use crate::components::Drawable;
-use crate::components::score::{Score, Position};
+use crate::graphics::data;
 use crate::graphics::data::NumberTile;
+use crate::resources::GamePlay;
+use specs::join::Join;
+use specs::shred::ResourceId;
+use specs::World;
+use specs::{ReadExpect, System};
+use specs::{ReadStorage, SystemData, WriteStorage};
 
 pub struct ScoreSystem;
 
@@ -57,7 +57,7 @@ impl<'a> System<'a> for ScoreSystem {
                     7 => NumberTile::Seven,
                     8 => NumberTile::Eight,
                     9 => NumberTile::Nine,
-                    _ => panic!("Score math is off!")
+                    _ => panic!("Score math is off!"),
                 },
             });
         }

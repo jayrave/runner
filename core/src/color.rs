@@ -24,6 +24,11 @@ impl Color {
     }
 
     pub fn from_rgba(red: u8, green: u8, blue: u8, alpha: u8) -> Color {
-        Color { red, green, blue, alpha }
+        Color {
+            red,
+            green,
+            blue,
+            alpha,
+        }
     }
 }

@@ -1,7 +1,7 @@
 use crate::components;
 use crate::data::enemy_data::EnemyData;
 use crate::data::{CloudData, GroundData, PlayerData, WorldData};
-use crate::entities::{GroundEntity, PlayerEntity, ScoreEntity, IconEntity};
+use crate::entities::{GroundEntity, IconEntity, PlayerEntity, ScoreEntity};
 use crate::resources::{EventQueue, GamePlay};
 use crate::systems::{
     CloudSystem, CollisionSystem, EnemySystem, EventSystem, GamePlayTickUpdater, GameSpeedUpdater,
@@ -54,7 +54,7 @@ impl<'a, 'b> Ecs<'a, 'b> {
         Ecs {
             world,
             world_data,
-            dispatcher: None
+            dispatcher: None,
         }
     }
 
@@ -75,7 +75,11 @@ impl<'a, 'b> Ecs<'a, 'b> {
         let dispatcher = DispatcherBuilder::new()
             .with(GamePlayTickUpdater, game_play_tick_updater, &[])
             .with(EventSystem, "event_system", &[game_play_tick_updater])
-            .with(GameSpeedUpdater::new(self.world_data), "game_speed_updater", &[])
+            .with(
+                GameSpeedUpdater::new(self.world_data),
+                "game_speed_updater",
+                &[],
+            )
             .with_barrier() // To let event system & game updaters to work before any other systems
             .with(
                 CloudSystem::new(Ecs::build_default_ground_data(), self.world_data),

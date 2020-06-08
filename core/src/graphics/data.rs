@@ -178,7 +178,7 @@ pub fn build_tile_data(tile: Tile) -> TileData {
                 IconTile::Right => Rect::new(8, 461, 34, 28),
                 IconTile::Retry => Rect::new(211, 63, 31, 28),
             }
-        },
+        }
 
         Tile::Letter { tile } => {
             tile_sheet = TileSheet::Letter;

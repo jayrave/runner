@@ -28,10 +28,7 @@ impl<'a, 'b> GameLoop<'a, 'b> {
         let mut ecs = Ecs::setup(world_data);
         ecs.show_instructions();
 
-        GameLoop {
-            world_data,
-            ecs,
-        }
+        GameLoop { world_data, ecs }
     }
 
     pub fn event_queue(&mut self) -> FetchMut<EventQueue> {
@@ -54,14 +51,14 @@ impl<'a, 'b> GameLoop<'a, 'b> {
             HandleInputResult::StartGamePlay => {
                 &mut self.ecs.world.fetch_mut::<GamePlay>().mark_started();
                 self.ecs.start_game_play()
-            },
+            }
             HandleInputResult::RestartGame => {
                 self.ecs = Ecs::setup(self.world_data);
 
                 // Needn't show instructions again & can directly start playing
                 &mut self.ecs.world.fetch_mut::<GamePlay>().mark_started();
                 self.ecs.start_game_play()
-            },
+            }
         }
 
         // Work the systems

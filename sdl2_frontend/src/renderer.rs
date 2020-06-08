@@ -52,10 +52,12 @@ impl<'a> Renderer<'a> {
                 // bg color happen
                 canvas.set_blend_mode(BlendMode::Blend);
                 canvas.set_draw_color(color::sdl_color_from(bg_color));
-                canvas.fill_rect(Renderer::world_to_screen_coordinates(
-                    &world_bounds,
-                    &canvas.viewport(),
-                )).expect("Not able to complete rect fill!");
+                canvas
+                    .fill_rect(Renderer::world_to_screen_coordinates(
+                        &world_bounds,
+                        &canvas.viewport(),
+                    ))
+                    .expect("Not able to complete rect fill!");
             },
         );
 
