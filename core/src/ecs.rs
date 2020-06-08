@@ -1,7 +1,7 @@
 use crate::components;
 use crate::data::enemy_data::EnemyData;
 use crate::data::{CloudData, GroundData, PlayerData, WorldData};
-use crate::entities::{GroundEntity, PlayerEntity, ScoreEntity};
+use crate::entities::{GroundEntity, PlayerEntity, ScoreEntity, IconEntity};
 use crate::resources::{EventQueue, GamePlay};
 use crate::systems::{
     CloudSystem, CollisionSystem, EnemySystem, EventSystem, GamePlayTickUpdater, GameSpeedUpdater,
@@ -41,6 +41,7 @@ impl<'a, 'b> Ecs<'a, 'b> {
         world.register::<components::Drawable>();
         world.register::<components::Enemy>();
         world.register::<components::Ground>();
+        world.register::<components::Icon>();
         world.register::<components::input::InputControlled>();
         world.register::<components::player::Player>();
         world.register::<components::score::Score>();
@@ -58,14 +59,18 @@ impl<'a, 'b> Ecs<'a, 'b> {
     }
 
     pub fn show_instructions(&mut self) {
-        self.dispatcher = Some(DispatcherBuilder::new().build())
+        IconEntity::create_direction_tiles_at_world_center(&mut self.world);
     }
 
     pub fn show_game_end(&mut self) {
-        self.dispatcher = Some(DispatcherBuilder::new().build())
+        IconEntity::create_retry_tile_at_world_center(&mut self.world);
     }
 
     pub fn start_game_play(&mut self) {
+        // Remove everything that was added for instructional purposes
+        IconEntity::remove_all_tiles(&mut self.world);
+
+        // Orchestrate systems for game play
         let game_play_tick_updater = "game_play_tick_updater";
         let dispatcher = DispatcherBuilder::new()
             .with(GamePlayTickUpdater, game_play_tick_updater, &[])
