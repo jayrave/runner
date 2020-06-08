@@ -47,16 +47,16 @@ impl<'a> System<'a> for ScoreSystem {
             let single_digit = remainder / quotient_finding_divisor;
             drawable.tile_data = data::build_tile_data(data::Tile::Number {
                 tile: match single_digit {
-                    0 => NumberTile::ZERO,
-                    1 => NumberTile::ONE,
-                    2 => NumberTile::TWO,
-                    3 => NumberTile::THREE,
-                    4 => NumberTile::FOUR,
-                    5 => NumberTile::FIVE,
-                    6 => NumberTile::SIX,
-                    7 => NumberTile::SEVEN,
-                    8 => NumberTile::EIGHT,
-                    9 => NumberTile::NINE,
+                    0 => NumberTile::Zero,
+                    1 => NumberTile::One,
+                    2 => NumberTile::Two,
+                    3 => NumberTile::Three,
+                    4 => NumberTile::Four,
+                    5 => NumberTile::Five,
+                    6 => NumberTile::Six,
+                    7 => NumberTile::Seven,
+                    8 => NumberTile::Eight,
+                    9 => NumberTile::Nine,
                     _ => panic!("Score math is off!")
                 },
             });

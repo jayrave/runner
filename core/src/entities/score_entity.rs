@@ -24,7 +24,7 @@ impl ScoreEntity {
 
     fn create_tile(world: &mut World, world_data: &WorldData, position: Position) {
         let tile_data = data::build_tile_data(data::Tile::Number {
-            tile: NumberTile::ZERO,
+            tile: NumberTile::Zero,
         });
         let width_in_world = tile_data.bounds_in_tile_sheet.width() / TILE_TO_WORLD_DIVIDER;
         let height_in_world = tile_data.bounds_in_tile_sheet.height() / TILE_TO_WORLD_DIVIDER;

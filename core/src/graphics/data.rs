@@ -57,16 +57,16 @@ pub enum EnemyTile {
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum NumberTile {
-    ZERO,
-    ONE,
-    TWO,
-    THREE,
-    FOUR,
-    FIVE,
-    SIX,
-    SEVEN,
-    EIGHT,
-    NINE,
+    Zero,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+    Nine,
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -129,16 +129,16 @@ pub fn build_tile_data(tile: Tile) -> TileData {
         Tile::Number { tile } => {
             tile_sheet = TileSheet::Number;
             bounds_in_tile_sheet = match tile {
-                NumberTile::ZERO => build_number_bounds(84, 116),
-                NumberTile::ONE => build_number_bounds(252, 116),
-                NumberTile::TWO => build_number_bounds(0, 116),
-                NumberTile::THREE => build_number_bounds(420, 0),
-                NumberTile::FOUR => build_number_bounds(168, 116),
-                NumberTile::FIVE => build_number_bounds(252, 0),
-                NumberTile::SIX => build_number_bounds(168, 0),
-                NumberTile::SEVEN => build_number_bounds(0, 0),
-                NumberTile::EIGHT => build_number_bounds(336, 0),
-                NumberTile::NINE => build_number_bounds(84, 0),
+                NumberTile::Zero => build_number_bounds(84, 116),
+                NumberTile::One => build_number_bounds(252, 116),
+                NumberTile::Two => build_number_bounds(0, 116),
+                NumberTile::Three => build_number_bounds(420, 0),
+                NumberTile::Four => build_number_bounds(168, 116),
+                NumberTile::Five => build_number_bounds(252, 0),
+                NumberTile::Six => build_number_bounds(168, 0),
+                NumberTile::Seven => build_number_bounds(0, 0),
+                NumberTile::Eight => build_number_bounds(336, 0),
+                NumberTile::Nine => build_number_bounds(84, 0),
             }
         }
 
