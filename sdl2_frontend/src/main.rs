@@ -8,6 +8,7 @@ use runner_core::data::WorldData;
 use runner_core::game_loop::{GameLoop, GameLoopResult};
 use sdl2::render::WindowCanvas;
 use sdl2::Sdl;
+use simplelog::{Config, LevelFilter, SimpleLogger};
 
 mod color;
 mod frame_limiter;
@@ -16,6 +17,9 @@ mod renderer;
 mod textures;
 
 pub fn main() {
+    // Initiate log before anything else
+    SimpleLogger::init(LevelFilter::Debug, Config::default()).expect("log couldn't be initiated");
+
     let world_data = WorldData::new();
     let (sdl, mut canvas) = build_canvas(world_data);
 
