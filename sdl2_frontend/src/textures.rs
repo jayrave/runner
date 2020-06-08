@@ -6,8 +6,10 @@ pub struct Textures<'a> {
     pub cloud_texture: Texture<'a>,
     pub character_texture: Texture<'a>,
     pub enemy_texture: Texture<'a>,
-    pub platform_texture: Texture<'a>,
+    pub icon_texture: Texture<'a>,
+    pub letter_texture: Texture<'a>,
     pub number_texture: Texture<'a>,
+    pub platform_texture: Texture<'a>,
 }
 
 impl<'a> Textures<'a> {
@@ -19,6 +21,8 @@ impl<'a> Textures<'a> {
 
         let cloud_texture = Textures::load_from_file("cloud_tile_sheet.png", texture_creator);
         let enemy_texture = Textures::load_from_file("enemy_tile_sheet.png", texture_creator);
+        let icon_texture = Textures::load_from_file("icon_tile_sheet.png", texture_creator);
+        let letter_texture = Textures::load_from_file("letter_tile_sheet.png", texture_creator);
         let platform_texture = Textures::load_from_file("platform_tile_sheet.png", texture_creator);
         let number_texture = Textures::load_from_file("number_tile_sheet.png", texture_creator);
 
@@ -26,6 +30,8 @@ impl<'a> Textures<'a> {
             cloud_texture,
             character_texture,
             enemy_texture,
+            icon_texture,
+            letter_texture,
             platform_texture,
             number_texture,
         }

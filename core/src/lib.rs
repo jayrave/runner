@@ -8,5 +8,6 @@ pub mod graphics;
 pub mod input;
 pub mod jump_physics;
 pub mod rect;
+pub mod render;
 pub mod resources;
 pub mod systems;

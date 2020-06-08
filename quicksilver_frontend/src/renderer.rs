@@ -8,16 +8,7 @@ use runner_core::graphics::data::TileSheet;
 use runner_core::rect::Rect;
 use specs::join::Join;
 use specs::ReadStorage;
-
-// Tiles should be drawn in a particular order to get the correct Z-index cheaply.
-// This should be changed if the tiles drawn are going to change
-const TILE_DRAW_ORDER: [TileSheet; 5] = [
-    TileSheet::Cloud,
-    TileSheet::Platform,
-    TileSheet::Enemy,
-    TileSheet::Character,
-    TileSheet::Number,
-];
+use runner_core::render;
 
 pub struct Renderer {
     world_data: WorldData,
@@ -55,22 +46,25 @@ impl Renderer {
             self.world_data.bounds().height(),
         );
 
-        for tile_sheet in TILE_DRAW_ORDER.iter() {
+        for tile_sheet in render::GAME_PLAY_DRAW_ORDER.iter() {
             for drawable in drawables_storage.join() {
                 if drawable.tile_data.tile_sheet == *tile_sheet {
                     let image = match drawable.tile_data.tile_sheet {
-                        TileSheet::Cloud => &self.images.cloud_texture,
-                        TileSheet::Character => &self.images.character_texture,
-                        TileSheet::Enemy => &self.images.enemy_texture,
-                        TileSheet::Number => &self.images.number_texture,
-                        TileSheet::Platform => &self.images.platform_texture,
+                        TileSheet::Cloud => Some(&self.images.cloud_texture),
+                        TileSheet::Character => Some(&self.images.character_texture),
+                        TileSheet::Enemy => Some(&self.images.enemy_texture),
+                        TileSheet::Number => Some(&self.images.number_texture),
+                        TileSheet::Platform => Some(&self.images.platform_texture),
+                        _ => None,
                     };
 
-                    self.graphics.draw_subimage(
-                        &image,
-                        Renderer::qs_rect_from(drawable.tile_data.bounds_in_tile_sheet),
-                        Renderer::world_to_screen_coordinates(&drawable.world_bounds, viewport),
-                    );
+                    if let Some(ref image) = image {
+                        self.graphics.draw_subimage(
+                            &image,
+                            Renderer::qs_rect_from(drawable.tile_data.bounds_in_tile_sheet),
+                            Renderer::world_to_screen_coordinates(&drawable.world_bounds, viewport),
+                        );
+                    }
                 }
             }
         }
