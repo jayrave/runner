@@ -28,23 +28,7 @@ impl IconEntity {
     }
 
     pub fn remove_all_tiles(world: &mut World) {
-        let mut entities_to_be_removed = Vec::new();
-        {
-            let entities = world.entities();
-            let icons_storage = world.read_storage::<Icon>();
-            let drawables_storage = world.read_storage::<Drawable>();
-
-            for (entity, _, _) in (&entities, &icons_storage, &drawables_storage).join() {
-                entities_to_be_removed.push(entity);
-            }
-        }
-
-        let entities = world.entities_mut();
-        for entity in entities_to_be_removed {
-            entities
-                .delete(entity)
-                .expect("Entity couldn't be deleted!")
-        }
+        super::entity_remover::remove_all_entities_matching_type::<Icon>(world);
     }
 
     fn create_tiles_at_world_center(world: &mut World, tiles: &[IconTile]) -> u32 {
