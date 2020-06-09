@@ -115,8 +115,8 @@ impl Renderer {
         // the canvas element has the expected dimension. So, I am not sure what's
         // really happening here!
         Vector::new(
-            self.world_data.bounds().width(),
-            self.world_data.bounds().height(),
+            self.world_data.bounds().width() as f32,
+            self.world_data.bounds().height() as f32,
         )
     }
 

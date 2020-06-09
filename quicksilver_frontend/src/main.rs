@@ -21,7 +21,10 @@ fn main() {
     quicksilver::run(
         Settings {
             title: "Runner",
-            size: Vector::new(world_data.bounds().width(), world_data.bounds().height()),
+            size: Vector::new(
+                world_data.bounds().width() as f32,
+                world_data.bounds().height() as f32,
+            ),
             ..Settings::default()
         },
         app,
