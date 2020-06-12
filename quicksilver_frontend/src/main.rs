@@ -37,7 +37,7 @@ async fn app(window: Window, mut graphics: Graphics, input: Input) -> Result<()>
     setup_splash_screen(world_data, &mut graphics, &window);
 
     // Time to load some resources
-    let images = Images::load_from_files(&graphics).await;
+    let images = Images::load_from_files(&graphics);
 
     // Build everything required for the loop
     let mut game_loop = GameLoop::new(world_data);

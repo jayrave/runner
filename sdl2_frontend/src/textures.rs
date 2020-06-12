@@ -1,6 +1,12 @@
-use sdl2::image::LoadTexture;
+use rust_embed::RustEmbed;
+use sdl2::image::ImageRWops;
 use sdl2::render::{Texture, TextureCreator};
+use sdl2::rwops::RWops;
 use sdl2::video::WindowContext;
+
+#[derive(RustEmbed)]
+#[folder = "../assets_processed/"]
+struct Asset;
 
 pub struct Textures<'a> {
     pub cloud_texture: Texture<'a>,
@@ -41,10 +47,16 @@ impl<'a> Textures<'a> {
         filename: &str,
         texture_creator: &'a TextureCreator<WindowContext>,
     ) -> Texture<'a> {
-        // Instead of a common top-level dir, we store our assets in quicksilver's static
-        // library because the current way of building a WASM module mandates that
+        let bytes = Asset::get(filename).unwrap();
+        let rw_ops = RWops::from_bytes(&bytes)
+            .unwrap_or_else(|_| panic!("Couldn't load rwops: {}", filename));
+
+        let surface = rw_ops
+            .load_png()
+            .unwrap_or_else(|_| panic!("Couldn't load surface: {}", filename));
+
         texture_creator
-            .load_texture(format!("../quicksilver_frontend/static/{}", filename))
-            .unwrap_or_else(|_| panic!("Couldn't load texture: {}", filename))
+            .create_texture_from_surface(surface)
+            .unwrap_or_else(|_| panic!("Could't load texture: {}", filename))
     }
 }

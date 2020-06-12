@@ -1967,6 +1967,7 @@ dependencies = [
  "quicksilver",
  "runner_core",
  "runner_frontend_utils",
+ "rust-embed",
  "simplelog",
  "specs",
  "stdweb-logger",
@@ -1979,6 +1980,7 @@ dependencies = [
  "instant",
  "log",
  "runner_core",
+ "rust-embed",
  "sdl2",
  "simplelog",
  "specs",
@@ -1994,6 +1996,38 @@ dependencies = [
  "blake2b_simd",
  "constant_time_eq",
  "crossbeam-utils",
+]
+
+[[package]]
+name = "rust-embed"
+version = "5.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3a17890cbd0fae97c2006fa1ecec9554946443c319f4dd8cd8d3b92031725161"
+dependencies = [
+ "rust-embed-impl",
+ "rust-embed-utils",
+ "walkdir",
+]
+
+[[package]]
+name = "rust-embed-impl"
+version = "5.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60cacc306d294556771c6e92737ba7e6be0264144bc46dd713a14ef384b0d6b8"
+dependencies = [
+ "quote 1.0.7",
+ "rust-embed-utils",
+ "syn 1.0.30",
+ "walkdir",
+]
+
+[[package]]
+name = "rust-embed-utils"
+version = "5.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97655158074ccb2d2cfb1ccb4c956ef0f4054e43a2c1e71146d4991e6961e105"
+dependencies = [
+ "walkdir",
 ]
 
 [[package]]

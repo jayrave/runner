@@ -1,5 +1,10 @@
 use quicksilver::graphics::Image;
 use quicksilver::Graphics;
+use rust_embed::RustEmbed;
+
+#[derive(RustEmbed)]
+#[folder = "../assets_processed/"]
+struct Asset;
 
 pub struct Images {
     pub cloud_texture: Image,
@@ -12,33 +17,20 @@ pub struct Images {
 }
 
 impl Images {
-    pub async fn load_from_files(graphics: &Graphics) -> Images {
-        let mut images = futures::future::join_all(vec![
-            Images::load_from_file("cloud_tile_sheet.png", graphics),
-            Images::load_from_file("character_tile_sheet.png", graphics),
-            Images::load_from_file("enemy_tile_sheet.png", graphics),
-            Images::load_from_file("icon_tile_sheet.png", graphics),
-            Images::load_from_file("letter_tile_sheet.png", graphics),
-            Images::load_from_file("platform_tile_sheet.png", graphics),
-            Images::load_from_file("number_tile_sheet.png", graphics),
-        ])
-        .await
-        .into_iter();
-
+    pub fn load_from_files(graphics: &Graphics) -> Images {
         Images {
-            cloud_texture: images.next().unwrap(),
-            character_texture: images.next().unwrap(),
-            enemy_texture: images.next().unwrap(),
-            icon_texture: images.next().unwrap(),
-            letter_texture: images.next().unwrap(),
-            platform_texture: images.next().unwrap(),
-            number_texture: images.next().unwrap(),
+            cloud_texture: Images::load_from_file("cloud_tile_sheet.png", graphics),
+            character_texture: Images::load_from_file("character_tile_sheet.png", graphics),
+            enemy_texture: Images::load_from_file("enemy_tile_sheet.png", graphics),
+            icon_texture: Images::load_from_file("icon_tile_sheet.png", graphics),
+            letter_texture: Images::load_from_file("letter_tile_sheet.png", graphics),
+            platform_texture: Images::load_from_file("platform_tile_sheet.png", graphics),
+            number_texture: Images::load_from_file("number_tile_sheet.png", graphics),
         }
     }
 
-    async fn load_from_file(filename: &str, graphics: &Graphics) -> Image {
-        Image::load(&graphics, filename)
-            .await
-            .unwrap_or_else(|_| panic!("Couldn't load file: {}", filename))
+    fn load_from_file(filename: &str, graphics: &Graphics) -> Image {
+        let bytes = Asset::get(filename).unwrap();
+        Image::from_encoded_bytes(&graphics, &bytes).unwrap_or_else(|_| panic!("Couldn't load file: {}", filename))
     }
 }
