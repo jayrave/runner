@@ -11,9 +11,6 @@ edition = "2018"
 runner_core = { path = '../core' }
 runner_frontend_utils = { path = '../frontend_utils' }
 
-# async programming
-futures = "0.3.5"
-
 # quicksilver is for windowing, input, rendering etc.
 quicksilver = { version = "0.4.0-alpha0.3", default-features = false }
 
