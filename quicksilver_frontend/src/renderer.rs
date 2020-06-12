@@ -89,13 +89,13 @@ impl Renderer {
                     }
 
                     let image = match drawable.tile_data.tile_sheet {
-                        TileSheet::Cloud => &self.images.cloud_texture,
-                        TileSheet::Character => &self.images.character_texture,
-                        TileSheet::Enemy => &self.images.enemy_texture,
-                        TileSheet::Icon => &self.images.icon_texture,
-                        TileSheet::Letter => &self.images.letter_texture,
-                        TileSheet::Platform => &self.images.platform_texture,
-                        TileSheet::Number => &self.images.number_texture,
+                        TileSheet::Cloud => &self.images.cloud_image,
+                        TileSheet::Character => &self.images.character_image,
+                        TileSheet::Enemy => &self.images.enemy_image,
+                        TileSheet::Icon => &self.images.icon_image,
+                        TileSheet::Letter => &self.images.letter_image,
+                        TileSheet::Platform => &self.images.platform_image,
+                        TileSheet::Number => &self.images.number_image,
                     };
 
                     self.graphics.draw_subimage(
