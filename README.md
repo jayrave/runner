@@ -1,5 +1,6 @@
 # Runner
 The web version of the game is live at https://jayrave.github.io/runner/
+[![Runner gameplay sample](assets_readme/gameplay_sample.png)](https://vimeo.com/428851779)
 
 This is my first attempt at building a game with animation! I decided to try my hand at using the [Entity Component System](https://en.wikipedia.org/wiki/Entity_component_system) architecture for this. These are the main modules:
 - core: has the core game mechanics (everything except windowing & rendering)
