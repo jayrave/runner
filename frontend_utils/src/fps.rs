@@ -14,6 +14,7 @@ impl Fps {
         }
     }
 
+    #[cfg(debug_assertions)]
     pub fn track(&mut self) {
         self.frame_count_in_window += 1;
         let now = Instant::now();
@@ -26,5 +27,10 @@ impl Fps {
             self.frame_count_in_window = 0;
             self.window_start = now;
         }
+    }
+
+    #[cfg(not(debug_assertions))]
+    pub fn track(&mut self) {
+        // It is a no-op when no debugging is requested
     }
 }
