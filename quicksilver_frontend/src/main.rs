@@ -46,8 +46,13 @@ async fn app(window: Window, mut graphics: Graphics, input: Input) -> Result<()>
     let mut fps = Fps::new();
 
     // Note: unlike other front-ends, we are not using any `FrameLimiter`s
-    // for quicksilver. Looks like awaiting on the event queue automatically
-    // sets the FPS to 60. This can be seen from the logs from our Fps struct
+    // for quicksilver. This is because, we are using quicksilver for targetting
+    // the web, where, when `await` on the event queue resolves is dependent on
+    // the rate of `requestAnimationFrame` which inturn is dependent on the 
+    // screen's refresh rate. Therefore, the FPS won't be uncapped here & we can
+    // let this be decided by the screen's refresh rate
+    //
+    // Relevant issue: https://github.com/jayrave/runner/issues/1
     'running: loop {
         {
             // Drain event pump to event queue. Separate scope as
