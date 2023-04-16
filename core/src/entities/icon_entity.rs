@@ -12,6 +12,7 @@ impl IconEntity {
     pub fn create_direction_tiles_at_world_center(world: &mut World) -> i32 {
         IconEntity::create_tiles_at_world_center(
             world,
+            0,
             &[
                 Tile::Icon {
                     tile: IconTile::Left,
@@ -28,9 +29,10 @@ impl IconEntity {
     }
 
     /// Returns the max bottom of all the tiles created
-    pub fn create_retry_tile_at_world_center(world: &mut World) -> i32 {
+    pub fn create_retry_tile_at_world_center(world: &mut World, extra_y_offset: i32) -> i32 {
         IconEntity::create_tiles_at_world_center(
             world,
+            extra_y_offset,
             &[Tile::Icon {
                 tile: IconTile::Retry,
             }],
@@ -41,13 +43,13 @@ impl IconEntity {
         super::instruction_entitities_helper::remove_all_entities_matching_type::<Icon>(world);
     }
 
-    fn create_tiles_at_world_center(world: &mut World, tiles: &[Tile]) -> i32 {
+    fn create_tiles_at_world_center(world: &mut World, extra_y_offset: i32, tiles: &[Tile]) -> i32 {
         super::instruction_entitities_helper::create_tiles_at_world_center(
             world,
             Icon,
             TILE_TO_WORLD_DIVIDER,
             ICON_SPACING as i32,
-            0,
+            extra_y_offset,
             tiles,
         )
     }

@@ -74,7 +74,7 @@ impl LetterEntity {
                     tile: LetterTile::T,
                 },
             ],
-        )
+        );
     }
 
     pub fn create_retry_tiles_at_world_center(world: &mut World, extra_y_offset: i32) {
@@ -83,34 +83,43 @@ impl LetterEntity {
             extra_y_offset,
             &[
                 Tile::Letter {
-                    tile: LetterTile::P,
+                    tile: LetterTile::W,
                 },
                 Tile::Letter {
-                    tile: LetterTile::R,
+                    tile: LetterTile::O,
                 },
                 Tile::Letter {
-                    tile: LetterTile::E,
+                    tile: LetterTile::U,
                 },
                 Tile::Letter {
-                    tile: LetterTile::S,
+                    tile: LetterTile::L,
                 },
                 Tile::Letter {
-                    tile: LetterTile::S,
+                    tile: LetterTile::D,
                 },
                 Tile::Letter {
                     tile: LetterTile::SPACE,
                 },
                 Tile::Letter {
-                    tile: LetterTile::S,
+                    tile: LetterTile::Y,
                 },
                 Tile::Letter {
-                    tile: LetterTile::P,
+                    tile: LetterTile::O,
                 },
                 Tile::Letter {
-                    tile: LetterTile::A,
+                    tile: LetterTile::U,
                 },
                 Tile::Letter {
-                    tile: LetterTile::C,
+                    tile: LetterTile::SPACE,
+                },
+                Tile::Letter {
+                    tile: LetterTile::L,
+                },
+                Tile::Letter {
+                    tile: LetterTile::I,
+                },
+                Tile::Letter {
+                    tile: LetterTile::K,
                 },
                 Tile::Letter {
                     tile: LetterTile::E,
@@ -128,13 +137,10 @@ impl LetterEntity {
                     tile: LetterTile::SPACE,
                 },
                 Tile::Letter {
-                    tile: LetterTile::P,
+                    tile: LetterTile::T,
                 },
                 Tile::Letter {
-                    tile: LetterTile::L,
-                },
-                Tile::Letter {
-                    tile: LetterTile::A,
+                    tile: LetterTile::R,
                 },
                 Tile::Letter {
                     tile: LetterTile::Y,
@@ -158,6 +164,75 @@ impl LetterEntity {
                     tile: LetterTile::N,
                 },
             ],
+        );
+    }
+
+    pub fn create_celebration_tiles_at_world_center(world: &mut World, extra_y_offset: i32) -> i32 {
+        LetterEntity::create_tiles_at_world_center(
+            world,
+            extra_y_offset,
+            &[
+                Tile::Letter {
+                    tile: LetterTile::H,
+                },
+                Tile::Letter {
+                    tile: LetterTile::A,
+                },
+                Tile::Letter {
+                    tile: LetterTile::P,
+                },
+                Tile::Letter {
+                    tile: LetterTile::P,
+                },
+                Tile::Letter {
+                    tile: LetterTile::Y,
+                },
+                Tile::Letter {
+                    tile: LetterTile::SPACE,
+                },
+                Tile::Letter {
+                    tile: LetterTile::B,
+                },
+                Tile::Letter {
+                    tile: LetterTile::I,
+                },
+                Tile::Letter {
+                    tile: LetterTile::R,
+                },
+                Tile::Letter {
+                    tile: LetterTile::T,
+                },
+                Tile::Letter {
+                    tile: LetterTile::H,
+                },
+                Tile::Letter {
+                    tile: LetterTile::D,
+                },
+                Tile::Letter {
+                    tile: LetterTile::A,
+                },
+                Tile::Letter {
+                    tile: LetterTile::Y,
+                },
+                Tile::Letter {
+                    tile: LetterTile::SPACE,
+                },
+                Tile::Letter {
+                    tile: LetterTile::J,
+                },
+                Tile::Letter {
+                    tile: LetterTile::I,
+                },
+                Tile::Letter {
+                    tile: LetterTile::L,
+                },
+                Tile::Letter {
+                    tile: LetterTile::L,
+                },
+                Tile::Letter {
+                    tile: LetterTile::U,
+                },
+            ],
         )
     }
 
@@ -165,7 +240,7 @@ impl LetterEntity {
         super::instruction_entitities_helper::remove_all_entities_matching_type::<Letter>(world);
     }
 
-    fn create_tiles_at_world_center(world: &mut World, extra_y_offset: i32, tiles: &[Tile]) {
+    fn create_tiles_at_world_center(world: &mut World, extra_y_offset: i32, tiles: &[Tile]) -> i32 {
         super::instruction_entitities_helper::create_tiles_at_world_center(
             world,
             Letter,
@@ -173,6 +248,6 @@ impl LetterEntity {
             LETTER_SPACING as i32,
             extra_y_offset,
             tiles,
-        );
+        )
     }
 }

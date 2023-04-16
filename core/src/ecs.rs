@@ -7,7 +7,7 @@ use crate::systems::{
     CloudSystem, CollisionSystem, EnemySystem, EventSystem, GamePlayTickUpdater, GameSpeedUpdater,
     GroundSystem, PlayerSystem, ScoreSystem,
 };
-use specs::{Dispatcher, DispatcherBuilder, World, WorldExt};
+use specs::{Dispatcher, DispatcherBuilder, World, WorldExt, ReadStorage};
 
 const ICON_BOTTOM_MULTIPLIER: i32 = 3;
 
@@ -70,11 +70,17 @@ impl<'a, 'b> Ecs<'a, 'b> {
     }
 
     pub fn show_game_end(&mut self) {
-        let bottom = IconEntity::create_retry_tile_at_world_center(&mut self.world);
+        let bottom = LetterEntity::create_celebration_tiles_at_world_center(
+            &mut self.world,
+            0,
+        );  
+
+        let bottom = IconEntity::create_retry_tile_at_world_center(&mut self.world, bottom * ICON_BOTTOM_MULTIPLIER * 2);
         LetterEntity::create_retry_tiles_at_world_center(
             &mut self.world,
             bottom * ICON_BOTTOM_MULTIPLIER,
-        );
+        );    
+        
     }
 
     pub fn start_game_play(&mut self) {

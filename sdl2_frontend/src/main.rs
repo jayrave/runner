@@ -33,7 +33,7 @@ fn build_canvas(world_data: WorldData) -> (Sdl, WindowCanvas) {
 
     let window = video_subsystem
         .window(
-            "Runner",
+            "Madhu's gallery of rogues",
             world_data.bounds().width(),
             world_data.bounds().height(),
         )
