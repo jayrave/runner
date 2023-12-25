@@ -8,7 +8,7 @@ use crate::rect::Rect;
 use specs::{Builder, World, WorldExt};
 use std::convert::TryFrom;
 
-const TILE_TO_WORLD_DIVIDER: u32 = 2;
+const TILE_TO_WORLD_DIVIDER: u32 = 1;
 
 pub struct PlayerEntity;
 

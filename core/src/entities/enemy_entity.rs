@@ -10,11 +10,11 @@ use crate::rect::Rect;
 use specs::{Entities, WriteStorage};
 use std::convert::TryFrom;
 
-const TILE_TO_WORLD_DIVIDER_BAT: f32 = 2.0;
-const TILE_TO_WORLD_DIVIDER_BEE: f32 = 2.5;
-const TILE_TO_WORLD_DIVIDER_BUG: f32 = 3.5;
-const TILE_TO_WORLD_DIVIDER_MOUSE: f32 = 2.5;
-const TILE_TO_WORLD_DIVIDER_SPIDER: f32 = 3.0;
+const TILE_TO_WORLD_DIVIDER_BAT: f32 = 1.0;
+const TILE_TO_WORLD_DIVIDER_BEE: f32 = 1.0;
+const TILE_TO_WORLD_DIVIDER_BUG: f32 = 1.0;
+const TILE_TO_WORLD_DIVIDER_MOUSE: f32 = 1.0;
+const TILE_TO_WORLD_DIVIDER_SPIDER: f32 = 1.0;
 
 pub struct EnemyEntity;
 
